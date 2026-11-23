@@ -30,3 +30,7 @@ Never claim a branch/PR/merge/hosting release exists without checking provider r
 ## UM-101 continuation (feature branch, not merged)
 
 The proposed `archive.mjs` and `tests/archive.test.mjs` introduce portable chained snapshots, independently verified genesis replay, bounded input and explicit no-signature/no-server limits. Read `docs/ARCHIVE.md`; run `npm test`; inspect GitHub Actions results and review before merging. Existing observatory UI is unchanged. Stale when this feature is merged or archive contracts change.
+
+## Archive safety follow-up — UM-101
+
+On `feature/um-101-content-addressed-archives`, inspect `archive.mjs`'s `canonicalize()` and `tests/archive.test.mjs`'s deterministic 20-seed grid plus hostile sparse/accessor/symbol cases. The earlier CI run predates the follow-up commits. Fetch the **latest** branch SHA, confirm Node and browser CI green, then check archive size/time at maximum allowed bounds. Do not merge or deploy on the strength of the earlier 44-test run. Stale when final CI is recorded or limits change.

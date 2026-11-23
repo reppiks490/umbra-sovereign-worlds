@@ -33,3 +33,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 - Exports never impersonate cryptographic signatures. Secure-context checksum is optional; import must verify a present checksum.
 - No arbitrary code execution from imported JSON. No `eval`, nontrusted HTML injection, or unlicensed API fetching.
 - Never hide unverified modules or claim absent tests were executed.
+
+## UM-101 archive guardrail (branch-local)
+
+For `archive.mjs`, never hash non-JSON, accessor-backed or sparse data silently; call `canonicalize()` and verify externally imported checkpoints against a fresh genesis replay. `tests/archive.test.mjs` must include the twenty-seed reproducibility grid and hostile input rejection. CI, not source text, is the passing evidence; see `docs/ARCHIVE.md`. This guardrail is stale if the archive schema or implementation is replaced.

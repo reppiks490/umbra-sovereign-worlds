@@ -28,3 +28,5 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Desktop/tablet/phone smoke
         run: python tests/smoke.py
+      - name: Served ESM, real module Worker, protocol rejection and fallback
+        run: python tests/served_smoke.py

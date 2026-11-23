@@ -26,3 +26,8 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-110 Court settlement integrity (draft branch, 2026-11-23)
+- Branch `fix/um-110-court-dense-settlements` addresses issue #20 independently of PR #16's civic auditor.
+- G01 rejects sparse/null/undefined settlement entries; G02 requires own finite nonnegative resource fields; G03 cannot pass on invalid settlements. G07 blocks unsafe replay rather than treating missing records as validated.
+- No simulation rules, UI, browser storage, or live website changed. Node and browser GitHub Actions at the final PR head remain the release gate; do not infer a pass from source review.

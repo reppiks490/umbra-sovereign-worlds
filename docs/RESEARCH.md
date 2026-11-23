@@ -31,7 +31,7 @@ The module performs no filesystem, network, cloud, database, brokerage, personal
 
 ## Verification and falsification
 
-Run `node --test tests/research.test.mjs` or `node --test tests/*.test.mjs`. Tests include fixed plan/seed derivation, 20–64 runs, identical-policy zero-effect controls, deterministic full reports, tampered manifest rejection, parameter bounds, outcome channels, and intentionally corrupted population/civic state. **As introduced, source and test cases are not evidence of passing CI; attach an observed run and commit below.**
+Run `node --test tests/research.test.mjs` or `node --test tests/*.test.mjs`. Tests include fixed plan/seed derivation, 20–64 runs, identical-policy zero-effect controls, deterministic full reports, tampered manifest rejection, parameter bounds, outcome channels, and intentionally corrupted population/civic state. **Observed GitHub Actions:** [run 45101977810](https://github.com/reppiks490/umbra-sovereign-worlds/actions/runs/45101977810) on SHA `344e31dced064525d286c970f18b5e08e3127958` passed 40/40 Node tests and three browser viewport smokes. No independent code review or empirical calibration is implied.
 
 ## Limits and trade-offs
 

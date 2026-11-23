@@ -2,7 +2,7 @@
 
 ## Present deliverable
 
-New standalone web prototype **UMBRA Ω Sovereign Worlds v4**. Entry: `index.html`, source: `engine.mjs`, `observatory.mjs`, `lab.worker.mjs`, `world.css`. The experiments are deterministic synthetic *regional* models. No local/remote backend and no persistent autonomous agents. Tests and run instructions in README.
+New standalone web prototype **UMBRA Ω Sovereign Worlds v5**. Entry: `index.html`, source: `engine.mjs`, `observatory.mjs`, `lab.worker.mjs`, `world.css`. The experiments are deterministic synthetic *regional* models. No local/remote backend and no persistent autonomous agents. Tests and run instructions in README.
 
 ## Separately identified projects
 
@@ -11,7 +11,7 @@ New standalone web prototype **UMBRA Ω Sovereign Worlds v4**. Entry: `index.htm
 
 ## Next iteration priorities
 
-**First:** obtain official UMBRA source repository and site deployment pipeline; run a baseline snapshot before integrating, make a change branch, protect original history, and verify tests/diff. No force pushes.
+**First:** the separate UMBRA source repository is now `reppiks490/umbra-sovereign-worlds`. The original live site's source/deployment pipeline is still unverified; do not assume GitHub changes deploy there. Preserve the baseline and verify CI/diff before merging. No force pushes.
 
 **Second:** separate engine simulation and renderer with a proper hosted ESM build/instrumentation; use browser hardware tests, control CPU/GPU budget, avoid misleading FPS targets.
 
@@ -21,8 +21,12 @@ New standalone web prototype **UMBRA Ω Sovereign Worlds v4**. Entry: `index.htm
 
 ## Tested acceptance
 
-Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test harness. Source import with secure browser context and production network hosting remain untested. No live site changes/deploys. Model fidelity not validated.
+The v5 baseline had 31/31 local Node tests passing before the UM-101 branch. New archive tests are not yet verified. Three browser-size smoke checks pass under inline test harness. Source import with secure browser context and production network hosting remain untested. No live site changes/deploys. Model fidelity not validated.
 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-101 continuation (feature branch, not merged)
+
+The proposed `archive.mjs` and `tests/archive.test.mjs` introduce portable chained snapshots, independently verified genesis replay, bounded input and explicit no-signature/no-server limits. Read `docs/ARCHIVE.md`; run `npm test`; inspect GitHub Actions results and review before merging. Existing observatory UI is unchanged. Stale when this feature is merged or archive contracts change.

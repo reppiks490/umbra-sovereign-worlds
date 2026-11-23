@@ -19,3 +19,8 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-110 settlement integrity (2026-11-23, proposed)
+- New Node adversarial cases cover deleted sparse slots, undefined/null entries, missing population, NaN food and infinite water; each requires G01/G02/G03 failure as appropriate and G07 blocked when replay cannot safely inspect malformed state.
+- Existing valid-world Court checks must still pass; run `node --test tests/*.test.mjs` and `python tests/smoke.py` at exact PR head.
+- No CI success is claimed until the GitHub Actions run and SHA are observed. This does not validate empirical ecology or the separate live public site.

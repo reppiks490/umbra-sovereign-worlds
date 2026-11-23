@@ -34,11 +34,11 @@ export function canonicalize(value) {
     if (typeof v !== 'object' || (!Array.isArray(v) && !plain(v))) fail('non-JSON value');
     if (seen.has(v)) fail('cyclic data');
     if (Object.getOwnPropertySymbols(v).length) fail('symbol-keyed data');
+    if (Array.isArray(v) && (v.length > 100_000 || Object.keys(v).length !== v.length))
+      fail('sparse or extended array');
     const keys = Array.isArray(v)
       ? Array.from({length:v.length}, (_, i) => String(i))
       : Object.keys(v).sort();
-    if (Array.isArray(v) && (v.length > 100_000 || Object.keys(v).length !== v.length))
-      fail('sparse or extended array');
     // Accessors can execute arbitrary user code or change on each hash. Never invoke them.
     const descriptors = Object.getOwnPropertyDescriptors(v);
     if (keys.some(k => !Object.hasOwn(descriptors, k) || !Object.hasOwn(descriptors[k], 'value')))

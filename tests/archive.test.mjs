@@ -134,3 +134,56 @@ test('canonical serialization is key-order independent and rejects non-JSON inpu
   assert.throws(()=>canonicalize({x:NaN}),/nonfinite/);
   const loop={};loop.self=loop;assert.throws(()=>canonicalize(loop),/cyclic/);
 });
+
+
+test('canonicalization rejects sparse, extended, accessor and symbol-bearing data without invoking getters', () => {
+  const sparse = [1,,3];
+  assert.throws(() => canonicalize(sparse), /sparse or extended array/);
+  const extended = [1];
+  extended.extra = 2;
+  assert.throws(() => canonicalize(extended), /sparse or extended array/);
+  assert.throws(() => canonicalize(Array(100001)), /sparse or extended array/);
+  let invoked = 0;
+  const accessor = {};
+  Object.defineProperty(accessor, 'danger', {enumerable:true,get(){invoked++;throw Error('getter ran');}});
+  assert.throws(() => canonicalize(accessor), /accessor or missing JSON element/);
+  assert.equal(invoked, 0);
+  assert.throws(() => canonicalize({x:undefined}), /non-JSON value/);
+  assert.throws(() => canonicalize({[Symbol('hidden')]:true}), /symbol-keyed data/);
+});
+
+test('twenty deterministic seed/policy grids replay exactly through archive import and checkpoint resume', async () => {
+  for (let i = 0; i < 20; i++) {
+    const seed = 80001 + i * 173;
+    const policy = i % 3 === 0
+      ? {...DEFAULT_POLICY,trade:0,conservation:1}
+      : i % 3 === 1
+      ? {...DEFAULT_POLICY,trade:1,climate:1,medicine:0}
+      : {...DEFAULT_POLICY,trade:.36,innovation:1,conflict:.85};
+    const world = createWorld(seed,policy);
+    let archive = await createArchive(world);
+    const horizon = 48 + (i % 5) * 17;
+    advanceWorld(world,horizon);
+    archive = await appendCheckpoint(archive,world);
+    const json = await exportArchive(archive);
+    const parsed = await importArchive(json);
+    const report = await verifyArchive(parsed);
+    assert.equal(report.valid,true);
+    assert.equal(report.tick,horizon);
+    const resumed = await replayFromCheckpoint(parsed,{steps:7});
+    const independent = advanceWorld(createWorld(seed,policy),horizon+7);
+    assert.equal(canonicalize(resumed),canonicalize(independent), 'seed '+seed);
+    assert.equal(parsed.checkpoints[1].previous,parsed.checkpoints[0].digest);
+  }
+});
+
+test('long-horizon archive remains reproducible through an intermediate snapshot', async () => {
+  const world = createWorld(104729,{...DEFAULT_POLICY,conservation:.93,conflict:.71});
+  let archive = await createArchive(world);
+  advanceWorld(world,275);archive = await appendCheckpoint(archive,world);
+  advanceWorld(world,245);archive = await appendCheckpoint(archive,world);
+  const verified = await importArchive(JSON.stringify(archive));
+  assert.equal((await verifyArchive(verified)).tick,520);
+  const resumed = await replayFromCheckpoint(verified,{index:1,steps:260});
+  assert.equal(canonicalize(resumed),canonicalize(advanceWorld(createWorld(world.seed,world.policy),535)));
+});

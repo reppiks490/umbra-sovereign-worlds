@@ -49,7 +49,7 @@ The Node suite tests deterministic replay, equal-policy zero differences, model 
 
 ## Proposed UM-101 local checkpoint archive (feature branch)
 
-A separate, opt-in archive module adds SHA-256 content-addressed checkpoints, a bounded hash chain, independent genesis replay, safe import/export and adversarial tests. **It is not yet a hosted persistence service or connected to the UI.** See [the archive protocol](docs/ARCHIVE.md). Run `npm test` to include its new tests; CI must establish whether the feature branch passes.
+A separate, opt-in archive module adds SHA-256 content-addressed checkpoints, a bounded hash chain, independent genesis replay, safe import/export and adversarial tests. **It is not yet a hosted persistence service or connected to the UI.** See [the archive protocol](docs/ARCHIVE.md). Run `npm test` to include its new tests. GitHub Actions [run 45098480527](https://github.com/reppiks490/umbra-sovereign-worlds/actions/runs/45098480527) observed 44/44 Node tests and 3/3 inline-browser smoke checks on the feature branch; production worker and deployment verification remain open.
 
 ## Source map
 

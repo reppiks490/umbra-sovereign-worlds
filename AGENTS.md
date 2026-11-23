@@ -7,6 +7,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 ## Architecture and ownership
 
 - `engine.mjs` owns deterministic world/ecology rules, while `society.mjs` owns synthetic civic mechanisms and double-entry transfer accounting. Both are DOM-independent and Node-testable.
+- `research.mjs` owns the proposed UM-103 pre-registered synthetic experiment manifest, seed partitions and repeatability controls. It is opt-in and must not run inside animation frames. Read `docs/RESEARCH.md`.
 - `court.mjs` owns independent replay and engineering/scientific-status gates.
 - `observatory.mjs` owns browser UI, rendering, event wiring and graphics telemetry; do not mix business rules into it.
 - `lab.worker.mjs` owns off-thread experiment invocation; preserve deterministic equivalence with the fallback.
@@ -32,3 +33,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 - Exports never impersonate cryptographic signatures. Secure-context checksum is optional; import must verify a present checksum.
 - No arbitrary code execution from imported JSON. No `eval`, nontrusted HTML injection, or unlicensed API fetching.
 - Never hide unverified modules or claim absent tests were executed.
+
+## Scientific honesty rule (UM-103)
+
+No module may treat an internal seed split as externally independent evidence. A research plan must fix metrics and seeds before evaluation and retain same-policy negative controls. External calibration, prediction and real causal claims stay BLOCKED without independent licensed evidence. This rule is exercised by `tests/research.test.mjs` and becomes stale when the research schema is replaced.

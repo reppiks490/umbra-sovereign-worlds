@@ -13,7 +13,7 @@ This is an **in-memory/exportable research artifact**, not a server, durable dat
 - ARCHIVE_SCHEMA is umbra.archive.v1; current ENGINE_VERSION and SOCIETY_VERSION are pinned in each archive header.
 - The archive header contains an unsigned 32-bit nonzero seed, the seven policy parameters, and 1–12 checkpoints.
 - Each checkpoint contains a strictly increasing tick, the previous checkpoint digest (or GENESIS), a full JSON world snapshot, a SHA-256 digest of canonicalized snapshot bytes, and a SHA-256 digest of {tick,previous,stateDigest}.
-- Canonical JSON sorts object keys, preserves array order and numeric precision, and rejects cycles, nonfinite values, unsupported types and excessive nesting.
+- Canonical JSON sorts object keys, preserves array order and numeric precision, and rejects cycles, nonfinite values, symbols, accessor-backed properties, sparse/extended arrays, arrays longer than 100,000 elements, unsupported values and excessive nesting. Accessor properties are rejected without invoking their getters.
 - Imports are limited to **8,000,000 UTF-8 bytes**; checkpoints are limited to **turn 2,000**. This is a deliberately small local research format.
 - On verification, every checkpoint is independently reconstructed from **genesis** using the stored seed and policy, and compared exactly to the saved snapshot. Recomputing a forged checksum is not enough to pass.
 - appendCheckpoint is immutable: the input archive is not changed and earlier entries are cloned, not aliased.
@@ -50,7 +50,7 @@ Run from a Node 22+ ES-module context or a secure browser context (HTTPS or loca
 
 ## Proof and acceptance
 
-Run npm test (Node 22 in CI). tests/archive.test.mjs checks reproducibility, append immutability, genesis replay, import/export roundtrip, forged digest rejection, broken chains, duplicate/out-of-order ticks, schema/model mismatch, unknown fields, candidate mutation, oversized payloads, checkpoint bounds and invalid horizons.
+Run npm test (Node 22 in CI). tests/archive.test.mjs checks reproducibility, append immutability, genesis replay, import/export roundtrip, forged digest rejection, broken chains, duplicate/out-of-order ticks, schema/model mismatch, unknown fields, candidate mutation, oversized payloads, checkpoint bounds, invalid horizons, sparse/accessor/symbol inputs, a 20-seed three-policy-grid replay, and a 520-turn archival horizon.
 
 **Verification status:** GitHub Actions on commit `c5a10322e5fdef038e5fdec0e2a163b9a139b6b6` observed **44/44 Node tests passing** (including 13 new archive tests) and **3/3 browser smoke viewports passing**; [workflow evidence](https://github.com/reppiks490/umbra-sovereign-worlds/actions/runs/45098480527). The browser suite still uses an inline module/worker fallback, not production served ESM. Security review and maximum-size benchmarks remain open.
 
@@ -63,3 +63,7 @@ Run npm test (Node 22 in CI). tests/archive.test.mjs checks reproducibility, app
 - **Compatibility:** no existing engine, society, UI or passport format is modified. Removing the new module restores baseline behavior.
 - **Stale when:** engine/society versions, canonicalization, checkpoint limits, archive API, CI matrix or deployment ownership changes.
 - **Next owner:** UM-101 implementer may add an explicit browser save/load surface and durable store only after tests and authorization. UM-103 independently reviews the threat model and reproducibility.
+
+## Follow-up hardening — 2026-11-22
+
+The archive serializer now rejects sparse arrays, unexpected array properties, excessively large arrays, getter-backed properties and symbol-bearing data before trusting canonicalized bytes. The tests add twenty different deterministic seeds over three deliberately extreme policy classes, with both archive import and independent resumed replay checks, plus a 520-turn check. **These changes require a new CI result; the older 44/44 count above predates this amendment and is not valid evidence for the amended branch.** Do not interpret twenty successful synthetic seeds as empirical calibration or independent security review. Stale when the archive implementation or CI result changes.

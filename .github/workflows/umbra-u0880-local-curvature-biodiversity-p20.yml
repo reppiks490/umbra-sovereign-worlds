@@ -1,0 +1,27 @@
+# UMBRA U0880 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U0880 | T4 causal-inference | local-curvature | biodiversity | adversarial 4"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u0880-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U0880 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U0880 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u0880-evidence"
+          path: advanced-evidence/U0880.json
+          if-no-files-found: error
+          retention-days: 7

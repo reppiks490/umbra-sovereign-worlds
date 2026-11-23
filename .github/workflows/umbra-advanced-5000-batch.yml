@@ -1,0 +1,34 @@
+name: UMBRA advanced experiments — manually execute one of ten 500-case shards
+on:
+  workflow_dispatch:
+    inputs:
+      shard:
+        description: 'Shard index: 0–9, runs 500 advanced synthetic cases'
+        required: true
+        type: choice
+        options: ['0','1','2','3','4','5','6','7','8','9']
+permissions:
+  contents: read
+concurrency:
+  group: umbra-advanced-batch-${{ github.ref }}-${{ inputs.shard }}
+  cancel-in-progress: true
+jobs:
+  batch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute requested bounded synthetic shard
+        env:
+          UMBRA_SHARD: ${{ inputs.shard }}
+        run: node scripts/umbra_advanced_lab.mjs --audit-shard "${UMBRA_SHARD}/10" --summary-file "advanced-audit/shard-${UMBRA_SHARD}.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: umbra-advanced-manual-shard-${{ inputs.shard }}
+          path: advanced-audit/*.json
+          if-no-files-found: warn
+          retention-days: 7

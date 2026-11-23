@@ -1,0 +1,27 @@
+# UMBRA U3952 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U3952 | T7 sovereign-optimization | regional-fairness | water | regime-shift 4"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u3952-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U3952 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U3952 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u3952-evidence"
+          path: advanced-evidence/U3952.json
+          if-no-files-found: error
+          retention-days: 7

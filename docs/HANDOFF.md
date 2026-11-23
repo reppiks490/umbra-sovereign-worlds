@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-103 scientific tournament continuation (separate proposed branch)
+
+Branch `feature/um-103-preregistered-research-tournament` adds `research.mjs`, `tests/research.test.mjs` and `docs/RESEARCH.md`; it does not modify the base v5 engine or live site. Run `node --test tests/*.test.mjs` and verify CI with an exact SHA. The study partitions are both from one synthetic model, not external holdouts. Any UI integration must use a bounded, cancellable worker and must not block frame rendering. Reconcile possible README/AGENTS/docs conflicts before integrating with draft PRs #4 and #7. Stale when these PRs merge or engine version changes.

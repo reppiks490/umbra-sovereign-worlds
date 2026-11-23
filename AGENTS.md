@@ -11,7 +11,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 - `observatory.mjs` owns browser UI, rendering, event wiring and graphics telemetry; do not mix business rules into it.
 - `lab.worker.mjs` owns off-thread experiment invocation; preserve deterministic equivalence with the fallback.
 - `world.css` and `index.html` own responsive presentation and accessible semantics.
-- `tests/` owns executable proof for claims.
+- `tests/` owns executable proof for claims. `tests/smoke.py` deliberately inlines JS and disables Worker; `tests/served_smoke.py` (UM-103 branch) checks real HTTP-served ESM, module Worker success/error and fallback. Do not conflate these test modes.
 - Preserve saved seed/replay semantics when modifying the engine; bump `ENGINE_VERSION` on incompatible behavior and update model cards.
 
 ## Change process

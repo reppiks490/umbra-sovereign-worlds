@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#060b0e">
+<meta name="description" content="UMBRA Sovereign Worlds is a reproducible cinematic civilization laboratory with governance, diplomacy, fiscal accounting, and controlled alternate-history experiments.">
+<title>UMBRA Ω · Sovereign Worlds Observatory</title>
+<link rel="stylesheet" href="./world.css">
+</head>
+<body>
+<a href="#observatory" class="skip">Skip to observatory</a>
+<div id="app">
+<header class="topbar" role="banner">
+ <a href="#observatory" class="brand" aria-label="UMBRA home"><span class="sigil" aria-hidden="true"><i></i></span><span>UMBRA <em>Ω</em></span></a>
+ <span class="brand-sub">SOVEREIGN WORLDS <b>∙</b> OBSERVATORY</span>
+ <nav aria-label="Primary"><a href="#observatory">The world</a><a href="#worldlines">Worldlines</a><a href="#forge">Reality forge</a><a href="#council">Civic atlas</a><a href="#court">Reality court</a></nav>
+ <div class="live-tag" title="Simulation runs in your browser, not on a shared live server"><span class="live-dot"></span><span>LOCAL · SYNTHETIC</span></div>
+</header>
+<main>
+<section class="observatory" id="observatory" aria-labelledby="hero-title">
+ <canvas id="universe" aria-label="Animated, interactive simulation globe with settlement positions; select settlements using the list below" role="img"></canvas>
+ <div class="hud-ticks" aria-hidden="true"></div><div class="reticle reticle-a" aria-hidden="true"></div><div class="reticle reticle-b" aria-hidden="true"></div>
+ <div class="hero-copy">
+  <div class="eyebrow"><span class="eyebrow-icon">✦</span> THE CONTINUUM EXPERIMENT <span class="eyebrow-line"></span> MODEL v5.0</div>
+  <h1>A universe<br>that <em>becomes.</em></h1>
+  <p>Watch settlements struggle, adapt, discover, migrate, and grow. Change one law of their world. Follow the consequences across possible histories.</p>
+  <div class="hero-actions"><a class="primary-btn" href="#forge">FORGE A DIFFERENT FUTURE <span>↗</span></a><a class="outline-btn" href="#worldlines">EXPLORE WORLDLINES <span>→</span></a></div>
+  <div class="hero-proof"><span class="ring" aria-hidden="true"></span> DETERMINISTIC ENGINE · COUNTERFACTUAL LAB · REPLAYABLE EVIDENCE</div>
+ </div>
+ <aside class="orbit-meta" aria-label="Live simulated world status">
+  <div class="orbit-label">ACTIVE UNIVERSE</div>
+  <div class="universe-id" id="universe-id">UMBRA / 49021</div>
+  <div class="orbit-sub"><span>TURN <b id="hero-turn">0000</b></span><span>ERA <b id="hero-era">01</b></span></div>
+  <div class="orbit-separator"></div>
+  <div class="orbit-label">CIVILIZATION SIGNAL</div>
+  <div class="orbital-stat"><strong id="hero-pop">0</strong><small>RESIDENTS</small></div>
+  <div class="orbital-stat"><strong id="hero-sites">0</strong><small>HABITABLE SETTLEMENTS</small></div>
+  <div class="orbit-separator"></div>
+  <div class="orbit-label">SELECTED SIGNAL</div>
+  <div class="site-highlight" id="hero-site">Corven</div>
+  <div class="site-coords" id="site-coords">0° / 0°</div>
+ </aside>
+ <div class="scene-foot"><div><span class="emblem">◉</span> FREE ORBIT <span class="thin">/</span> DRAG TO ROTATE <span class="thin">/</span> SCROLL TO ZOOM</div><div>ADAPTIVE RENDER <b id="fps">— FPS</b><span class="signal-lines" aria-hidden="true">▥▥▥▥</span></div></div>
+</section>
+<section class="command" aria-label="Simulation controls">
+ <div class="command-meta"><div class="small-label">UNIVERSE CONTROL</div><div class="command-identity"><b id="status">RUNNING</b><span class="slash">/</span><span id="elapsed">Turn 0</span></div></div>
+ <div class="command-actions"><button id="pause" class="ctl primary-ctl" type="button" aria-pressed="false">Ⅱ PAUSE</button><button id="step" class="ctl" type="button">↳ STEP +1</button><label class="speed-label">SPEED <select id="speed" aria-label="Simulation playback speed"><option value="1">1×</option><option value="4">4×</option><option value="16">16×</option></select></label><button id="reset" class="ctl danger" type="button">↶ RESET</button></div>
+ <div class="turn-control"><label for="turn-range">TIME SCRUB <output id="turn-value">0</output></label><input type="range" id="turn-range" min="0" max="500" value="0" step="1" aria-label="Replay prior turns of this universe"><div class="turn-caption">Scrub history to inspect; resume to advance from your selection</div></div>
+</section>
+<section class="metric-strip" id="metrics" aria-label="Live simulation measurements">
+ <div class="metric-tile"><span>POPULATION</span><strong id="stat-pop">0</strong><small id="stat-pop-delta">7 founding colonies</small></div>
+ <div class="metric-tile"><span>FOOD RESERVES</span><strong id="stat-food">0</strong><small>synthetic units</small></div>
+ <div class="metric-tile"><span>SHARED KNOWLEDGE</span><strong id="stat-knowledge">0</strong><small>synthetic index</small></div>
+ <div class="metric-tile"><span>TRADE VOLUME</span><strong id="stat-trade">0</strong><small>cumulative units</small></div>
+ <div class="metric-tile"><span>BIODIVERSITY</span><strong id="stat-bio">0%</strong><small>synthetic index</small></div>
+ <div class="metric-tile"><span>EMISSION STOCK</span><strong id="stat-carbon">0.0</strong><small>synthetic index</small></div>
+</section>
+<section class="layout-two worldlines-section" id="worldlines">
+ <div class="section-intro"><div class="eyebrow">01 / PARALLEL HISTORIES</div><h2>Every choice<br><em>leaves a worldline.</em></h2><p>Compare shared-seed civilizations under different rules. Because the weather and exogenous shocks match, you can isolate differences <strong>inside this model</strong>—not predict the real world.</p><div class="data-legend"><span><i class="legend-dot a"></i> YOUR UNIVERSE</span><span><i class="legend-dot b"></i> NO-TRADE TWIN</span></div></div>
+ <div class="glass chart-panel"><div class="chart-header"><div><div class="small-label">PARALLEL POPULATION HISTORY</div><h3 id="chart-title">Growth across alternate realities</h3></div><label class="small-select">MEASURE <select id="metric-pick" aria-label="Chart metric"><option value="pop">Population</option><option value="food">Food</option><option value="knowledge">Knowledge</option><option value="water">Water</option><option value="carbon">Carbon</option><option value="biodiversity">Biodiversity</option><option value="treasury">Public treasury</option><option value="trust">Civic confidence</option><option value="pacts">Active treaties</option></select></label></div><canvas id="worldline-chart" role="img" aria-label="Evolution of selected metric across two modeled universes"></canvas><div class="delta-strip"><div>MODEL DIFFERENCE <strong id="delta">—</strong></div><div>OUTCOME <span id="delta-caption">Initializing</span></div></div></div>
+</section>
+<section class="forge-section" id="forge"><div class="section-heading"><div class="eyebrow">02 / INTERVENTION ENGINE</div><div class="heading-row"><div><h2>The reality <em>forge.</em></h2><p>Change the rules. Branch the same starting world. Run paired, reproducible experiments across many independent seeds.</p></div><div class="lab-stamp">CONTROLLED IN-SIMULATION EXPERIMENT <b>≠</b> REAL-WORLD FORECAST</div></div></div>
+<div class="forge-layout"><div class="glass policy-panel"><div class="panel-heading"><span>WORLD PARAMETERS</span><span class="lilac-text">7 INTERVENTIONS</span></div><div class="policy-row"><div><label for="policy-trade">Trade openness</label><small>Food reallocation across neighbors</small></div><output id="out-trade">72%</output><input id="policy-trade" type="range" min="0" max="100" step="1" value="72"></div>
+<div class="policy-row"><div><label for="policy-climate">Climate stress</label><small>Ecological pressure on harvests</small></div><output id="out-climate">38%</output><input id="policy-climate" type="range" min="0" max="100" step="1" value="38"></div>
+<div class="policy-row"><div><label for="policy-medicine">Public health</label><small>Disease recovery and resilience</small></div><output id="out-medicine">48%</output><input id="policy-medicine" type="range" min="0" max="100" step="1" value="48"></div>
+<div class="policy-row"><div><label for="policy-innovation">Innovation diffusion</label><small>Knowledge growth and exchange</small></div><output id="out-innovation">58%</output><input id="policy-innovation" type="range" min="0" max="100" step="1" value="58"></div>
+<div class="policy-row"><div><label for="policy-migration">Mobility & migration</label><small>Access to more resource-rich neighbors</small></div><output id="out-migration">48%</output><input id="policy-migration" type="range" min="0" max="100" step="1" value="48"></div>
+<div class="policy-row"><div><label for="policy-conservation">Conservation</label><small>Biodiversity recovery and emissions</small></div><output id="out-conservation">48%</output><input id="policy-conservation" type="range" min="0" max="100" step="1" value="48"></div>
+<div class="policy-row"><div><label for="policy-conflict">Conflict pressure</label><small>Social disruption under shortages</small></div><output id="out-conflict">25%</output><input id="policy-conflict" type="range" min="0" max="100" step="1" value="25"></div>
+<div class="seed-row"><label for="world-seed">UNIVERSE SEED</label><input id="world-seed" inputmode="numeric" type="number" min="1" max="4294967295" step="1" value="49021"></div>
+<div class="forge-buttons"><button id="forge-world" type="button" class="primary-btn">↗ FORK THIS UNIVERSE</button><button id="restore-policy" type="button" class="outline-btn">RESTORE DEFAULTS</button></div></div>
+<div class="lab-side"><div class="glass lab-panel"><div class="panel-heading"><span>COUNTERFACTUAL CHAMBER</span><span class="tag">LAB MODE</span></div><div class="lab-head"><div><span class="small-label">PAIRED-SEED EXPERIMENT</span><h3>What if the rules were different?</h3></div><div class="lab-symbol">∴</div></div><p>Each trial runs two otherwise identical synthetic universes: baseline vs your current sliders. It reports the distribution of population differences, not a real-world policy effect.</p><div class="experiment-controls"><label>REPLICATES <select id="trials"><option value="8">8 seeds</option><option value="16" selected>16 seeds</option><option value="32">32 seeds</option><option value="64">64 seeds</option></select></label><label>HORIZON <select id="horizon"><option value="120">120 turns</option><option value="240" selected>240 turns</option><option value="480">480 turns</option></select></label></div><button id="experiment" type="button" class="start-btn">RUN MULTIVERSE EXPERIMENT <span>↗</span></button><div class="exp-status" id="exp-status" role="status">READY · NO EXPERIMENT RUN</div><div class="exp-grid"><div><span>MEAN Δ</span><strong id="exp-mean">—</strong></div><div><span>5TH–95TH PERCENTILE</span><strong id="exp-range">—</strong></div><div><span>POSITIVE TRIALS</span><strong id="exp-positive">—</strong></div><div><span>TRIAL DISPERSION</span><strong id="exp-sd">—</strong></div></div><canvas id="exp-chart" aria-label="Distribution of paired synthetic trial differences" role="img"></canvas><p class="scientific-note">Experiment intervals describe variation across simulated seeds, <strong>not statistical confidence intervals for real populations.</strong></p></div>
+<div class="glass observability"><div class="panel-heading"><span>INSTRUMENTATION</span><span id="render-status">CANVAS 2D</span></div><div class="obs-cells"><div><span>ENGINE</span><b>5.0.0</b></div><div><span>STEP COST</span><b id="step-ms">— ms</b></div><div><span>RENDER COST</span><b id="render-ms">— ms</b></div><div><span>REDUCED MOTION</span><b id="reduced-status">—</b></div></div><p>Graphics adapt to viewport, frame time, visibility, and reduced-motion preference. Simulation data is reproducible independent of visual frame rate.</p></div></div></div></section>
+<section class="layout-two civilization-section" id="civilizations"><div class="glass settlements-panel"><div class="panel-heading"><span>03 / SETTLEMENT NETWORK</span><span id="active-count">0 ACTIVE</span></div><h2>Civilization <em>signals.</em></h2><div class="settlement-tools"><label for="site-search" class="sr-only">Search settlements</label><input id="site-search" placeholder="Search settlement…" type="search"><label class="small-select">SORT <select id="site-sort"><option value="pop">Residents</option><option value="food">Food</option><option value="knowledge">Knowledge</option><option value="health">Health</option></select></label></div><div id="sites-list" class="sites-list" role="list" aria-label="Select a settlement"></div></div><div class="column-stack"><div class="glass site-panel"><div class="panel-heading"><span>SELECTED SETTLEMENT</span><span class="tag" id="site-generation">GEN 0</span></div><div class="site-lede"><h3 id="selected-name">Corven</h3><div class="site-status" id="selected-status">SETTLED</div></div><div class="site-measurements" id="site-measurements"></div><div class="site-desc" id="site-description">Choose a settlement to inspect its resource and population state.</div></div><div class="glass civilization-map"><div class="panel-heading"><span>WORLD INVENTORY</span><span>42 FIXED REGIONS</span></div><div class="inventory"><div><b id="inv-foundings">0</b><span>FOUNDINGS</span></div><div><b id="inv-extinctions">0</b><span>EXTINCTIONS</span></div><div><b id="inv-migrations">0</b><span>MIGRANTS</span></div><div><b id="inv-infected">0</b><span>INFECTED</span></div></div><p class="scientific-note">Settlements are aggregate populations. Local council elections and pacts are modeled rules, not individual voters, realistic politics, or intelligent AI citizens.</p></div></div></section>
+
+<section id="council" class="civic-section" aria-labelledby="civic-heading">
+ <div class="civic-intro"><div class="eyebrow">04 / THE SOVEREIGNTY LAYER <span class="eyebrow-line"></span> SIMULATED INSTITUTIONS</div>
+  <h2 id="civic-heading">The <em>living accord.</em></h2><p>Every city chooses priorities. Councils gather revenue, reinvest in public services, negotiate mutual-aid pacts and spread consequences through the world. No invisible intelligence: every rule is exposed and every resource transfer is accounted for.</p>
+ </div>
+ <div class="civic-pulse" aria-label="Global civilization institutions">
+  <div><span>ACTIVE TREATIES</span><strong id="civic-pacts">0</strong><small>mutual aid corridors</small></div>
+  <div><span>PUBLIC TREASURIES</span><strong id="civic-treasury">0</strong><small>synthetic credits</small></div>
+  <div><span>CIVIC CONFIDENCE</span><strong id="civic-trust">0%</strong><small>rule-based index</small></div>
+  <div><span>COUNCIL ELECTIONS</span><strong id="civic-elections">0</strong><small>synthetic votes</small></div>
+  <div><span>FOOD AID DELIVERED</span><strong id="civic-aid">0</strong><small>units transferred</small></div>
+ </div>
+ <div class="civic-grid">
+  <div class="glass civic-map-panel"><div class="panel-heading"><span>THE DIPLOMATIC NERVOUS SYSTEM</span><span class="tag" id="civic-map-label">NETWORK VIEW</span></div>
+   <div class="civic-map-title"><h3>Alliances are <em>earned.</em></h3><label for="civic-layer">DISPLAY <select id="civic-layer"><option value="pacts">Treaty network</option><option value="relations">Diplomatic relations</option><option value="exposure">Epidemic exposure</option></select></label></div>
+   <canvas id="civic-network" role="img" aria-label="Interactive graph of the settlement diplomatic network. Select settlements to inspect their councils."></canvas>
+   <div class="civic-key"><span><i class="civic-dot treaty"></i> MUTUAL-AID TREATY</span><span><i class="civic-dot friction"></i> TENSION / DISSENT</span><span><i class="civic-dot selection"></i> SELECTED SETTLEMENT</span></div>
+   <div class="civic-history-header"><span>INSTITUTIONAL EVOLUTION</span><span>LAST 240 RECORDED SAMPLES</span></div><canvas id="civic-history" role="img" aria-label="Trends in civic confidence, treaties and treasury balances across simulated turns"></canvas>
+  </div>
+  <div class="civic-side">
+   <div class="glass civic-detail"><div class="panel-heading"><span>SELECTED CIVILIZATION</span><span id="civic-cycle" class="tag">COUNCIL RECORD</span></div>
+    <h3 id="civic-selected-title">Lumen</h3><p class="civic-doctrine" id="civic-selected-faction">—</p>
+    <div class="civic-detail-grid"><div><span>COUNCIL SUPPORT</span><strong id="civic-selected-support">—</strong></div><div><span>PUBLIC RESERVES</span><strong id="civic-selected-treasury">—</strong></div><div><span>ACTIVE ALLIANCES</span><strong id="civic-selected-treaties">—</strong></div><div><span>SIMULATED TURNOUT</span><strong id="civic-selected-turnout">—</strong></div></div>
+    <div class="civic-small-head">FACTIONS IN ACTIVE COLONIES</div><div id="civic-factions" class="civic-factions"></div>
+   </div>
+   <div class="glass civic-ledger-panel"><div class="panel-heading"><span>THE ACCOUNTING COURT</span><span id="civic-audit" class="tag">NOT YET CHECKED</span></div>
+    <p>Taxes and grants balance against city treasuries. Aid preserves food quantities. This audit applies to civic transfers, <strong>not</strong> the base model’s synthetic production.</p>
+    <div class="civic-audit-line"><span>FISCAL RESIDUAL</span><b id="civic-fiscal-residual">0</b></div><div class="civic-audit-line"><span>FOOD TRANSFER RESIDUAL</span><b id="civic-food-residual">0</b></div>
+    <div class="civic-small-head">RECENT TRANSACTION LEDGER</div><ol id="civic-ledger" class="civic-ledger" aria-label="Recent transfers between councils and settlements"></ol>
+   </div>
+  </div>
+ </div>
+
+<div class="glass sensitivity-panel" id="sensitivity">
+ <div class="sensitivity-description"><div class="eyebrow">SCIENTIFIC INSTRUMENT / MODEL SENSITIVITY</div>
+ <h3>The <em>seven-axis</em> telescope.</h3><p>Which rule matters most within this world model? Measure each intervention separately using the same seed grid, horizon and stochastic shocks. This is exploratory mechanical attribution, not a real-world policy ranking.</p>
+ <div class="sensitivity-controls"><label for="sweep-trials">SEEDS <select id="sweep-trials"><option value="4">4</option><option value="8" selected>8</option><option value="16">16</option></select></label><label for="sweep-horizon">TURNS <select id="sweep-horizon"><option value="120">120</option><option value="180" selected>180</option><option value="360">360</option></select></label>
+ <button id="run-sweep" type="button" class="start-btn">RUN MODEL SENSITIVITY <span>↗</span></button></div>
+ <div id="sweep-status" class="exp-status" role="status">READY · 7 RULES · NO EXPERIMENT RUN</div></div>
+ <div class="sensitivity-results"><div class="panel-heading"><span>POPULATION RESPONSE</span><span>HIGH POLICY MINUS LOW POLICY</span></div>
+ <div id="sweep-results" class="sweep-bars" aria-live="polite"><p>Start the analysis to reveal seven rule-response distributions. Each bar represents a synthetic population difference.</p></div>
+ <p class="scientific-note">The baseline is the original seven-policy configuration. A single parameter moves ±0.2 (clipped to 0–1); all others remain fixed. Larger absolute values are not automatically more trustworthy.</p></div>
+</div>
+ <p class="civic-disclaimer">All institutions, elections, diplomacy and epidemics are explicit synthetic rules. Transfer accounting tests internal consistency; it does not establish economic, epidemiological or political realism.</p>
+</section>
+<section class="chronicle-section" id="chronicle"><div class="chronicle-intro"><div class="eyebrow">05 / TEMPORAL ARCHIVE</div><h2>The world <em>remembers.</em></h2><p>Every migration, founding, election, treaty, resource crisis, or breakthrough leaves a trace. Rewind the world to a prior turn and compare what changed.</p><div class="chronicle-actions"><button id="download" class="primary-btn" type="button">EXPORT WORLD PASSPORT ↓</button><label class="outline-btn file-label">IMPORT PASSPORT ↑ <input type="file" id="import" accept="application/json,.json" aria-label="Import UMBRA world passport"></label></div><div class="import-status" id="file-status" role="status">LOCAL-ONLY EXPORT · NO DATA SENT TO A SERVER</div></div><div class="glass chronicle-feed"><div class="panel-heading"><span>EVENT STREAM</span><span>NEWEST FIRST</span></div><ol id="chronicle-events" aria-label="Recent world events"></ol></div></section>
+
+<section class="court-section" id="court"><div class="court-lede"><div class="eyebrow">06 / ADVERSARIAL VERIFICATION</div><h2>The <em>reality court.</em></h2><p>The world must defend every engineering assertion. Recreate its seed, reconcile the ledgers, inspect its graph, and declare what cannot be validated.</p><button type="button" id="court-run" class="start-btn">EXECUTE VERIFICATION CHAMBER <span>↗</span></button><p class="court-counts" id="court-counts" role="status">READY · RUN CHECKS TO SEE EVIDENCE</p></div>
+<div class="glass court-record"><div class="panel-heading"><span>ENGINEERING GATES AND SCIENCE BOUNDARIES</span><span>FAILURES VISIBLE</span></div><div id="court-results" class="court-results" aria-live="polite"><p>No checks run yet. The court will not certify external realism, autonomous AI citizens or production deployment.</p></div></div></section>
+<section class="ethics"><div><span class="eyebrow">07 / EPISTEMIC INTEGRITY</span><h2>Imagination, <em>with evidence.</em></h2></div><div class="ethics-main"><p>UMBRA is a <strong>designed model</strong>, not a claim to simulate real people or predict civilizations. Its rules are explicit, its random draws are reproducible, and alternative histories use shared external shocks. Scientific credibility requires independent calibration, empirical validation, sensitivity analysis, and documented limitations.</p><div class="ethics-tags"><span>DETERMINISTIC REPLAY</span><span>COMMON RANDOM NUMBERS</span><span>NO BROKER / API ACCESS</span><span>LOCAL-ONLY DATA</span><span>ODD MODEL CARD</span></div><a href="./docs/MODEL_CARD.md" target="_blank" rel="noopener">READ THE MODEL CARD ↗</a></div></section>
+</main><footer><div class="brand"><span class="sigil" aria-hidden="true"></span> UMBRA <em>Ω</em></div><div>ONE WORLD. INFINITE CONDITIONS.</div><span>© SYNTHETIC RESEARCH LABORATORY · v5.0.0</span></footer>
+</div>
+<script type="module" src="./observatory.mjs"></script>
+</body></html>

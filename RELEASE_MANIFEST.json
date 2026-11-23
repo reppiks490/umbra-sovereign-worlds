@@ -1,0 +1,40 @@
+{
+  "project": "UMBRA Ω — Sovereign Worlds",
+  "version": "5.0.0",
+  "modelType": "deterministic synthetic research simulation",
+  "repo": "reppiks490/umbra-sovereign-worlds",
+  "createdUtc": "2026-11-23T01:51:47.028654+00:00",
+  "tests": {
+    "node": "31/31 passed locally",
+    "browser": "3/3 viewports passed locally; inlined-worker fallback",
+    "hostedESM": "unverified",
+    "githubActions": "unverified",
+    "liveUmbraDomain": "unchanged"
+  },
+  "contentSha256": {
+    ".github/workflows/unit.yml": "5daecdde9403e0f98493c677de8a8ca41a113d9517ec2fcf908cc1a0996c468d",
+    ".gitignore": "2f4be844db31402860d0b145a3c60a0c74bb654010e32a538f6ce3010f19bf06",
+    "AGENTS.md": "f2d0c0ad65e07426dfe11289ab1a9f916e027217d045f685cddabe2bfece006e",
+    "README.md": "d5ec8d6208023c31bbb24fa45e3d49bb63921f015da83cadf7e2c12e28d5d16b",
+    "court.mjs": "d31eaaac5f39331d8e7513d0039035fd5a86b74af78078a9ffec48b4f795c389",
+    "docs/AUDIT.md": "8dce0af1a0607bbaef719267219852fe2daf41240881dd334debecb031a9567f",
+    "docs/HANDOFF.md": "b0b662137f78a836214f29eebc8badab5be674a08ead2b66a855448e6f22501a",
+    "docs/MODEL_CARD.md": "5e6674f5c97dc72ea29132d06854a31d5718ac2f02e1159c904e3ba945cc449b",
+    "docs/PROTOCOL.md": "4d621c6ccacf12f05bff5784bb91c0dfc0dd06f5c694adca1a615d2b99b83e69",
+    "docs/RELEASE_5.md": "bee5b623493fbb213501c9b886e6a289a379c85bc253151bba469f28caf89a67",
+    "docs/REPOSITORY_HANDOFF.md": "07cd678d87b09cd404632be294bcbbb27a08d0f1fc05fcc537d19b0f0108e2a3",
+    "docs/ROADMAP.md": "7deccbfab639a0c8cf8f6554ae89dab1480d467e0ee4b814a3b655571708bec4",
+    "docs/VERIFICATION.md": "d3efe832969961024af2ae832f7bdc3133af0117ed93a76e86bb31181d638341",
+    "engine.mjs": "90d53947ca9859bb06ee75dbb53d86e568d0ce7aa85b35b88b60ee1bffc7399f",
+    "index.html": "9bbc97ba16739d5eaa7c72410b2dde9e339cf3ee21ac927115af318f2026391c",
+    "lab.worker.mjs": "236e075a41378ec3f4d3dddcfc5d75cdc063331ac58e945c80fa35dffdeb055d",
+    "observatory.mjs": "36a76a8b29277a600d7ca09fc390d404163e2fc09f9bce99b3c9cc4bdc9c2135",
+    "package.json": "9d45cdebb97e2eb8ec8d02bcff03e244865efcc7d0ee6ad914f2d50081259d23",
+    "society.mjs": "1fb7a7e1b25ee7690edf823dcd87105fcc01930394f9cb38cfaddb4438caabb9",
+    "tests/court.test.mjs": "50c05d7cd13e5a1f92a6c8e40919ff40bfeea3d718d55dff8ea1eab55ddc99d6",
+    "tests/engine.test.mjs": "3498b9ebf2c9002098451fde306299b8af35512eea7ba9cf6025f1e75be430e6",
+    "tests/smoke.py": "dd5bb2b4d8811e93e0ce14b84769925c29a054effb8d3fb9319acc1d628c83ba",
+    "tests/society.test.mjs": "49e655be60d85d9b4aa2e07b0ad1e8cef7db4806b5e8cd02e9660fe9c9def978",
+    "world.css": "7f3503fe90ddccf4a238bc3392517c3812d6e692b981379918aaaf594019c2fc"
+  }
+}

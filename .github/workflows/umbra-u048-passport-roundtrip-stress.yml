@@ -1,0 +1,27 @@
+# UMBRA Ω / U048: manually invoked synthetic research. No automatic deployment or trading.
+name: 'U048 | VERIFICATION / Passport Roundtrip / Stress'
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: 'umbra-u048-${{ github.ref }}'
+  cancel-in-progress: true
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 'Execute U048 evidence case'
+        run: 'node scripts/umbra_lab.mjs --id U048 --out-dir workflow-artifacts'
+      - name: Upload synthetic evidence (not independent scientific validation)
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'umbra-u048-synthetic-evidence'
+          path: 'workflow-artifacts/U048.json'
+          if-no-files-found: error
+          retention-days: 14

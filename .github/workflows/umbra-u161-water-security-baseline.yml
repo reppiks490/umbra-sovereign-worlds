@@ -1,0 +1,27 @@
+# UMBRA Ω / U161: manually invoked synthetic research. No automatic deployment or trading.
+name: 'U161 | RESEARCH / Water Security / Baseline'
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: 'umbra-u161-${{ github.ref }}'
+  cancel-in-progress: true
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 'Execute U161 evidence case'
+        run: 'node scripts/umbra_lab.mjs --id U161 --out-dir workflow-artifacts'
+      - name: Upload synthetic evidence (not independent scientific validation)
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'umbra-u161-synthetic-evidence'
+          path: 'workflow-artifacts/U161.json'
+          if-no-files-found: error
+          retention-days: 14

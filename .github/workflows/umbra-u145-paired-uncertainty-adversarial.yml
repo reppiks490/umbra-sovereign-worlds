@@ -1,0 +1,27 @@
+# UMBRA Ω / U145: manually invoked synthetic research. No automatic deployment or trading.
+name: 'U145 | RESEARCH / Paired Uncertainty / Adversarial'
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: 'umbra-u145-${{ github.ref }}'
+  cancel-in-progress: true
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 'Execute U145 evidence case'
+        run: 'node scripts/umbra_lab.mjs --id U145 --out-dir workflow-artifacts'
+      - name: Upload synthetic evidence (not independent scientific validation)
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'umbra-u145-synthetic-evidence'
+          path: 'workflow-artifacts/U145.json'
+          if-no-files-found: error
+          retention-days: 14

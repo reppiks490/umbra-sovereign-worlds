@@ -50,3 +50,9 @@ The full 5,000-case evidence audit is partitioned across 10 GitHub Actions jobs.
 All experiments run *read-only* against the **current repository simulation engine**. The source never writes back policies, mutates `main`, trains neural model weights, deploys code, or promotes a successful synthetic candidate. All source changes must follow `AGENTS.md` and the original `docs/ROADMAP.md` / `docs/MODEL_CARD.md` limitations. A fail in one of the 5,000 cases invalidates the overall aggregate claim; rerun the failed shard after an appropriately reviewed change. GitHub CI is the authoritative evidence for **real engine** compatibility; test-only fixtures are not.
 
 The 5,000 new workflows belong solely to UMBRA workflow infrastructure. They are **not** the gated MYRIAD Ω→UMBRA or ICARUS OMNIGENESIS integration.
+
+## Single-entry iPhone launcher
+
+The `UMBRA Ω — Run any advanced case (U0301 to U5300)` workflow is an additional manually selectable control. On GitHub's Actions page, select it, choose **Run workflow**, enter an ID such as `U0301`, `U2301` or `U5300`, and run. The ID is passed as a quoted environment variable and validated against the 5,000-case registry by the Node runner. Invalid IDs fail closed; no shell code or repository write is allowed. A single evidence artifact is saved on that Action run.
+
+GitHub may index thousands of individual workflow files gradually and paginate its mobile list. The single-entry launcher makes all 5,000 cases accessible even when a particular direct workflow page has not yet appeared. Use a verified [advanced catalog](../scripts/umbra_advanced_registry.json) to choose the exact ID; this is still read-only synthetic simulation and not model or production deployment.

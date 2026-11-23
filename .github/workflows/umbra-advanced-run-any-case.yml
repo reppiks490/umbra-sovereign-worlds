@@ -1,0 +1,35 @@
+name: UMBRA Ω — Run any advanced case (U0301 to U5300)
+on:
+  workflow_dispatch:
+    inputs:
+      case_id:
+        description: 'Enter an advanced synthetic case ID from U0301 to U5300'
+        required: true
+        default: 'U0301'
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: umbra-advanced-any-${{ github.run_id }}
+  cancel-in-progress: false
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run selected synthetic experiment by exact registry ID
+        env:
+          UMBRA_CASE_ID: ${{ inputs.case_id }}
+        run: |
+          node scripts/umbra_advanced_lab.mjs --id "$UMBRA_CASE_ID" --out-dir advanced-evidence
+      - name: Upload read-only synthetic experiment evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: umbra-advanced-selected-case
+          path: advanced-evidence/*.json
+          if-no-files-found: error
+          retention-days: 7

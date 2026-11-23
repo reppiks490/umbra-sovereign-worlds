@@ -31,7 +31,8 @@ jobs:
       - name: Verify complete algorithm and workflow address space
         run: python3 scripts/umbra_evolution_mesh.py validate --full
       - name: Execute negative, determinism and training tests
-        run: python3 -m unittest discover -s tests -p 'test_umbra_evolution_mesh.py' -v
+        run: |
+          python3 -m unittest discover -s tests -p 'test_umbra_evolution_mesh.py' -v
           python3 -m unittest discover -s tests -p 'test_evolution_fabric_v18.py' -v
           python3 scripts/myriad_bank_fabric.py plan
           python3 scripts/evolution_source_registry.py validate

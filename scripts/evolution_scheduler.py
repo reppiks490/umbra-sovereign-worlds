@@ -30,7 +30,7 @@ def open_db(path):
         hour TEXT NOT NULL, workflow TEXT NOT NULL, domain TEXT NOT NULL,
         receipt TEXT NOT NULL, record TEXT NOT NULL,
         PRIMARY KEY(hour,workflow))''')
-    db.execute('CREATE INDEX IF NOT EXISTS ix_runs_domain_hour ON runs(domain,hour)')
+    db.execute('CREATE INDEX IF NOT EXISTS ix_runs_domain_hour_workflow ON runs(domain,hour DESC,workflow)')
     db.execute('''CREATE TABLE IF NOT EXISTS proposals(
         workflow TEXT NOT NULL, hour TEXT NOT NULL, kind TEXT NOT NULL,
         record_hash TEXT NOT NULL, review_state TEXT NOT NULL CHECK(review_state IN ('quarantined','rejected')),

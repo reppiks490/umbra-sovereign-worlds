@@ -62,6 +62,13 @@ def test():
         assert page.locator('#court-results .court-row').count()>=13
         page.locator('#civic-layer').select_option('relations')
         assert 'DIPLOMATIC RELATIONS' in page.locator('#civic-map-label').inner_text()
+        # UM-102: every planetary data lens must switch without UI or render errors.
+        assert page.locator('#planet-lens').input_value()=='population'
+        for lens in ['resources','infection','climate','civic','off','population']:
+            page.locator('#planet-lens').select_option(lens)
+            assert page.evaluate('window.__UMBRA.getStatus().lens')==lens
+            assert page.locator('#planet-lens-legend').inner_text().strip()
+            page.wait_for_timeout(60)
         # Model and renderer diagnostics must report real numbers rather than infinite/theoretical FPS.
         status=page.evaluate('window.__UMBRA.getStatus()')
         assert 0 <= status['fps'] <= 200, status
@@ -75,5 +82,18 @@ def test():
             page.screenshot(path=str(ROOT/f'screen-{width}.png'),full_page=True)
             print('Screenshot:',str(ROOT/f'screen-{width}.png'))
         page.close()
+    # Reduced-motion mode must keep lens selection functional without animated flicker.
+    reduced=browser.new_page(viewport={'width':390,'height':844},reduced_motion='reduce')
+    reduced_errors=[]
+    reduced.on('pageerror',lambda e:reduced_errors.append(str(e)))
+    reduced.set_content(html,wait_until='domcontentloaded')
+    reduced.wait_for_timeout(350)
+    assert reduced.locator('#reduced-status').inner_text()=='YES'
+    reduced.locator('#planet-lens').select_option('climate')
+    assert reduced.evaluate('window.__UMBRA.getStatus().lens')=='climate'
+    assert reduced_errors==[],reduced_errors
+    assert reduced.evaluate('document.documentElement.scrollWidth')<=391
+    print('PASS reduced-motion mobile lens=climate, zero JS errors and overflow')
+    reduced.close()
     browser.close()
 if __name__=='__main__':test()

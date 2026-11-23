@@ -37,7 +37,7 @@ export function validateEvidenceManifest(input) {
     return failure('manifest','exact schema keys required');
   for (const k of KEYS) {
     const d=desc[k];
-    if (!Object.hasOwn(d,'value') || typeof d.value === 'object' ||
+    if (!Object.hasOwn(d,'value') || (typeof d.value === 'object' && !(k === 'validTo' && d.value === null)) ||
         typeof d.value === 'function' || typeof d.value === 'symbol')
       return failure(k,'primitive data property required');
   }

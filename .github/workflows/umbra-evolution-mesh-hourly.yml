@@ -1,0 +1,36 @@
+name: UMBRA Evolution Mesh guarded hourly research
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: umbra-evolution-mesh-hourly
+  cancel-in-progress: false
+jobs:
+  bounded-research:
+    if: ${{ vars.UMBRA_EVOLUTION_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run bounded logical worker shard (NOT entire 195K fleet)
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          HOUR=$(date -u +%Y-%m-%dT%H)
+          python3 scripts/umbra_evolution_mesh.py tick --hour "$HOUR" --shards 8 --shard "$SHARD" --limit 32 --steps 8 --ledger "/tmp/mesh-${SHARD}.sqlite3" --output "artifacts/shard-${SHARD}.jsonl"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: evolution-shard-${{ matrix.shard }}
+          path: artifacts/shard-${{ matrix.shard }}.jsonl
+          retention-days: 7
+          if-no-files-found: error

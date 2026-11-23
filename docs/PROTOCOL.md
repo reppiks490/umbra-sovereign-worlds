@@ -1,4 +1,4 @@
-# Experimental protocol — v4
+# Experimental protocol — v5
 
 **Aim:** assess rule behavior within the synthetic UMBRA engine, and prevent claims that confuse simulation outputs with external facts.
 
@@ -6,7 +6,7 @@
 
 Fix engine version, baseline/treatment vectors, number of seeds, turn horizon, and outcome measure before running. Run the same seed on both sides of each pair; use independent derived seeds across pairs. Report mean, standard deviation, sample percentiles, number of positive differences and all run records. Retain zero-effect baseline test with identical policies as a control. If a rule impacts an output indirectly, annotate that coupling rather than ascribing a validated causal mechanism.
 
-## B: Sensitivity investigation (not yet automated)
+## B: Sensitivity investigation (partly automated)
 
 Vary each of the seven parameters in predeclared increments, then use a small factorial grid of important interactions. Report sign flips across seed sets and nonlinear thresholds. Include time horizon variation, tail outcomes and catastrophic failures. Resist optimizing a particular seed to produce a preferred story. The current UI runs one paired treatment vector per experiment; full sweeps remain a future phase.
 
@@ -25,3 +25,7 @@ Vary each of the seven parameters in predeclared increments, then use a small fa
 ## D: Audit record
 
 Exports contain seed, engine version, policy, generated data/assumptions, and optional experiment. The optional SHA-256 value only checks local file integrity and is not a signature or externally witnessed proof. The model engine is authoritative and recomputes state on import rather than trusting a snapshot of arbitrary serialized state.
+
+## E: Pre-registered synthetic seed tournament (proposed UM-103 branch)
+
+The opt-in `research.mjs` defines a frozen design with 20–64 derived seeds, fixed two-arm policies and outcome, 1–240 turns, 75% exploratory and 25% confirmatory **synthetic** replicates. Every replicate has an identical-policy negative control; structural/civic audits run on both arms. The results include every replicate and empirical sample percentiles of simulated outputs, which are **not** confidence intervals for the real world. Invalid manifests fail closed; future real-data calibration, multi-model competition and identification remain BLOCKED. See `docs/RESEARCH.md`. This description becomes stale when the research schema or engine version changes.

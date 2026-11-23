@@ -52,7 +52,7 @@ Run from a Node 22+ ES-module context or a secure browser context (HTTPS or loca
 
 Run npm test (Node 22 in CI). tests/archive.test.mjs checks reproducibility, append immutability, genesis replay, import/export roundtrip, forged digest rejection, broken chains, duplicate/out-of-order ticks, schema/model mismatch, unknown fields, candidate mutation, oversized payloads, checkpoint bounds and invalid horizons.
 
-**Verification status:** Test source added, but results are **unverified until CI or a local test run is observed**. The earlier 31-test v5 baseline does not prove this feature.
+**Verification status:** GitHub Actions on commit `c5a10322e5fdef038e5fdec0e2a163b9a139b6b6` observed **44/44 Node tests passing** (including 13 new archive tests) and **3/3 browser smoke viewports passing**; [workflow evidence](https://github.com/reppiks490/umbra-sovereign-worlds/actions/runs/45098480527). The browser suite still uses an inline module/worker fallback, not production served ESM. Security review and maximum-size benchmarks remain open.
 
 ## Handoff / provenance
 

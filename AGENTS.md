@@ -7,6 +7,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 ## Architecture and ownership
 
 - `engine.mjs` owns deterministic world/ecology rules, while `society.mjs` owns synthetic civic mechanisms and double-entry transfer accounting. Both are DOM-independent and Node-testable.
+- `archive.mjs` (UM-101 feature branch) owns bounded SHA-256 checkpoint archives, independent genesis verification and import rejection. See `docs/ARCHIVE.md`. Do not claim persistent storage or digital signatures.
 - `court.mjs` owns independent replay and engineering/scientific-status gates.
 - `observatory.mjs` owns browser UI, rendering, event wiring and graphics telemetry; do not mix business rules into it.
 - `lab.worker.mjs` owns off-thread experiment invocation; preserve deterministic equivalence with the fallback.
@@ -19,7 +20,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 1. Inspect current files and status and honor all unrelated edits; do not auto-merge or force-push.
 2. Record scope, high-risk claims, data rights, and knowledge-layer delta by exact path.
 3. Implement bounded change; validate event-count, resource finite/nonnegative constraints and seed reproducibility.
-4. Test `node --test tests/*.test.mjs`; for UI, test `python tests/smoke.py` on multiple viewport sizes, zero console/page errors and reduced motion.
+4. Test `node --test tests/*.test.mjs` (including `tests/archive.test.mjs` for archive changes); for UI, test `python tests/smoke.py` on multiple viewport sizes, zero console/page errors and reduced motion.
 5. Document assumptions, mechanics, evidence, limitation, and tested/unverified status.
 6. Do not connect real finances, personal data, public policy datasets, LLM agents, external services, or deployment without a separate explicit permission + consent/data-rights design.
 7. Keep current `chatgpt.site` domain unchanged until its source and deployment permissions are verified.

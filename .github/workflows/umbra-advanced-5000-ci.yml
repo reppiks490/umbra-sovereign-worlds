@@ -1,20 +1,8 @@
 name: UMBRA advanced 5000 synthetic workflow qualification
 on:
   pull_request:
-    paths:
-      - '.github/workflows/umbra-u????-*.yml'
-      - '.github/workflows/umbra-advanced-5000-ci.yml'
-      - 'scripts/umbra_advanced_lab.mjs'
-      - 'scripts/umbra_advanced_registry.json'
-      - 'scripts/validate_umbra_advanced_workflows.py'
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/umbra-u????-*.yml'
-      - '.github/workflows/umbra-advanced-5000-ci.yml'
-      - 'scripts/umbra_advanced_lab.mjs'
-      - 'scripts/umbra_advanced_registry.json'
-      - 'scripts/validate_umbra_advanced_workflows.py'
 permissions:
   contents: read
 concurrency:

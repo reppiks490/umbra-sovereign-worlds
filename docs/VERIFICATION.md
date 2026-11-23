@@ -19,3 +19,7 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-103 preregistered research experiment — proposed, not yet verified
+
+Branch `feature/um-103-preregistered-research-tournament` adds `research.mjs` and `tests/research.test.mjs`. Planned tests cover 20–64 seeded synthetic experiments, null controls, frozen manifest rejection and deliberately corrupted world snapshots. **No observed run/CI status is claimed until branch workflow evidence is fetched**. It has no live deployment or empirical calibration. Stale after the first observed branch CI run.

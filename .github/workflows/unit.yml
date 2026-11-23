@@ -5,9 +5,15 @@ on:
   pull_request:
 permissions:
   contents: read
+# Preserve complete, reviewable evidence for every commit; no cancellation of
+# in-flight verification when another commit arrives.
+concurrency:
+  group: umbra-verification-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   unit:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,6 +23,7 @@ jobs:
         run: npm test
   browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

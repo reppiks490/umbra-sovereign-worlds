@@ -19,3 +19,7 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-107 CI execution bounds (proposal, 2026-11-23)
+
+The draft CI-only branch sets unit timeout-minutes=12 and browser timeout-minutes=25, retains contents:read, and sets cancel-in-progress:false on the verification concurrency group. tests/ci-contract.test.mjs asserts these controls, the unchanged npm test and Playwright smoke commands, and the 1440/390/768 viewport list. This is a source-level policy regression, not an end-to-end security proof: it cannot establish GitHub-hosted runner integrity, dependency pinning, true reproducibility, or public-site compatibility. Record the exact commit and run URL after CI executes; no passing result is assumed by this documentation.

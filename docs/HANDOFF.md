@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-107 draft: bounded GitHub Actions verification (2026-11-23)
+
+A separate, independent CI-only lane proposes finite verification job budgets (12-minute Node, 25-minute Playwright), read-only workflow permissions, and a non-cancelling concurrency group so new pushes do not erase the preceding run's evidence. A dependency-free Node regression test checks those workflow contracts and the existing 1440/390/768 viewport smoke command. This does not modify model state, UI, deployed sites, or browser localStorage. It does not pin third-party Actions or Playwright package versions and does not establish reproducible dependency provenance. Verify the exact PR head's GitHub Actions Node and browser results before treating this as accepted. Do not merge automatically. The existing separate public Living World, Decision Atlas, and Focus Timer remain outside this repository's deployment authority.

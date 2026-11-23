@@ -29,6 +29,7 @@ In addition to the v4 ecology simulation, this version adds **42 settlement coun
 | Temporal observatory | Play, pause, advance, variable playback speed, rewind, worldline comparisons | Rewind replay is deterministic; no server-side persistent history |
 | Parallel-world experiment | 2–64 paired seeds; common exogenous random numbers; mean, dispersion and 5th/95th sample percentiles | Population differences are **model-internal**, not confidence bounds for real people |
 | Observatory UI | Animated globe, routed trade lights, settlement selection/search, archive, mobile breakpoints, reduced motion | Canvas 2D, not 3D WebGL physically correct terrain |
+| Planetary data lenses (UM-102 branch) | Five selectable projected heat fields driven by settlement population, food/water scarcity, disease burden, climate exposure and council support | Prototype feature, not externally calibrated or deployed; see `docs/PLANET_LENSES.md` |
 | Computation | Versioned ES-module engine and separate experiment Web Worker (with a fallback) | Local in-browser simulation; no LLM, GPU model, or autonomous background agent |
 | Records | Export/import seeded simulation passports, local SHA-256 checksum where secure context supports it | A checksum is **not** a digital signature; import recomputes model state |
 | Diagnostics | Actual measured frame intervals, rendering and simulation step timings | No performance guarantees across devices |
@@ -54,7 +55,7 @@ The Node suite tests deterministic replay, equal-policy zero differences, model 
 - `engine.mjs`: deterministic ecological model, scenario forks, sensitivity experiments and passport validation.
 - `society.mjs`: civic councils, elections, diplomatic network, aid/fiscal transfers and balancing audits.
 - `court.mjs`: independently replays worlds and reports engineering checks / scientific validation blocks.
-- `observatory.mjs`: UI, animation, charting, controls and metrics.
+- `observatory.mjs`: UI, animation, charting, controls, model-derived planetary data lenses and metrics.
 - `lab.worker.mjs`: bounded off-thread experiment worker.
 - `tests/`: reproducibility, civic conservation, negative testing, court and browser-smoke verification.
 - `docs/MODEL_CARD.md`: protocol-style model card, methods and limitations.
@@ -72,3 +73,7 @@ The project makes **no trading, profit, policy recommendation, real-world predic
 
 - Grimm et al., [ODD protocol for describing agent-based and other simulation models, second update](https://www.jasss.org/23/2/7.html) (2020). This documentation uses ODD-inspired reporting; **the current engine is an aggregate model, not a micro-agent ABM**.
 - NetLogo, [BehaviorSpace experimental methodology](https://docs.netlogo.org/behaviorspace) and documented random-seed experiments. UMBRA implements its own seeded experiments, not NetLogo or BehaviorSpace.
+
+## UM-102 five planetary data lenses — proposed
+
+A keyboard-accessible selector over the rotating Canvas globe reveals five **simulated** region signals plus an OFF state. Values are computed from existing engine state, not real climate, disease or political data. The 42-region overlay respects adaptive rendering and reduced motion. The branch extends Playwright smoke with mode-switching and reduced-motion checks, but does not automatically update the existing website. Full formulas, performance boundaries and handoff: [Planetary Lenses](docs/PLANET_LENSES.md). Stale when the renderer/CI/deployment status changes.

@@ -19,3 +19,7 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-102 planetary data-lens branch — pending CI
+
+`feature/um-102-planetary-data-lenses` extends `tests/smoke.py` to select all five synthetic data fields plus OFF on desktop/tablet/phone, checks the read-only diagnostic lens state, and tests a separate reduced-motion phone viewport. This branch is **not yet verified by an observed CI run** and has not been assessed on an actual mobile GPU. Preserve previous historical results but never claim they cover these new visuals. Stale after a matching CI run URL/SHA is observed.

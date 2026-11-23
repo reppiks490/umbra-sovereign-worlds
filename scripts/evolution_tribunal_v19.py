@@ -72,7 +72,7 @@ def verify_record(obj):
 def audit(path,*,sample=1024,seed=20261123,row_start=None,row_end=None):
     if not 1<=sample<=195000:raise ValueError('Unsupported audit sample')
     if (row_start is None)!=(row_end is None):raise ValueError('Both range endpoints are required')
-    if row_start is not None and not 1<=row_start<=row_end<=195000:raise ValueError('Invalid audit row span')
+    if row_start is not None and not 1<=row_start<=row_end<=10_000_000:raise ValueError('Invalid audit row span')
     p=Path(path)
     with sqlite3.connect(f'file:{p}?mode=ro',uri=True) as db:
         n,maximum=db.execute('SELECT COUNT(*), MAX(rowid) FROM runs').fetchone()
@@ -184,12 +184,12 @@ def main():
     sub=p.add_subparsers(dest='command',required=True)
     a=sub.add_parser('audit');a.add_argument('--ledger',required=True);a.add_argument('--sample',type=int,default=1024)
     a.add_argument('--seed',type=int,default=20261123);a.add_argument('--start-rowid',type=int);a.add_argument('--end-rowid',type=int);a.add_argument('--output')
-    g=sub.add_parser('aggregate');g.add_argument('--reports',nargs='+',required=True);g.add_argument('--output')
+    g=sub.add_parser('aggregate');g.add_argument('--reports',nargs='+',required=True);g.add_argument('--expected-count',type=int,default=195000);g.add_argument('--output')
     c=sub.add_parser('collaborate');c.add_argument('--ledger',required=True);c.add_argument('--id',type=int,required=True)
     c.add_argument('--hour',required=True);c.add_argument('--limit',type=int,default=3);c.add_argument('--output')
     args=p.parse_args()
     data=(audit(args.ledger,sample=args.sample,seed=args.seed,row_start=args.start_rowid,row_end=args.end_rowid) if args.command=='audit'
-          else combine_reports(args.reports) if args.command=='aggregate'
+          else combine_reports(args.reports,expected_count=args.expected_count) if args.command=='aggregate'
           else collaboration(args.ledger,args.id,args.hour,limit=args.limit))
     if args.output:
         dest=Path(args.output);dest.parent.mkdir(parents=True,exist_ok=True)

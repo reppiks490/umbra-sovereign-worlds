@@ -3,12 +3,12 @@
   "algorithm_impl_count": 12,
   "files": {
     "docs/EVOLUTION_V19_HANDOFF.md": {
-      "bytes": 3651,
-      "sha256": "57fcf143e91365ccd78c10004a3d49e1a7f7bbe613a37d9efbe25f9aefc06469"
+      "bytes": 4872,
+      "sha256": "29bb806dfa34fbfe416efa146ddc068857d6e02c31ccfeb7c29de21e64ed7097"
     },
     "docs/EVOLUTION_V19_INDEPENDENT_ALGORITHMS.md": {
-      "bytes": 7443,
-      "sha256": "ebb7ce781b502cca2f128d4f5867bed71497a529bbf67deccb2e28c0b327f1b0"
+      "bytes": 9300,
+      "sha256": "f871aeef2cce357a152d0adbb6f0b5c4cee11521ce09f05b014344b881dcecfd"
     },
     "research/EVOLUTION_V19_1800_BUDGET_TRIALS_SUMMARY.json": {
       "bytes": 1113,
@@ -19,8 +19,8 @@
       "sha256": "1716eb53ff5ee67625e935bbab3609d5701fdb1fabb0a010b9bd047967705f5b"
     },
     "research/EVOLUTION_V19_TRIBUNAL_AGGREGATE.json": {
-      "bytes": 738,
-      "sha256": "0a4da5166f579b01a38b33cb80aaa8e4215d9c6e41730a79e09a84642f10a261"
+      "bytes": 1026,
+      "sha256": "53775ea64a634fa389347beab30973cb6c33bde4f4bf05ef8e0b8a87e86480ab"
     },
     "scripts/evolution_algorithms_v19.py": {
       "bytes": 16982,
@@ -35,8 +35,8 @@
       "sha256": "5fe9544d85d8e68bdcdff0e300fcd48ab26e07bcbe893bd51dd6fb116695067a"
     },
     "scripts/evolution_tribunal_v19.py": {
-      "bytes": 12641,
-      "sha256": "1adc5bbe1e977ad12dfb831fcf026bef3786742f74e3052b8b28fdda9008e447"
+      "bytes": 12739,
+      "sha256": "9465e477d9cbdd030f97cb190f0ea85e77de732ba0d6caf2b74fbf7357278261"
     },
     "tests/test_evolution_algorithms_v19.py": {
       "bytes": 3670,
@@ -44,7 +44,7 @@
     },
     "tests/test_evolution_observatory_v19.py": {
       "bytes": 1978,
-      "sha256": "857c356e716f804914574130c464986844c56c391b903c77ddba8153b7639bec"
+      "sha256": "96a31b0032db23bc4d190e88b6e83fd1573c9d52bf89c0547868f932fd1c9da6"
     },
     "tests/test_evolution_transfer_v19.py": {
       "bytes": 1529,
@@ -59,5 +59,7 @@
   "logical_worker_catalog_unchanged": 195000,
   "production_permissions": "none",
   "schema": "umbra.evolution.v19.source.v1",
-  "source_only": true
+  "source_only": true,
+  "two_hour_synthetic_receipt_count": 390000,
+  "verified_hourly_research_cycles": 2
 }

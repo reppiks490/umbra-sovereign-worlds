@@ -32,7 +32,7 @@ class ApiTests(unittest.TestCase):
 
     def test_195k_audit_is_stored_evidence_not_live_agents(self):
         a=self.get('/api/tribunal')
-        self.assertEqual(a['independently_verified_receipt_records'],195000)
+        self.assertEqual(a['independently_verified_receipt_records'],390000)
         self.assertTrue(a['synthetic_only'])
         self.assertEqual(a['production_integrations'],0)
         m=self.get('/api/metrics')

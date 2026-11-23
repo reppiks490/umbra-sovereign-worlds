@@ -33,3 +33,11 @@ python3 scripts/evolution_api.py --port 8797
 - Railway project `MYRIAD Evolution Observatory` exists but first deploy failed for repo authorization. Require user authorization in Railway, then deploy exact reviewed branch. The iPhone URL is currently unverified.
 
 Existing v1.8 recovery: `docs/EVOLUTION_FULL_FLEET_HANDOFF_20261123.md`, `docs/UMBRA_EVOLUTION_FABRIC_V18.md` and private `/MYRIAD-OMEGA/v1.8` Library ZIPs. Preserve all original evidence and dependencies.
+
+## Two-cycle verified extension, appended to v1.9
+
+- Live SOURCE checkout still exists only on draft UMBRA PR #21. Preserve branch and requalify at CURRENT HEAD.
+- `research/EVOLUTION_V19_TRIBUNAL_AGGREGATE.json` now contains the **390,000-receipt two-hour** aggregate (eight independent subreports, zero failures, 36,833 quarantined candidates). Earlier 195k version is retained privately as the previous checkpoint.
+- Actual SQLite evidence from two synthetic hours is split into three private file parts in Library `/MYRIAD-OMEGA/v1.9/two-hour-ledger/`, along with `MYRIAD_UMBRA_TWO_CYCLE_390000_ARCHIVE_PARTS.json` (all part SHA-256, overall ZIP SHA-256, source DB SHA-256). Reassemble in exact numeric order, verify SHA-256 and ZIP integrity, extract to private storage and keep original database read-only before resuming.
+- The source `scripts/evolution_tribunal_v19.py` now supports row ranges beyond 195k and `aggregate --expected-count 390000`. The full two-hour receipt set passed every recomputation.
+- 195k model-backed autonomous LLM workers, real trading intelligence, full original neural-bank restoration, public continuously deployed website, and MYRIAD-to-ICARUS merges remain unverified and blocked.

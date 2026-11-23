@@ -77,3 +77,7 @@ The project makes **no trading, profit, policy recommendation, real-world predic
 
 - Grimm et al., [ODD protocol for describing agent-based and other simulation models, second update](https://www.jasss.org/23/2/7.html) (2020). This documentation uses ODD-inspired reporting; **the current engine is an aggregate model, not a micro-agent ABM**.
 - NetLogo, [BehaviorSpace experimental methodology](https://docs.netlogo.org/behaviorspace) and documented random-seed experiments. UMBRA implements its own seeded experiments, not NetLogo or BehaviorSpace.
+
+## UM-101 archive review extension (feature branch)
+
+The local-only SHA-256 archive prototype in `archive.mjs` now rejects accessors, symbols and malformed array structures and tests twenty seeds across three policy configurations. This work remains **draft**, is not connected to the live website, and does not grant external validation. Consult `docs/ARCHIVE.md` for the threat model and `docs/VERIFICATION.md` for the CI evidence matching the current commit. Stale when UM-101 merges or the archive contract changes.

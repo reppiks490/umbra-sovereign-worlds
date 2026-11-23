@@ -47,12 +47,17 @@ python tests/smoke.py
 
 The Node suite tests deterministic replay, equal-policy zero differences, model stability and corrupt-record handling. The Python Playwright suite tests desktop, tablet and mobile viewports. Tests use an inline test assembly to avoid restrictions on local server navigation; production serves the same exact source modules separately. **Neither test suite validates real-world model fidelity.**
 
+## Proposed UM-101 local checkpoint archive (feature branch)
+
+A separate, opt-in archive module adds SHA-256 content-addressed checkpoints, a bounded hash chain, independent genesis replay, safe import/export and adversarial tests. **It is not yet a hosted persistence service or connected to the UI.** See [the archive protocol](docs/ARCHIVE.md). Run `npm test` to include its new tests; CI must establish whether the feature branch passes.
+
 ## Source map
 
 - `index.html`: semantic app markup.
 - `world.css`: visual design, motion/accessibility and responsive layouts.
 - `engine.mjs`: deterministic ecological model, scenario forks, sensitivity experiments and passport validation.
 - `society.mjs`: civic councils, elections, diplomatic network, aid/fiscal transfers and balancing audits.
+- `archive.mjs`: proposed bounded, local-only checkpoint/replay protocol; not yet wired into the observatory.
 - `court.mjs`: independently replays worlds and reports engineering checks / scientific validation blocks.
 - `observatory.mjs`: UI, animation, charting, controls and metrics.
 - `lab.worker.mjs`: bounded off-thread experiment worker.

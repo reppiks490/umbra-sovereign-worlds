@@ -19,3 +19,7 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-101 feature branch — unverified until CI
+
+The proposed `archive.mjs` and `tests/archive.test.mjs` add adversarial SHA-256 chain, forged-hash, duplicate-tick, version, replay and input-limit checks. They have **not** been executed locally in this ChatGPT environment; do not add their counts to the v5 baseline. GitHub pull-request Actions should run the Node 22 suite and browser smoke. The baseline 31/31 and 3/3 observations remain historical, not evidence for this branch. Stale when a specific run URL and result are recorded.

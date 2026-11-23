@@ -18,10 +18,12 @@ sys.path.insert(0,str(HERE))
 import umbra_evolution_mesh as mesh
 import evolution_source_registry as sources
 import myriad_bank_fabric as banks
+import evolution_algorithms_v19 as methods
 
 INDEX=(ROOT/'evolution'/'index.html')
 JS=(ROOT/'evolution'/'app.js')
 CSS=(ROOT/'evolution'/'style.css')
+TRIBUNAL=(ROOT/'research'/'EVOLUTION_V19_TRIBUNAL_AGGREGATE.json')
 
 
 def overview(db_path):
@@ -29,6 +31,7 @@ def overview(db_path):
             'implemented_operator_optimizer_combinations':25,
             'sourced_method_metadata_records':len(list(sources.entries())),
             'logical_worker_identities':mesh.WORKFLOW_COUNT,
+            'implemented_independent_algorithms_v19':len(methods.METHODS),
             'live_dedicated_worker_processes':0,
             'full_fleet_hourly_training_certified':False,
             'historical_full_neural_banks_available_here':False,
@@ -82,6 +85,13 @@ class Handler(BaseHTTPRequestHandler):
             if path=='/api/metrics':return self._send(overview(self.db_path))
             if path=='/api/banks':return self._send(banks.plan())
             if path=='/api/sources':return self._send({'schema':sources.SCHEMA,'metrics':sources.validate(),'items':list(sources.entries())})
+            if path=='/api/methods':return self._send({'schema':'umbra.evolution.methods.v19','count':len(methods.METHODS),
+                'independent_implementations':[{'id':m,'reference':methods.REFERENCE[m]} for m in methods.METHODS],
+                'simulation_training_only':True,'automated_code_merges':0})
+            if path=='/api/tribunal':
+                if not TRIBUNAL.is_file():return self._send({'schema':'umbra.evolution.tribunal.aggregate.v1','status':'not_installed'})
+                record=json.loads(TRIBUNAL.read_text())
+                return self._send(record)
             if path=='/api/algorithms':
                 param=parse_qs(parsed.query);idx=int(param.get('id',['1'])[0]);return self._send(mesh.recipe(idx))
             if path=='/api/workers':

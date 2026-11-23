@@ -1,0 +1,43 @@
+{
+  "budgets": [
+    64,
+    128,
+    256
+  ],
+  "data_type": "synthetic_only",
+  "elapsed_seconds": 1.661,
+  "independent_methods": 12,
+  "no_real_world_certification": true,
+  "objectives": 5,
+  "real_model_weight_updates": 0,
+  "results": [
+    {
+      "budget": 64,
+      "heldout_positive_medians": 0,
+      "methods": 12,
+      "sha256": "31c628dbe761e8b420f9bfcac0a4b817346f5de0daeae2075f3ebd6f195f58e7",
+      "train_positive_medians": 12,
+      "trials": 600
+    },
+    {
+      "budget": 128,
+      "heldout_positive_medians": 0,
+      "methods": 12,
+      "sha256": "57453a3c41bf07f8ae55e8cbdf95f3ee30c9dbe6a1700f3b1192cbab089b815f",
+      "train_positive_medians": 12,
+      "trials": 600
+    },
+    {
+      "budget": 256,
+      "heldout_positive_medians": 0,
+      "methods": 12,
+      "sha256": "e2c15611bf317bc749359681907e4978c1e5375c0c893f990ea5869e04739d6c",
+      "train_positive_medians": 12,
+      "trials": 600
+    }
+  ],
+  "schema": "umbra.evolution.multibudget.research.v19",
+  "score_metrics": "training and untouched seeded holdout",
+  "seeds_per_objective": 10,
+  "total_trials": 1800
+}

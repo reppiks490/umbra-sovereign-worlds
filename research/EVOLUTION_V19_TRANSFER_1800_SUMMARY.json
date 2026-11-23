@@ -1,0 +1,70 @@
+{
+  "correlated_holdout_positive_methods": 12,
+  "method_medians": {
+    "coordinate-pattern": {
+      "correlated_holdout_delta": 0.9659654,
+      "train_delta": 1.01719093,
+      "unrelated_shift_delta": -0.8122209
+    },
+    "cross-entropy": {
+      "correlated_holdout_delta": 0.9076387,
+      "train_delta": 0.9412524,
+      "unrelated_shift_delta": -0.61418267
+    },
+    "differential-evolution": {
+      "correlated_holdout_delta": 0.84980791,
+      "train_delta": 0.89602028,
+      "unrelated_shift_delta": -0.73998274
+    },
+    "evolution-strategy": {
+      "correlated_holdout_delta": 0.93503355,
+      "train_delta": 0.96194834,
+      "unrelated_shift_delta": -0.54239644
+    },
+    "genetic-algorithm": {
+      "correlated_holdout_delta": 0.94427619,
+      "train_delta": 0.98749084,
+      "unrelated_shift_delta": -0.54063935
+    },
+    "latin-hypercube": {
+      "correlated_holdout_delta": 0.72560827,
+      "train_delta": 0.72711188,
+      "unrelated_shift_delta": -0.59025471
+    },
+    "nelder-mead": {
+      "correlated_holdout_delta": 0.98400968,
+      "train_delta": 1.01250732,
+      "unrelated_shift_delta": -0.79491322
+    },
+    "particle-swarm": {
+      "correlated_holdout_delta": 0.95490241,
+      "train_delta": 0.988666,
+      "unrelated_shift_delta": -0.54612962
+    },
+    "simulated-annealing": {
+      "correlated_holdout_delta": 0.95101115,
+      "train_delta": 0.96424493,
+      "unrelated_shift_delta": -0.56121807
+    },
+    "spsa-ascent": {
+      "correlated_holdout_delta": 0.9634674,
+      "train_delta": 0.98299963,
+      "unrelated_shift_delta": -0.37820606
+    },
+    "tabu-neighborhood": {
+      "correlated_holdout_delta": 0.91795306,
+      "train_delta": 0.92970056,
+      "unrelated_shift_delta": -0.63781244
+    },
+    "uniform-random": {
+      "correlated_holdout_delta": 0.70045752,
+      "train_delta": 0.68699927,
+      "unrelated_shift_delta": -0.76391881
+    }
+  },
+  "real_world_validation": false,
+  "schema": "umbra.evolution.transfer.curriculum.v19.summary",
+  "source_sha256": "c4f4f4c049327028f6e28a0913fc10909fb8eea3e707745d1b8a407f69d7234c",
+  "total_trials": 1800,
+  "unrelated_shift_positive_methods": 0
+}

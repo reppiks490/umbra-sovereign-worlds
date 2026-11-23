@@ -1,11 +1,8 @@
 {
-  "schema": "myriad.umbra.evolution.review.v18",
-  "source_root": "reppiks490/umbra-sovereign-worlds",
-  "scope": "source only; no large neural checkpoint files",
   "files": {
     ".github/workflows/umbra-evolution-mesh-ci.yml": {
-      "sha256": "409efa01fc9e4280a3f8ab723b4b6fc43eabb11f806bc18916556a9ed81f4bb7",
-      "size": 2058
+      "sha256": "95f60efcc40d8dc9d42197f551de7a77623f16582e6661f1c8c9627e54a2e3bf",
+      "size": 3425
     },
     ".github/workflows/umbra-evolution-mesh-hourly.yml": {
       "sha256": "fd71e5e1710f04bfaa029e8dd45573447a6967ce4ebe3cd1576908d5c111a360",
@@ -24,24 +21,24 @@
       "size": 601
     },
     "evolution/app.js": {
-      "sha256": "35f2bb53b106a3b99aaf823ed70f1e23b786bb64f7a69e2e680cfab61322be97",
-      "size": 4560
+      "sha256": "ca6601682fc8e3c3483cce7b64aff4af0c52bc45109f6cf14aef220e102a108a",
+      "size": 5516
     },
     "evolution/index.html": {
-      "sha256": "7cfb2cbeaef98f095a840ba27421e1be94a40275873c339f6283a9a383d8fc31",
-      "size": 4367
+      "sha256": "303198d740f3d0b63c3077b14479ed050a54d5306caee4511f2324b191268aed",
+      "size": 5512
     },
     "evolution/launch_windows.ps1": {
       "sha256": "6810cd8ed91539a997e0f16cc817dcd2908cbe912a0428df1db5ab3c9dc6f14f",
       "size": 579
     },
     "evolution/style.css": {
-      "sha256": "f6183c3b7a91c3cc8d168cdd672e1cab3ff316df4b92e3af597d38fce9420839",
-      "size": 4794
+      "sha256": "a7fe491d6cd2dd4602934caf0c95d20199c61d3ab4dc1497da8bf67ae9b2ab0d",
+      "size": 5459
     },
     "scripts/evolution_api.py": {
-      "sha256": "a62dec70b3aae13d7a65f0450e8579e841120da1732ef3f67824bc1bad8941de",
-      "size": 6875
+      "sha256": "744feb5dbbd80bf2adcf603049aad9d3506c882e7b1e4edefe48badc0a49d582",
+      "size": 7649
     },
     "scripts/evolution_scheduler.py": {
       "sha256": "f53bc4ccdbfe3b488f8e8b95c36eb3f39f0edba225d4f3c333a492e00544c5e5",
@@ -72,8 +69,11 @@
       "size": 4234
     }
   },
-  "trained_10_agents_archived_separately": true,
   "full_original_banks_included": false,
+  "schema": "myriad.umbra.evolution.review.v18",
+  "scope": "source only; no large neural checkpoint files",
+  "source_root": "reppiks490/umbra-sovereign-worlds",
+  "target_195000_live_hourly_model_workers_met": false,
   "target_250000_invented_algorithms_met": false,
-  "target_195000_live_hourly_model_workers_met": false
+  "trained_10_agents_archived_separately": true
 }

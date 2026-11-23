@@ -1,0 +1,21 @@
+{
+  "actual_neural_gradient_training": 0,
+  "covered_rowids": [
+    1,
+    195000
+  ],
+  "independently_verified_receipt_records": 195000,
+  "production_integrations": 0,
+  "quarantined_candidates": 18402,
+  "rejected_candidates": 176598,
+  "report_sha256": "9ccc888c63a562837ec2baeca6bce463abcd330939adbc2fc79565cf049dc4d9",
+  "schema": "umbra.evolution.tribunal.aggregate.v1",
+  "segments": 4,
+  "subreport_hashes": [
+    "72a3c948bc02a39d6d801e90e7b37d77d74c2d87b5c7fa4fe12751de31be7e96",
+    "0330a436979486c95031ab7ef8d58d766e85bbd03ee6847c2d952318ad660c15",
+    "d95b777e0798f5284fd1b805aef0a5942b28bb6355dae4f470e2348baa705fed",
+    "98a1edd6cebbe157cb957574d5cf6739decbb919ff896e024fbfab17394ca91c"
+  ],
+  "synthetic_only": true
+}

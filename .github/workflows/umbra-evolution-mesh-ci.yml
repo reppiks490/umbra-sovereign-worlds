@@ -3,13 +3,16 @@ on:
   pull_request:
     paths:
       - 'research/EVOLUTION_V18_SOURCE_MANIFEST.json'
+      - 'research/EVOLUTION_V19_*'
       - '.github/workflows/umbra-evolution-mesh-*.yml'
       - 'docs/UMBRA_EVOLUTION_MESH_HANDOFF.md'
       - 'docs/UMBRA_EVOLUTION_FABRIC_V18.md'
+      - 'docs/EVOLUTION_V19_*'
       - 'scripts/evolution_*.py'
       - 'scripts/myriad_bank_fabric.py'
       - 'evolution/**'
       - 'tests/test_evolution_fabric_v18.py'
+      - 'tests/test_evolution_*_v19.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -28,6 +31,7 @@ jobs:
       - name: Verify checked-in source integrity
         run: |
           python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V18_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V19_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
       - name: Verify complete algorithm and workflow address space
         run: python3 scripts/umbra_evolution_mesh.py validate --full
       - name: Execute negative, determinism and training tests
@@ -36,8 +40,18 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_evolution_fabric_v18.py' -v
           python3 scripts/myriad_bank_fabric.py plan
           python3 scripts/evolution_source_registry.py validate
+          python3 -m unittest discover -s tests -p 'test_evolution_algorithms_v19.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_transfer_v19.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_tribunal_v19.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_observatory_v19.py' -v
+          python3 scripts/evolution_transfer_curriculum_v19.py --seeds 2 --budgets 32 --output /tmp/v19-transfer-ci.json
       - name: Execute bounded mesh and verify actual UMBRA v5 simulation bridge
         run: |
           python3 scripts/umbra_evolution_mesh.py tick --hour 2026-11-23T19 --shards 256 --shard 1 --limit 6 --steps 8 --ledger /tmp/mesh.sqlite3 --output /tmp/mesh.jsonl
           node scripts/umbra_evolution_bridge.mjs --input /tmp/mesh.jsonl --output /tmp/bridge.json --limit 4
           node -e "const x=require('/tmp/bridge.json'); if(x.qualified_umbra_replays.length!==4||x.auto_promotions!==0)process.exit(1);"
+      - name: Qualify twelve independent optimizer candidates on the REAL UMBRA v5 simulator
+        run: |
+          python3 scripts/evolution_tournament_v19.py --start 1 --count 12 --budget 48 --output /tmp/evolution-v19-candidates.jsonl
+          node scripts/umbra_evolution_bridge.mjs --input /tmp/evolution-v19-candidates.jsonl --output /tmp/evolution-v19-bridge.json --limit 12
+          node -e "const x=require('/tmp/evolution-v19-bridge.json');if(x.qualified_umbra_replays.length!==12||x.auto_promotions!==0||x.live_deployments!==0)process.exit(1)"

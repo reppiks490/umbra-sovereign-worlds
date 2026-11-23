@@ -1,0 +1,27 @@
+# UMBRA Ω / U263: manually invoked synthetic research. No automatic deployment or trading.
+name: 'U263 | EVOLUTION / Regional Survival / Stress'
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: 'umbra-u263-${{ github.ref }}'
+  cancel-in-progress: true
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 'Execute U263 evidence case'
+        run: 'node scripts/umbra_lab.mjs --id U263 --out-dir workflow-artifacts'
+      - name: Upload synthetic evidence (not independent scientific validation)
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'umbra-u263-synthetic-evidence'
+          path: 'workflow-artifacts/U263.json'
+          if-no-files-found: error
+          retention-days: 14

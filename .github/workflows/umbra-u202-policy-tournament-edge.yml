@@ -1,0 +1,27 @@
+# UMBRA Ω / U202: manually invoked synthetic research. No automatic deployment or trading.
+name: 'U202 | EVOLUTION / Policy Tournament / Edge'
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: 'umbra-u202-${{ github.ref }}'
+  cancel-in-progress: true
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 'Execute U202 evidence case'
+        run: 'node scripts/umbra_lab.mjs --id U202 --out-dir workflow-artifacts'
+      - name: Upload synthetic evidence (not independent scientific validation)
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'umbra-u202-synthetic-evidence'
+          path: 'workflow-artifacts/U202.json'
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,1537 @@
+{
+  "schema": "umbra.workflow.lab.manifest.v1",
+  "new_workflows": 300,
+  "files": [
+    {
+      "path": ".github/workflows/umbra-u001-seed-replay-baseline.yml",
+      "bytes": 890,
+      "sha256": "efdb55d24baeff7aa016918c107ef6ae39fac486009f43ddcab177da369e3cf9"
+    },
+    {
+      "path": ".github/workflows/umbra-u002-seed-replay-edge.yml",
+      "bytes": 886,
+      "sha256": "11866efe547358400f23aeb40b5dd49e802924e9840dedef9b94752bb47a7a3c"
+    },
+    {
+      "path": ".github/workflows/umbra-u003-seed-replay-stress.yml",
+      "bytes": 888,
+      "sha256": "a5d1553f28de0aa59c376e93db1903ebc98096dc77e031248c117246028e9a36"
+    },
+    {
+      "path": ".github/workflows/umbra-u004-seed-replay-cross-seed.yml",
+      "bytes": 892,
+      "sha256": "65d63d743050917caea4910fe416739f07f325ec85ed4a331d825305cb8d7ec0"
+    },
+    {
+      "path": ".github/workflows/umbra-u005-seed-replay-adversarial.yml",
+      "bytes": 893,
+      "sha256": "9299e85765cc4fd1d86d9281f3de6ca97dd15e76298dc15920bba6450698d6e3"
+    },
+    {
+      "path": ".github/workflows/umbra-u006-chunk-equivalence-baseline.yml",
+      "bytes": 896,
+      "sha256": "40d0c83b99ef37e975c3faa13a8724cab85362444ca8edca5af3a4cf355663ed"
+    },
+    {
+      "path": ".github/workflows/umbra-u007-chunk-equivalence-edge.yml",
+      "bytes": 892,
+      "sha256": "f42c610e899f8deb44d3f9a4f17a483ee8b771232d4bc93265beb80350524c00"
+    },
+    {
+      "path": ".github/workflows/umbra-u008-chunk-equivalence-stress.yml",
+      "bytes": 894,
+      "sha256": "e35185fe2a5ee7c0ffb7927aff8f07357477e1a51d81e04e2d2972a33e4bdc0b"
+    },
+    {
+      "path": ".github/workflows/umbra-u009-chunk-equivalence-cross-seed.yml",
+      "bytes": 898,
+      "sha256": "3a5165a03cc053eed54f78a0fa7b86d3e1b08c586cbe725bed2e814a87b9e119"
+    },
+    {
+      "path": ".github/workflows/umbra-u010-chunk-equivalence-adversarial.yml",
+      "bytes": 899,
+      "sha256": "4368dc10629d1f1ce1cbc74707fb80d081695a7f006037d1ec32b62354edbdca"
+    },
+    {
+      "path": ".github/workflows/umbra-u011-world-regions-baseline.yml",
+      "bytes": 892,
+      "sha256": "de36429334c0735ff38002b7d5b1d1f2defa4138759d10c45cfdb3689c11eb04"
+    },
+    {
+      "path": ".github/workflows/umbra-u012-world-regions-edge.yml",
+      "bytes": 888,
+      "sha256": "e72560edafca69065d7dc3ef44cb02ed2668b6a65c6c35868282ac33e15ac17d"
+    },
+    {
+      "path": ".github/workflows/umbra-u013-world-regions-stress.yml",
+      "bytes": 890,
+      "sha256": "5a330bbed98dda0b052adec05df12ad3111ae18aa96e5327c0352227ac5844fa"
+    },
+    {
+      "path": ".github/workflows/umbra-u014-world-regions-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "c9af67e603866b2911d2a93c82a35dc01d7bf8fac9b702b3ee0e1bd6bb2cae3b"
+    },
+    {
+      "path": ".github/workflows/umbra-u015-world-regions-adversarial.yml",
+      "bytes": 895,
+      "sha256": "7a7880083654663139a727da3c97d0c52555b2cbcce89ad6769edf70d2dea321"
+    },
+    {
+      "path": ".github/workflows/umbra-u016-resource-bounds-baseline.yml",
+      "bytes": 894,
+      "sha256": "d5cfd983235690cb72e6980a14f5cbc22bcf51d68689fc6e8407171b59ea0b56"
+    },
+    {
+      "path": ".github/workflows/umbra-u017-resource-bounds-edge.yml",
+      "bytes": 890,
+      "sha256": "1c047b671cddafa7518ae9125e314a8ecdba8ab60e9784c3a0da04d736e1302d"
+    },
+    {
+      "path": ".github/workflows/umbra-u018-resource-bounds-stress.yml",
+      "bytes": 892,
+      "sha256": "a46c62cb51af040982177f166c6a25523352cf335aacee34e938ea7f2051936f"
+    },
+    {
+      "path": ".github/workflows/umbra-u019-resource-bounds-cross-seed.yml",
+      "bytes": 896,
+      "sha256": "9af00e66e1524440bb67f070bb6c87c52ad15668e45a1bd1f40eec2010ea0239"
+    },
+    {
+      "path": ".github/workflows/umbra-u020-resource-bounds-adversarial.yml",
+      "bytes": 897,
+      "sha256": "469a81b6f6c8ba568b822eb4010b896f19c722d8e37367eea98a11dcbbcd9c22"
+    },
+    {
+      "path": ".github/workflows/umbra-u021-census-balance-baseline.yml",
+      "bytes": 893,
+      "sha256": "3b6985ec82a093a257fd4514e88e56e0e5915abf88a596da352f219eb3fa5588"
+    },
+    {
+      "path": ".github/workflows/umbra-u022-census-balance-edge.yml",
+      "bytes": 889,
+      "sha256": "a9bfb43892961dee50e6d2d2cf40bd2756f1a60798376cb49c1903ef023fb81c"
+    },
+    {
+      "path": ".github/workflows/umbra-u023-census-balance-stress.yml",
+      "bytes": 891,
+      "sha256": "26d31d32330a680bd3a9c875a0529ea220bf6ccba7f1050d95dba77436b8b64f"
+    },
+    {
+      "path": ".github/workflows/umbra-u024-census-balance-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "4203e6667495731a1631934e3c498084dd79fe50b80a06cad2258c79f26173ce"
+    },
+    {
+      "path": ".github/workflows/umbra-u025-census-balance-adversarial.yml",
+      "bytes": 896,
+      "sha256": "6d7fc4314ce9f863c075b5a9f202c8710b3a8c25c497bc7e57bffa896a0f22a3"
+    },
+    {
+      "path": ".github/workflows/umbra-u026-civic-accounting-baseline.yml",
+      "bytes": 895,
+      "sha256": "6d2bc54178364ceef54b0150f44c2c83c0ab98709fe0b119ff7bd3b92df7cbce"
+    },
+    {
+      "path": ".github/workflows/umbra-u027-civic-accounting-edge.yml",
+      "bytes": 891,
+      "sha256": "64c4cf339d71290357ac205a2762696d86c09d5f6493d0b474e2eec162e8567c"
+    },
+    {
+      "path": ".github/workflows/umbra-u028-civic-accounting-stress.yml",
+      "bytes": 893,
+      "sha256": "4d5ea3d925b4c491f0764a60eca93f282aa562b7642258126e8cde5cfe35eba5"
+    },
+    {
+      "path": ".github/workflows/umbra-u029-civic-accounting-cross-seed.yml",
+      "bytes": 897,
+      "sha256": "0f6b4c148bff0df0b9092b245ad44ef86c5a7de6ff5d1ea847b2d0ef46572b02"
+    },
+    {
+      "path": ".github/workflows/umbra-u030-civic-accounting-adversarial.yml",
+      "bytes": 898,
+      "sha256": "4526ab226b7a71121a86017a93b8b7e42102a9be45da233f2970ec013b6558d7"
+    },
+    {
+      "path": ".github/workflows/umbra-u031-faction-coverage-baseline.yml",
+      "bytes": 895,
+      "sha256": "6f7247f9a2736784cdac5986bfcba5cd674fd77a0293b465aca0ee404f4b0008"
+    },
+    {
+      "path": ".github/workflows/umbra-u032-faction-coverage-edge.yml",
+      "bytes": 891,
+      "sha256": "3ff97a701297568d2d1082ad6dd3d419d9e0cda82fabe5bb0b3878ca8b7e45b8"
+    },
+    {
+      "path": ".github/workflows/umbra-u033-faction-coverage-stress.yml",
+      "bytes": 893,
+      "sha256": "1ddc4278d89e20c59115bd64dc71b2c8001753d846eb42fc05edf19cf5dd96ab"
+    },
+    {
+      "path": ".github/workflows/umbra-u034-faction-coverage-cross-seed.yml",
+      "bytes": 897,
+      "sha256": "b112adcee014f4d909010305d4c04b846ab2fc77a0bf2afa2de0c1ddd9896924"
+    },
+    {
+      "path": ".github/workflows/umbra-u035-faction-coverage-adversarial.yml",
+      "bytes": 898,
+      "sha256": "9959996644aa4cc9a9842fd9b91e38440bd437348fdc0d665ff94aed837bf751"
+    },
+    {
+      "path": ".github/workflows/umbra-u036-corridor-geometry-baseline.yml",
+      "bytes": 896,
+      "sha256": "eee6f6b6af26dcf53e94e44c92e81a840aa5440e2f347fc1ace05583ef9fe175"
+    },
+    {
+      "path": ".github/workflows/umbra-u037-corridor-geometry-edge.yml",
+      "bytes": 892,
+      "sha256": "c8303fc5386a036f6ab87c1ce31d2cf3562e78dc969ec55309f9efbf452a57de"
+    },
+    {
+      "path": ".github/workflows/umbra-u038-corridor-geometry-stress.yml",
+      "bytes": 894,
+      "sha256": "574b8d52b4447bc13f7c2721bbffe7f8fd772f65cae4d484243ba9fa939b3bc4"
+    },
+    {
+      "path": ".github/workflows/umbra-u039-corridor-geometry-cross-seed.yml",
+      "bytes": 898,
+      "sha256": "6ba6850d9de43daa2afdb7efbb7d9bb722fce3b0f371d0d4a89a3c5a9b14619b"
+    },
+    {
+      "path": ".github/workflows/umbra-u040-corridor-geometry-adversarial.yml",
+      "bytes": 899,
+      "sha256": "7fd3264af5c69191215924c70b16d62aad2b2b421102d72c49d3196213d4c8ae"
+    },
+    {
+      "path": ".github/workflows/umbra-u041-treasury-solvency-baseline.yml",
+      "bytes": 896,
+      "sha256": "c050e906ffcf13a4f243b4d723839742f952604fdbfef992ce3607ffa71b4b02"
+    },
+    {
+      "path": ".github/workflows/umbra-u042-treasury-solvency-edge.yml",
+      "bytes": 892,
+      "sha256": "0607f99aa129a6b8ff7a9e6c1b6790b99de3ea364005bee6a05443a9e8477547"
+    },
+    {
+      "path": ".github/workflows/umbra-u043-treasury-solvency-stress.yml",
+      "bytes": 894,
+      "sha256": "fda841e89d4d05082ae5ec31c373641a75b4af574d10f30896d3a370ecd27be8"
+    },
+    {
+      "path": ".github/workflows/umbra-u044-treasury-solvency-cross-seed.yml",
+      "bytes": 898,
+      "sha256": "137f812143b65cc751fdb90fb285796dd2da380cfd04f0411148ce4f3f9595c2"
+    },
+    {
+      "path": ".github/workflows/umbra-u045-treasury-solvency-adversarial.yml",
+      "bytes": 899,
+      "sha256": "64bdf169a8ac5df54f2e10a17463f32fdf61072b71fd6f3570c8d04b3ace06ac"
+    },
+    {
+      "path": ".github/workflows/umbra-u046-passport-roundtrip-baseline.yml",
+      "bytes": 897,
+      "sha256": "86a7b06f3a12a2881491b5dd28ac633c092b43587cac128a2a22e674695b0c5f"
+    },
+    {
+      "path": ".github/workflows/umbra-u047-passport-roundtrip-edge.yml",
+      "bytes": 893,
+      "sha256": "3d5e946bedd5003a189b68478a710c82d1378ccea84ef410cb6c706baa500c50"
+    },
+    {
+      "path": ".github/workflows/umbra-u048-passport-roundtrip-stress.yml",
+      "bytes": 895,
+      "sha256": "7c59e7494d30ed7f664e24a4eefa5c0fd47d6a75a58455c8fca3f94de43cf6b4"
+    },
+    {
+      "path": ".github/workflows/umbra-u049-passport-roundtrip-cross-seed.yml",
+      "bytes": 899,
+      "sha256": "483457befb1545da98245084adb3fb712e2fcd0e56d262dad5fea756f6ce3616"
+    },
+    {
+      "path": ".github/workflows/umbra-u050-passport-roundtrip-adversarial.yml",
+      "bytes": 900,
+      "sha256": "ca1221a907ec85bddd01c485f204c7b216423f86bd1786d5fa3ffda1ce0b6748"
+    },
+    {
+      "path": ".github/workflows/umbra-u051-passport-rejection-baseline.yml",
+      "bytes": 897,
+      "sha256": "318e5e0818247cfa6d3209fbddbd50993e00cff35b308b682bb483e345d895e5"
+    },
+    {
+      "path": ".github/workflows/umbra-u052-passport-rejection-edge.yml",
+      "bytes": 893,
+      "sha256": "f9ebce956def6b2acb43031eb91071cfebe94db375c6ad71c12eac969b7a8d0f"
+    },
+    {
+      "path": ".github/workflows/umbra-u053-passport-rejection-stress.yml",
+      "bytes": 895,
+      "sha256": "42c63051e063f4d0f8acb5a67101c050c771ae8196033cfe451b82cd5f9ff69e"
+    },
+    {
+      "path": ".github/workflows/umbra-u054-passport-rejection-cross-seed.yml",
+      "bytes": 899,
+      "sha256": "58749ff23f6ea4c043b3ce7df39883080d7a57f847b937cf74e19fe8cea87733"
+    },
+    {
+      "path": ".github/workflows/umbra-u055-passport-rejection-adversarial.yml",
+      "bytes": 900,
+      "sha256": "8fe507459acc456f3619ac434e1fe0d92d0c9ce276578d345575b9bbb370d467"
+    },
+    {
+      "path": ".github/workflows/umbra-u056-policy-clamping-baseline.yml",
+      "bytes": 894,
+      "sha256": "f2d183c6cc5f79d5ca125443a188b04a741337709c8634c534be1e27d98ad969"
+    },
+    {
+      "path": ".github/workflows/umbra-u057-policy-clamping-edge.yml",
+      "bytes": 890,
+      "sha256": "a91c167ecadf3f5f27bad41cdfd3323737d9143ef31a42371a1a58a1617d52bf"
+    },
+    {
+      "path": ".github/workflows/umbra-u058-policy-clamping-stress.yml",
+      "bytes": 892,
+      "sha256": "7ec521910ebec80ce77bf67603e8abb7ba5bdafcc7efe458ce8291a4f165068e"
+    },
+    {
+      "path": ".github/workflows/umbra-u059-policy-clamping-cross-seed.yml",
+      "bytes": 896,
+      "sha256": "92e0f7acd7309073d9a5d6885ff0f517bfcee6639fb4ae7e165ca2ca805aa0f0"
+    },
+    {
+      "path": ".github/workflows/umbra-u060-policy-clamping-adversarial.yml",
+      "bytes": 897,
+      "sha256": "554462b3264e55c8ea35e0175fefd1705b1055d2c38a8d13baa0cb37bc8415a7"
+    },
+    {
+      "path": ".github/workflows/umbra-u061-paired-null-baseline.yml",
+      "bytes": 890,
+      "sha256": "cdc97993c59ef2d1a1f9d688d7d952104fecd4f7636c4b4f062cfcfb08acd5f9"
+    },
+    {
+      "path": ".github/workflows/umbra-u062-paired-null-edge.yml",
+      "bytes": 886,
+      "sha256": "ff086fdcb1a8956147802525cc44a37af30b90e127c2387d56021a29f2724628"
+    },
+    {
+      "path": ".github/workflows/umbra-u063-paired-null-stress.yml",
+      "bytes": 888,
+      "sha256": "789fefc30e10471718d545efe20bd0aabb02b59fbf395e3f18f9c69951cc9bfe"
+    },
+    {
+      "path": ".github/workflows/umbra-u064-paired-null-cross-seed.yml",
+      "bytes": 892,
+      "sha256": "e472843066565ad193d549ab3569ff070a83fa29caf220ad046de9f89b10d19d"
+    },
+    {
+      "path": ".github/workflows/umbra-u065-paired-null-adversarial.yml",
+      "bytes": 893,
+      "sha256": "51374bb3624f12f37a82fb81552e02c265f16c85d63a225c5e6491ecb39cba40"
+    },
+    {
+      "path": ".github/workflows/umbra-u066-paired-repeatability-baseline.yml",
+      "bytes": 899,
+      "sha256": "ea276a94215acecc87525fdbb7cc67f264a72fd0928b3b99b9dc63930870a252"
+    },
+    {
+      "path": ".github/workflows/umbra-u067-paired-repeatability-edge.yml",
+      "bytes": 895,
+      "sha256": "b56e0554d0686b56bded2504bf1db6912bf319bb4b5bbe204d17b88dfaccb65e"
+    },
+    {
+      "path": ".github/workflows/umbra-u068-paired-repeatability-stress.yml",
+      "bytes": 897,
+      "sha256": "ad6f0ed8805b1cc7a1a223b2cf7addfbd2d845367cbfca27222889d9270e0b36"
+    },
+    {
+      "path": ".github/workflows/umbra-u069-paired-repeatability-cross-seed.yml",
+      "bytes": 901,
+      "sha256": "cae8f3e5221ec3c552dee1aed89ef6de535f892735f0bced8d43b71a1d110ea0"
+    },
+    {
+      "path": ".github/workflows/umbra-u070-paired-repeatability-adversarial.yml",
+      "bytes": 902,
+      "sha256": "b0430944ba5091e0358a0fd4354a0633fd1f409bf7aeb2142b56312ae4dc6760"
+    },
+    {
+      "path": ".github/workflows/umbra-u071-weather-noise-baseline.yml",
+      "bytes": 892,
+      "sha256": "87ad24531e1ce8d1e8a15e43d6909a6974041bf5e7c74fa0b23917d822180aae"
+    },
+    {
+      "path": ".github/workflows/umbra-u072-weather-noise-edge.yml",
+      "bytes": 888,
+      "sha256": "fcca86fa8f5c4197b3b5cd9899e8bc5f6accdf408b2fcaa9c23f71593a3bdbf0"
+    },
+    {
+      "path": ".github/workflows/umbra-u073-weather-noise-stress.yml",
+      "bytes": 890,
+      "sha256": "a4d27ab88e4677827c825af8b0ceeaa46476a32a33201684a9f42049ed781b3a"
+    },
+    {
+      "path": ".github/workflows/umbra-u074-weather-noise-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "a0416123abea49f82129e6b96d90335c8986c42b58217d8a6755086f45306d1a"
+    },
+    {
+      "path": ".github/workflows/umbra-u075-weather-noise-adversarial.yml",
+      "bytes": 895,
+      "sha256": "94b15ac6bc836521c00b99005d101ae7ec7d19ce7b89417308043174e38425ad"
+    },
+    {
+      "path": ".github/workflows/umbra-u076-timeline-consistency-baseline.yml",
+      "bytes": 899,
+      "sha256": "e107657f04facade9e32e5300fb9a604e509ec6a69f81d1613647e9f3a3dbbe7"
+    },
+    {
+      "path": ".github/workflows/umbra-u077-timeline-consistency-edge.yml",
+      "bytes": 895,
+      "sha256": "dd5715e990758e0066ccf358acfb6e5737611bcd7bfc16ef52ccd7095cdfdd75"
+    },
+    {
+      "path": ".github/workflows/umbra-u078-timeline-consistency-stress.yml",
+      "bytes": 897,
+      "sha256": "94cba537c8e37f111005af46ab54f1ed922a82632cc659f7e323244bbbb3b693"
+    },
+    {
+      "path": ".github/workflows/umbra-u079-timeline-consistency-cross-seed.yml",
+      "bytes": 901,
+      "sha256": "0a949023188d7d57d4787a90aac1df695d730512bf028bacef10b848741c8497"
+    },
+    {
+      "path": ".github/workflows/umbra-u080-timeline-consistency-adversarial.yml",
+      "bytes": 902,
+      "sha256": "24a30427be8a9b3ad72e3ffeefc3aefeb64171f9affce1de2bcde00e8fd6571c"
+    },
+    {
+      "path": ".github/workflows/umbra-u081-history-samples-baseline.yml",
+      "bytes": 894,
+      "sha256": "f6d302072eeac6c9f9a75247f3864ce1feac7c289ea631f324a4c8db6f94ffd8"
+    },
+    {
+      "path": ".github/workflows/umbra-u082-history-samples-edge.yml",
+      "bytes": 890,
+      "sha256": "49e3e4e974b0e2fe547f5eab24ed215c5f52f80bf70b1f970fbf43ba628bb584"
+    },
+    {
+      "path": ".github/workflows/umbra-u083-history-samples-stress.yml",
+      "bytes": 892,
+      "sha256": "9d4da96acb3512176ca0fd46cd7a083590377b6b54848952afcd35ccccfbbbaf"
+    },
+    {
+      "path": ".github/workflows/umbra-u084-history-samples-cross-seed.yml",
+      "bytes": 896,
+      "sha256": "81809446779323f4bc3b894b3adf64139c37be5208d1a8df8e4eacd4f3520d12"
+    },
+    {
+      "path": ".github/workflows/umbra-u085-history-samples-adversarial.yml",
+      "bytes": 897,
+      "sha256": "74b049bafca30dd57017e451ad27edd21b9bf3ad75c6e6bab5a18a0c56ed3b0f"
+    },
+    {
+      "path": ".github/workflows/umbra-u086-reality-court-baseline.yml",
+      "bytes": 892,
+      "sha256": "49887342c7244c90abc51b43037285e957f73f31d93527182334a9bdf0d424a4"
+    },
+    {
+      "path": ".github/workflows/umbra-u087-reality-court-edge.yml",
+      "bytes": 888,
+      "sha256": "3d2b2ec91a0a1f21297e128f11a139178bdeeb44714079af6270d60c4d258f6f"
+    },
+    {
+      "path": ".github/workflows/umbra-u088-reality-court-stress.yml",
+      "bytes": 890,
+      "sha256": "64cea36fa02639c89b0f5ad9c28a144911d2b46683d49f2ff8da653c7394353d"
+    },
+    {
+      "path": ".github/workflows/umbra-u089-reality-court-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "7b684d4654109567fb4b1340f9aeecab10d5ff789ddcb65af44447d9b5064fb9"
+    },
+    {
+      "path": ".github/workflows/umbra-u090-reality-court-adversarial.yml",
+      "bytes": 895,
+      "sha256": "1270a8c3e416f524c2566b75182c4fc2485d9c3dfea4c627957f17896c91424c"
+    },
+    {
+      "path": ".github/workflows/umbra-u091-scientific-gate-baseline.yml",
+      "bytes": 894,
+      "sha256": "9801d34cb33c272211abe277ff2007ed231bcfc330e5b5a4550a8cffc55c09ca"
+    },
+    {
+      "path": ".github/workflows/umbra-u092-scientific-gate-edge.yml",
+      "bytes": 890,
+      "sha256": "8d73e9bc5bd262676dab1d4b0de685902c23f5c932f844387c4781b7f61605bc"
+    },
+    {
+      "path": ".github/workflows/umbra-u093-scientific-gate-stress.yml",
+      "bytes": 892,
+      "sha256": "afb98de0c24fbddbc16523bc04d487cb9ed4bb242bcb7014253131a09a31cf42"
+    },
+    {
+      "path": ".github/workflows/umbra-u094-scientific-gate-cross-seed.yml",
+      "bytes": 896,
+      "sha256": "a9db707c9fff1fc1df819c07052383f00fb74db42897a0b5f0a888d68f651a41"
+    },
+    {
+      "path": ".github/workflows/umbra-u095-scientific-gate-adversarial.yml",
+      "bytes": 897,
+      "sha256": "d00e9c2f791d262dac1fb915bdefe40e77d12aa3af389a434121b62bbaf682f7"
+    },
+    {
+      "path": ".github/workflows/umbra-u096-stress-replay-baseline.yml",
+      "bytes": 892,
+      "sha256": "61ca51de0bf6cca460145822f5a5274c3df7b2e44bda7c579851e0ea26506327"
+    },
+    {
+      "path": ".github/workflows/umbra-u097-stress-replay-edge.yml",
+      "bytes": 888,
+      "sha256": "7b9d74b7244df70bddf6a083e2e48b538b7117086bac305e43fb741fa633baa4"
+    },
+    {
+      "path": ".github/workflows/umbra-u098-stress-replay-stress.yml",
+      "bytes": 890,
+      "sha256": "0670032a5f7886ef8da01cf9d1b97fa2e05ef681001cebd8c4c505b814b1e316"
+    },
+    {
+      "path": ".github/workflows/umbra-u099-stress-replay-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "e63afbcff665aeb41500c8c1fde94259607869f1735a815ec5dd9423f68dd679"
+    },
+    {
+      "path": ".github/workflows/umbra-u100-stress-replay-adversarial.yml",
+      "bytes": 895,
+      "sha256": "d023b6317d72b45e58c97f5107d3291cefdd1d4df98016f6b430d0e59110c0b0"
+    },
+    {
+      "path": ".github/workflows/umbra-u101-climate-response-baseline.yml",
+      "bytes": 891,
+      "sha256": "5baae9107901558bf297bd4170cbde2a853e4272afeb43864aec90c5eeeef0b0"
+    },
+    {
+      "path": ".github/workflows/umbra-u102-climate-response-edge.yml",
+      "bytes": 887,
+      "sha256": "4f7e46470abb847b44cd09c713551c993c5f3d5a1200f30c4119c695fe03ee58"
+    },
+    {
+      "path": ".github/workflows/umbra-u103-climate-response-stress.yml",
+      "bytes": 889,
+      "sha256": "4def94d02a7e79ca3d7dd03019821c6a7fb42d619bcfdb13bb8a73067a3ab076"
+    },
+    {
+      "path": ".github/workflows/umbra-u104-climate-response-cross-seed.yml",
+      "bytes": 893,
+      "sha256": "a31de404fa46aceb27a5da5680c5633549b48318d06c431d5b21cc49947a2be1"
+    },
+    {
+      "path": ".github/workflows/umbra-u105-climate-response-adversarial.yml",
+      "bytes": 894,
+      "sha256": "eceffd71cdc8ff6579a176164aba0f5eaf2fea94bf88c1dc5d9e0bb677d4ffc3"
+    },
+    {
+      "path": ".github/workflows/umbra-u106-trade-response-baseline.yml",
+      "bytes": 889,
+      "sha256": "7992b80a1b6b0a7620438479a6aff9b2c8f72b8ff65dc944b26dce455014d37c"
+    },
+    {
+      "path": ".github/workflows/umbra-u107-trade-response-edge.yml",
+      "bytes": 885,
+      "sha256": "dfb6c07402475610825376dc572c9c6ec0bbc8113e1b700d98d9ca527bae0e57"
+    },
+    {
+      "path": ".github/workflows/umbra-u108-trade-response-stress.yml",
+      "bytes": 887,
+      "sha256": "2724958d10c1f7fc1e4bcdce53a389eecc371ea1b3d010a7e701e3cef2a9604e"
+    },
+    {
+      "path": ".github/workflows/umbra-u109-trade-response-cross-seed.yml",
+      "bytes": 891,
+      "sha256": "0e6a49e2ec5b28e6f3d851aeed59f0772d9c491aa256d88137a4695bc78c8bce"
+    },
+    {
+      "path": ".github/workflows/umbra-u110-trade-response-adversarial.yml",
+      "bytes": 892,
+      "sha256": "c275904c908f56433c561fe2a627fc73c75ac6aba407c8e8af07a4bdfba67170"
+    },
+    {
+      "path": ".github/workflows/umbra-u111-conservation-response-baseline.yml",
+      "bytes": 896,
+      "sha256": "12e00047a31a778ca4e5232e6cb38297a91e6d239c77e187e1ab8b3f7c341a4f"
+    },
+    {
+      "path": ".github/workflows/umbra-u112-conservation-response-edge.yml",
+      "bytes": 892,
+      "sha256": "d854f5dfa1bd68d8f3bad9336d6af0e9e5781ffce5b7a3d62cfd8b745fe2a0ff"
+    },
+    {
+      "path": ".github/workflows/umbra-u113-conservation-response-stress.yml",
+      "bytes": 894,
+      "sha256": "bd6b685d73c31fd633cd0feb8a447dc1c34818a2d88c9b76f5003a22c87863b6"
+    },
+    {
+      "path": ".github/workflows/umbra-u114-conservation-response-cross-seed.yml",
+      "bytes": 898,
+      "sha256": "38b2327acf3305e989e39c6232a8fa09e5e148dc5de92a9e04e32bb68a6138e9"
+    },
+    {
+      "path": ".github/workflows/umbra-u115-conservation-response-adversarial.yml",
+      "bytes": 899,
+      "sha256": "e5a7104939382c3b485dea8927909f88fc059233864af5a6c0f84e6b7da86055"
+    },
+    {
+      "path": ".github/workflows/umbra-u116-medicine-response-baseline.yml",
+      "bytes": 892,
+      "sha256": "77cff8232cdcccb43ea1c0f77cf7534e7f70fa9ecafdafbb39845e69bc9d155e"
+    },
+    {
+      "path": ".github/workflows/umbra-u117-medicine-response-edge.yml",
+      "bytes": 888,
+      "sha256": "f37a2c265ec0f44a0227c32086c4e92e8d957c7abf61e9df53c9f46d5a1f89d9"
+    },
+    {
+      "path": ".github/workflows/umbra-u118-medicine-response-stress.yml",
+      "bytes": 890,
+      "sha256": "f49d675268bef7f3f098c39b96755a676ba48dbf5039aa1daefc834bf3fca35e"
+    },
+    {
+      "path": ".github/workflows/umbra-u119-medicine-response-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "833fce207e9b0e24e6365c0a20fe4faebb6075757192a7f8d245bf7fe3fc58b7"
+    },
+    {
+      "path": ".github/workflows/umbra-u120-medicine-response-adversarial.yml",
+      "bytes": 895,
+      "sha256": "c8548279db1df729030e2c5ff00a05e5a6d6ad46061a0cd61ccc42f1732fa170"
+    },
+    {
+      "path": ".github/workflows/umbra-u121-innovation-response-baseline.yml",
+      "bytes": 894,
+      "sha256": "1d68c8bd74b271dd32173f243ad19fc9ec369b0d2f01ff3fbb30e41cc0980514"
+    },
+    {
+      "path": ".github/workflows/umbra-u122-innovation-response-edge.yml",
+      "bytes": 890,
+      "sha256": "10421f02f7dde63a49f154ebcbbef7fcb3d2cd7ee9cc8dcf61efe71b2a6d9683"
+    },
+    {
+      "path": ".github/workflows/umbra-u123-innovation-response-stress.yml",
+      "bytes": 892,
+      "sha256": "80aafd6aa35ff92896ce4237e41e29b96c1b09987ed391a1c3d5bfd75f792bca"
+    },
+    {
+      "path": ".github/workflows/umbra-u124-innovation-response-cross-seed.yml",
+      "bytes": 896,
+      "sha256": "38332f263e1f83a632a27ae0b98f361ecc95d5e56bcbce9692dc2e25b3e9f45e"
+    },
+    {
+      "path": ".github/workflows/umbra-u125-innovation-response-adversarial.yml",
+      "bytes": 897,
+      "sha256": "9af8ee0c22d158fd133c45452f620ce8ae427f843ed73dc8ee143097113d6749"
+    },
+    {
+      "path": ".github/workflows/umbra-u126-migration-response-baseline.yml",
+      "bytes": 893,
+      "sha256": "7d1c7fa9ca42e676bb63a71e478d776517ec70d8d71007e26c5a3892a97f128d"
+    },
+    {
+      "path": ".github/workflows/umbra-u127-migration-response-edge.yml",
+      "bytes": 889,
+      "sha256": "62e6401a1115e248cc02789bfce901e8b9ebda581a33e7b06299f12fb222d40f"
+    },
+    {
+      "path": ".github/workflows/umbra-u128-migration-response-stress.yml",
+      "bytes": 891,
+      "sha256": "b0eaaaa3907d20218cd12d2716260de47ae1d6a36abaf2cd93d9b32333a2fde8"
+    },
+    {
+      "path": ".github/workflows/umbra-u129-migration-response-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "60d01633807d4ee784a5c5fac44f085eb4c6b69ad34e9b468070401e0894ae51"
+    },
+    {
+      "path": ".github/workflows/umbra-u130-migration-response-adversarial.yml",
+      "bytes": 896,
+      "sha256": "99bf5a28fa30b9bc368463cdd7b5e7aeb87023a83bdd85d378c7718190a52d9e"
+    },
+    {
+      "path": ".github/workflows/umbra-u131-conflict-response-baseline.yml",
+      "bytes": 892,
+      "sha256": "069ae2f1e43856019d0d04716f7235ac13e0cb13a00b046d480dcc37d1327180"
+    },
+    {
+      "path": ".github/workflows/umbra-u132-conflict-response-edge.yml",
+      "bytes": 888,
+      "sha256": "0b9792e7c27b423fc4e24e62245917cda0acea74d6afb86be807d579d02d8a52"
+    },
+    {
+      "path": ".github/workflows/umbra-u133-conflict-response-stress.yml",
+      "bytes": 890,
+      "sha256": "60d276b056aa870081a10382045fd039e59bb7a84ff5b2a416e94c9fe73df627"
+    },
+    {
+      "path": ".github/workflows/umbra-u134-conflict-response-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "d15ba15aa34a8463ca2cb4ae3e8b946244ea946e5b0a04bda98a4b2ea928ac15"
+    },
+    {
+      "path": ".github/workflows/umbra-u135-conflict-response-adversarial.yml",
+      "bytes": 895,
+      "sha256": "79b7e29f7c2655dbd2c4df6be446eb1ba88cd0ab34f586ea70ab64738a31ef0e"
+    },
+    {
+      "path": ".github/workflows/umbra-u136-sensitivity-map-baseline.yml",
+      "bytes": 890,
+      "sha256": "27c8f2d79779bfe4d653681948fcb0ff31c8b6982795f0528da8acde00383ee7"
+    },
+    {
+      "path": ".github/workflows/umbra-u137-sensitivity-map-edge.yml",
+      "bytes": 886,
+      "sha256": "f4eff7a988931828828a069a2b28f959fb84391443e026bc0568f7a0984ea9bc"
+    },
+    {
+      "path": ".github/workflows/umbra-u138-sensitivity-map-stress.yml",
+      "bytes": 888,
+      "sha256": "72387a6c6e4826aa390971ea7764f19b94af851e5f2508c2614179fa4bc99ac3"
+    },
+    {
+      "path": ".github/workflows/umbra-u139-sensitivity-map-cross-seed.yml",
+      "bytes": 892,
+      "sha256": "fb6564f83a922244c038c7178e3b9219b02199d7c9f82b65bf565d2ed63a40eb"
+    },
+    {
+      "path": ".github/workflows/umbra-u140-sensitivity-map-adversarial.yml",
+      "bytes": 893,
+      "sha256": "a743aa45c071ed264aa0dec580e14e2e5f9817b5f2208f083b103650edd66d6f"
+    },
+    {
+      "path": ".github/workflows/umbra-u141-paired-uncertainty-baseline.yml",
+      "bytes": 893,
+      "sha256": "03dd03b17e9172eedf9f49ae08d81820a1d32bc0ed0728b448dbe625f7a5c24e"
+    },
+    {
+      "path": ".github/workflows/umbra-u142-paired-uncertainty-edge.yml",
+      "bytes": 889,
+      "sha256": "c96c99b2fe340289f3dc94e046bd0fac8fba2e1b1149dfdc350d093800cce771"
+    },
+    {
+      "path": ".github/workflows/umbra-u143-paired-uncertainty-stress.yml",
+      "bytes": 891,
+      "sha256": "2aee0d34682c3e4788759c9816946dd2a4bdf45f50e8eaedb86866e54934dc8d"
+    },
+    {
+      "path": ".github/workflows/umbra-u144-paired-uncertainty-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "90c2c50bbd53d831a47b4584883f6187e31bb84462fe7d7ff3464418ba4efede"
+    },
+    {
+      "path": ".github/workflows/umbra-u145-paired-uncertainty-adversarial.yml",
+      "bytes": 896,
+      "sha256": "97207543af973ea3370643ed3271671f3fcca1653d2aa2f31cbf2bd8a7a4b5b4"
+    },
+    {
+      "path": ".github/workflows/umbra-u146-seasonal-trajectory-baseline.yml",
+      "bytes": 894,
+      "sha256": "ee3b7a94a5cb18bd2a16e02b427801b135d5492b01eb67d4cf382411734e9d3d"
+    },
+    {
+      "path": ".github/workflows/umbra-u147-seasonal-trajectory-edge.yml",
+      "bytes": 890,
+      "sha256": "a7057558287224ecc491744c5c95c0d28fdf8ef57afcbca22d943e1974c18c61"
+    },
+    {
+      "path": ".github/workflows/umbra-u148-seasonal-trajectory-stress.yml",
+      "bytes": 892,
+      "sha256": "d20964d949fa77a930958405b0091359b34882f0c3b269f1f35a972834768b57"
+    },
+    {
+      "path": ".github/workflows/umbra-u149-seasonal-trajectory-cross-seed.yml",
+      "bytes": 896,
+      "sha256": "9b12975c5b66af5732a016b1995b3d8c67bb923201ce11a866d707e176178545"
+    },
+    {
+      "path": ".github/workflows/umbra-u150-seasonal-trajectory-adversarial.yml",
+      "bytes": 897,
+      "sha256": "7b8115e24f7940243b5921d1e8ce3884c80c16b6e9dd004ce7cafe88245255b2"
+    },
+    {
+      "path": ".github/workflows/umbra-u151-biodiversity-profile-baseline.yml",
+      "bytes": 895,
+      "sha256": "4da3eba82d8143a6634c5b8ba1bae880231fd8429a64b4ee04354b1dcd26d897"
+    },
+    {
+      "path": ".github/workflows/umbra-u152-biodiversity-profile-edge.yml",
+      "bytes": 891,
+      "sha256": "5e438401b93a875a34bc21a8640debc5f47cec73971893ddfb67db6a2ef53d90"
+    },
+    {
+      "path": ".github/workflows/umbra-u153-biodiversity-profile-stress.yml",
+      "bytes": 893,
+      "sha256": "e7d0d24a56ba1c7c413b295baeb4c1d1917997ff8def5837ae58c7d298eb953c"
+    },
+    {
+      "path": ".github/workflows/umbra-u154-biodiversity-profile-cross-seed.yml",
+      "bytes": 897,
+      "sha256": "5dc551919294630916f0aab5db84d27fed2b052cd1c083aad60187fc55d9c652"
+    },
+    {
+      "path": ".github/workflows/umbra-u155-biodiversity-profile-adversarial.yml",
+      "bytes": 898,
+      "sha256": "13556632934869fe8b4409d06d7aeec829dfbd5ec84131c9bf590cc1455bc3f6"
+    },
+    {
+      "path": ".github/workflows/umbra-u156-food-security-baseline.yml",
+      "bytes": 888,
+      "sha256": "91ce5c519ae3336036d33bf5706bab4bc06b0439ceb85638e6f8cdaf89d862ad"
+    },
+    {
+      "path": ".github/workflows/umbra-u157-food-security-edge.yml",
+      "bytes": 884,
+      "sha256": "cfa0c5675affd84852096fb96766644b7ee880b161c6520c5e4998db67a254aa"
+    },
+    {
+      "path": ".github/workflows/umbra-u158-food-security-stress.yml",
+      "bytes": 886,
+      "sha256": "c5dc78b8f838e7b790f79c15ad42927c09537bbc83794c764f6613c8f830f997"
+    },
+    {
+      "path": ".github/workflows/umbra-u159-food-security-cross-seed.yml",
+      "bytes": 890,
+      "sha256": "995f9dd8ff5be71fbd84ff8a9a395fe9cde31c02a86309ffcfc65ef4278f1661"
+    },
+    {
+      "path": ".github/workflows/umbra-u160-food-security-adversarial.yml",
+      "bytes": 891,
+      "sha256": "b33f278174b8d0c8040f707e943b294e8af3181ad02e26d107937545e4c1478c"
+    },
+    {
+      "path": ".github/workflows/umbra-u161-water-security-baseline.yml",
+      "bytes": 889,
+      "sha256": "5dbbdf13b397943879fb82c8cdc62ef6e823d50b96d9085519d64b8eb2e44788"
+    },
+    {
+      "path": ".github/workflows/umbra-u162-water-security-edge.yml",
+      "bytes": 885,
+      "sha256": "b0f83733dcc404d0d9a23b75f05e7463d78cc6563a782e53abde3b805bb15809"
+    },
+    {
+      "path": ".github/workflows/umbra-u163-water-security-stress.yml",
+      "bytes": 887,
+      "sha256": "b47743d6297c00888944e8a9281b1bf740743d6fe681f5f91ac5c96f7dc86a61"
+    },
+    {
+      "path": ".github/workflows/umbra-u164-water-security-cross-seed.yml",
+      "bytes": 891,
+      "sha256": "c30798cd4a72d18fcd3f233fd55d92f79435e1687e3d871f22ca29ab44792ab2"
+    },
+    {
+      "path": ".github/workflows/umbra-u165-water-security-adversarial.yml",
+      "bytes": 892,
+      "sha256": "63f6b561961c171985b7df4327a7948a13603e6426bf343075f12f5f4630b94f"
+    },
+    {
+      "path": ".github/workflows/umbra-u166-energy-resilience-baseline.yml",
+      "bytes": 892,
+      "sha256": "9431f8a741efca4387884070797f9166e7ca20f8f21bab322a00ad131fe20593"
+    },
+    {
+      "path": ".github/workflows/umbra-u167-energy-resilience-edge.yml",
+      "bytes": 888,
+      "sha256": "205ab3b08cb039d048769f9bf35983aad965507c2f9b7fec855040b1d6892b21"
+    },
+    {
+      "path": ".github/workflows/umbra-u168-energy-resilience-stress.yml",
+      "bytes": 890,
+      "sha256": "de1852e63648a15c45241db61ed743f8230a4ac160def118948ceb9ed0f3596f"
+    },
+    {
+      "path": ".github/workflows/umbra-u169-energy-resilience-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "8e66981f385a0d2e20585892d735886ebb11ed52cc98323950cf1454dbc56314"
+    },
+    {
+      "path": ".github/workflows/umbra-u170-energy-resilience-adversarial.yml",
+      "bytes": 895,
+      "sha256": "cd59d06aa7b9c3656d587ed6f6726d2322cc2b7dca29688d29b1d5e9290f7ccb"
+    },
+    {
+      "path": ".github/workflows/umbra-u171-epidemic-path-baseline.yml",
+      "bytes": 888,
+      "sha256": "f6f246fbda0d93ecbb0d2c4ece148977211c74f74af815f65e9c141d536551ad"
+    },
+    {
+      "path": ".github/workflows/umbra-u172-epidemic-path-edge.yml",
+      "bytes": 884,
+      "sha256": "7da54387dcef8c3944dfb31b5db1d1fa1cf9b0a0f51610ab5ac18c170f200ee1"
+    },
+    {
+      "path": ".github/workflows/umbra-u173-epidemic-path-stress.yml",
+      "bytes": 886,
+      "sha256": "d7d5ef07deff041418fb0dc6a41a5e8e27abade1cb4f4b79496082082588d985"
+    },
+    {
+      "path": ".github/workflows/umbra-u174-epidemic-path-cross-seed.yml",
+      "bytes": 890,
+      "sha256": "5a7363e6fd6740740b21b27251bd6a4a41c0e9d1da04e5b2e4d18b2195b92b53"
+    },
+    {
+      "path": ".github/workflows/umbra-u175-epidemic-path-adversarial.yml",
+      "bytes": 891,
+      "sha256": "a8cdabf1a20db8d43e77f89b172b4a5f4f140a8c980d3e3ebe08b5103fdd1601"
+    },
+    {
+      "path": ".github/workflows/umbra-u176-migration-network-baseline.yml",
+      "bytes": 892,
+      "sha256": "d0f43b28757363016b15829a463c8047c68de3edd1457c2176fb7e1b84d373c7"
+    },
+    {
+      "path": ".github/workflows/umbra-u177-migration-network-edge.yml",
+      "bytes": 888,
+      "sha256": "d232e6a8ef51621feaacce91dde09384934290bdc555f93121e267b0f6f8b397"
+    },
+    {
+      "path": ".github/workflows/umbra-u178-migration-network-stress.yml",
+      "bytes": 890,
+      "sha256": "4ac296beae82a28986ffadc7b9284af0b226486fc9b38ca5048ac30659bc8ed8"
+    },
+    {
+      "path": ".github/workflows/umbra-u179-migration-network-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "bd25e956db16fed4c37903d3ebcc4e8e221702ec5e23b9ddcfbed70946585da5"
+    },
+    {
+      "path": ".github/workflows/umbra-u180-migration-network-adversarial.yml",
+      "bytes": 895,
+      "sha256": "a0db6eed9acc4b92a8dda2f6ea22392bf8e0fc6e9ca98b44313f179f9b71175c"
+    },
+    {
+      "path": ".github/workflows/umbra-u181-civic-legitimacy-baseline.yml",
+      "bytes": 891,
+      "sha256": "e7492734954f17e35482b3b97590cbfed4e35cf4f3e8441392572437cd0d2b29"
+    },
+    {
+      "path": ".github/workflows/umbra-u182-civic-legitimacy-edge.yml",
+      "bytes": 887,
+      "sha256": "1f8c5b31abb2ad5988733288caf6821eeb34f363a0e3213d323060d3f4d2eedd"
+    },
+    {
+      "path": ".github/workflows/umbra-u183-civic-legitimacy-stress.yml",
+      "bytes": 889,
+      "sha256": "4df654ddf58cd019ced96da98744215760dfed9d455bde6a7267af177faffbf1"
+    },
+    {
+      "path": ".github/workflows/umbra-u184-civic-legitimacy-cross-seed.yml",
+      "bytes": 893,
+      "sha256": "db81467c3a3e4bade4ee9f39d1e8b7c6e2cf0df50b95f41e0c63c00f66bc0d48"
+    },
+    {
+      "path": ".github/workflows/umbra-u185-civic-legitimacy-adversarial.yml",
+      "bytes": 894,
+      "sha256": "3e43bbeb3ab941ce96b1f6047cd5047dabcb904eeaadc4d5e4c8084c24d2a768"
+    },
+    {
+      "path": ".github/workflows/umbra-u186-fiscal-transfers-baseline.yml",
+      "bytes": 891,
+      "sha256": "4b6f81160ef714057249793752334a88aaedc4bd830a4c8a59c7bde2806cb2c1"
+    },
+    {
+      "path": ".github/workflows/umbra-u187-fiscal-transfers-edge.yml",
+      "bytes": 887,
+      "sha256": "7bb3277295566a023ea831b2c9ff0dd6a67a008267932004fbfdf480214a8ae9"
+    },
+    {
+      "path": ".github/workflows/umbra-u188-fiscal-transfers-stress.yml",
+      "bytes": 889,
+      "sha256": "5a27d0b40579f442922ed1057d2c001449416a8485be5ccd0d116a8f115f69aa"
+    },
+    {
+      "path": ".github/workflows/umbra-u189-fiscal-transfers-cross-seed.yml",
+      "bytes": 893,
+      "sha256": "7f711d13dda1d33585df8fe9dbf07f3a5505d5f5246948c8be214d8ac5b59ee5"
+    },
+    {
+      "path": ".github/workflows/umbra-u190-fiscal-transfers-adversarial.yml",
+      "bytes": 894,
+      "sha256": "22b387baa51b3c04607882a621bf267f42c42254bc13307fb0e13dc4bd4d7446"
+    },
+    {
+      "path": ".github/workflows/umbra-u191-emissions-trajectory-baseline.yml",
+      "bytes": 895,
+      "sha256": "78a8f7b97e9aaa174a04b5fdaaff592a2ed1c9ac3bffb0dcabab87a935106037"
+    },
+    {
+      "path": ".github/workflows/umbra-u192-emissions-trajectory-edge.yml",
+      "bytes": 891,
+      "sha256": "cb4f8972421f16f0fefdcefedbb36c81641381ea2bdd0c052b702360fcfb8bfc"
+    },
+    {
+      "path": ".github/workflows/umbra-u193-emissions-trajectory-stress.yml",
+      "bytes": 893,
+      "sha256": "51bc76eafb8041d8681a3d479efb10576aea930779434daf3068d060e9e169aa"
+    },
+    {
+      "path": ".github/workflows/umbra-u194-emissions-trajectory-cross-seed.yml",
+      "bytes": 897,
+      "sha256": "29204381c859a285d48de9524b6cf29be3f44403b9ff791c7cdd9b6280662a3d"
+    },
+    {
+      "path": ".github/workflows/umbra-u195-emissions-trajectory-adversarial.yml",
+      "bytes": 898,
+      "sha256": "407142312f59f7876f258310ede6cbbf3a035ee9b5810940641e09fd744a2cef"
+    },
+    {
+      "path": ".github/workflows/umbra-u196-inequality-profile-baseline.yml",
+      "bytes": 893,
+      "sha256": "0214b737ab19b4a10954b322b30e8518cb4e45b34d18b3d419a1b5b42d34dd72"
+    },
+    {
+      "path": ".github/workflows/umbra-u197-inequality-profile-edge.yml",
+      "bytes": 889,
+      "sha256": "a07031947f2d68f6a88c38dfb7a45bd977fc9bf059bb8acf529a0fcab1aae1a0"
+    },
+    {
+      "path": ".github/workflows/umbra-u198-inequality-profile-stress.yml",
+      "bytes": 891,
+      "sha256": "4c198666c356443675d5854044bd237dcec6603dbf2d0bbc39ca9b31d6a7e373"
+    },
+    {
+      "path": ".github/workflows/umbra-u199-inequality-profile-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "087d5161df6d8e48e6ac86dac2034535153e7e19ae5493be38a72bc3fa965616"
+    },
+    {
+      "path": ".github/workflows/umbra-u200-inequality-profile-adversarial.yml",
+      "bytes": 896,
+      "sha256": "9c2cc4509e3f504736757d23cef125975f70fad616f60fc1482f7e19c4086ae4"
+    },
+    {
+      "path": ".github/workflows/umbra-u201-policy-tournament-baseline.yml",
+      "bytes": 893,
+      "sha256": "0d52cc2abb4f33d2f111985c27a1fca6c066d2a9f2dfb51f2ee37355748006ed"
+    },
+    {
+      "path": ".github/workflows/umbra-u202-policy-tournament-edge.yml",
+      "bytes": 889,
+      "sha256": "c70aedd0dc713eb4989ba7cff61864702be89d60c54a22b360c4c0343316c793"
+    },
+    {
+      "path": ".github/workflows/umbra-u203-policy-tournament-stress.yml",
+      "bytes": 891,
+      "sha256": "a0bef1b4c5b084375b681a753d5cd38adc98f9cfb5fcb4e915b4736c84ec8f24"
+    },
+    {
+      "path": ".github/workflows/umbra-u204-policy-tournament-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "1d858c566d38e817bd46b07de788ef5371b4ca6071bcfafaab4fcc82b10fbe99"
+    },
+    {
+      "path": ".github/workflows/umbra-u205-policy-tournament-adversarial.yml",
+      "bytes": 896,
+      "sha256": "3131c3eee321edc45e7c219be79128aa243c54e97c4dc16491264332f0468fb3"
+    },
+    {
+      "path": ".github/workflows/umbra-u206-pareto-frontier-baseline.yml",
+      "bytes": 891,
+      "sha256": "57bed600e7f8effd41ee7b86b26900ced20b9f66140f33c52a2d0ae3ae8797dc"
+    },
+    {
+      "path": ".github/workflows/umbra-u207-pareto-frontier-edge.yml",
+      "bytes": 887,
+      "sha256": "0170920d90020f899e5bf5c33a02b19840b6a2fd74ef88c103ec00523bbcf58b"
+    },
+    {
+      "path": ".github/workflows/umbra-u208-pareto-frontier-stress.yml",
+      "bytes": 889,
+      "sha256": "f903b59dcb4d0e387b7a160fbdd56511647cbd0035f338b6db1b03adf8da618d"
+    },
+    {
+      "path": ".github/workflows/umbra-u209-pareto-frontier-cross-seed.yml",
+      "bytes": 893,
+      "sha256": "33a95cb3f46182471e06547f8c1bd24b271f55db0c98b0a57c1b0020068126ce"
+    },
+    {
+      "path": ".github/workflows/umbra-u210-pareto-frontier-adversarial.yml",
+      "bytes": 894,
+      "sha256": "c170189087a28f80254dd43b06d07f05e8fa9ad2f03c70384c7e8dbac91873a5"
+    },
+    {
+      "path": ".github/workflows/umbra-u211-shock-resilience-baseline.yml",
+      "bytes": 892,
+      "sha256": "a1f2fdaa78fc3e3d91701a8ef132715fb7f90a500d58dc599dfffa9ffb6198bf"
+    },
+    {
+      "path": ".github/workflows/umbra-u212-shock-resilience-edge.yml",
+      "bytes": 888,
+      "sha256": "edd0e22c8d30d69377f76579004fd548f51bc16af4b90bdb91e77986fdfa3263"
+    },
+    {
+      "path": ".github/workflows/umbra-u213-shock-resilience-stress.yml",
+      "bytes": 890,
+      "sha256": "137fc6639661826eb59e842434216cfb38155d5fbe1e954e972cc5f639972d97"
+    },
+    {
+      "path": ".github/workflows/umbra-u214-shock-resilience-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "bdb0a7bbbbee21acca77daa7cb68c6530c8f5a727dcb63a1126b75615a02ffc2"
+    },
+    {
+      "path": ".github/workflows/umbra-u215-shock-resilience-adversarial.yml",
+      "bytes": 895,
+      "sha256": "636e0b908a39c871176cbcdbb1c7804ed2e1b4781f4fbaec71d1901a45655d84"
+    },
+    {
+      "path": ".github/workflows/umbra-u216-bounded-search-baseline.yml",
+      "bytes": 890,
+      "sha256": "99644f00b4572a31b53734b268238185e177e28256290bc8be09167168242906"
+    },
+    {
+      "path": ".github/workflows/umbra-u217-bounded-search-edge.yml",
+      "bytes": 886,
+      "sha256": "0f083276caae94af03b6ea89c18502f7e3aec965c42ea5854312e709eb8c70f4"
+    },
+    {
+      "path": ".github/workflows/umbra-u218-bounded-search-stress.yml",
+      "bytes": 888,
+      "sha256": "5f74c993724c2c093db8a8562f03620ed324c7831892506cb8344b2dadc2aa76"
+    },
+    {
+      "path": ".github/workflows/umbra-u219-bounded-search-cross-seed.yml",
+      "bytes": 892,
+      "sha256": "15b0861bc9a6d1a9387550604ee15f60af0cf302551392356d4178630798cd6d"
+    },
+    {
+      "path": ".github/workflows/umbra-u220-bounded-search-adversarial.yml",
+      "bytes": 893,
+      "sha256": "61e5d84e351b4920875fd7d756dd450913bdf28906650fd1682f212e55335633"
+    },
+    {
+      "path": ".github/workflows/umbra-u221-minimax-stability-baseline.yml",
+      "bytes": 893,
+      "sha256": "86b33000d199735e89bdebac9479ad8cf2720ece91679d7f4a3891f7f1adfdd1"
+    },
+    {
+      "path": ".github/workflows/umbra-u222-minimax-stability-edge.yml",
+      "bytes": 889,
+      "sha256": "f63bb53e304a997a3ceffe3c04b8b83b9c9672fb07a6bbc4446ee0c4ce868b83"
+    },
+    {
+      "path": ".github/workflows/umbra-u223-minimax-stability-stress.yml",
+      "bytes": 891,
+      "sha256": "538ad5aa536ce958cdd0f8f93ef32f98bdad455ad64f82c0d84a216dbd64ba3b"
+    },
+    {
+      "path": ".github/workflows/umbra-u224-minimax-stability-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "cdfbdc4f6679b890fa1fa6b3785969082e76c9d8ac4b99c716c7c9ab65862f94"
+    },
+    {
+      "path": ".github/workflows/umbra-u225-minimax-stability-adversarial.yml",
+      "bytes": 896,
+      "sha256": "b1c2806518351c6832e5b86e9e4ecbe5063bc140c76bc2b3458a48cc680c6d6f"
+    },
+    {
+      "path": ".github/workflows/umbra-u226-seed-transfer-baseline.yml",
+      "bytes": 889,
+      "sha256": "53d705afe65f63666ab80df944b20e60e9debe999d7f75c8b33ed27cd0c7eeba"
+    },
+    {
+      "path": ".github/workflows/umbra-u227-seed-transfer-edge.yml",
+      "bytes": 885,
+      "sha256": "33682525731cdc52a015fd1f92f2cd360ebbed6712887f84b9bc54aae74d5c86"
+    },
+    {
+      "path": ".github/workflows/umbra-u228-seed-transfer-stress.yml",
+      "bytes": 887,
+      "sha256": "71a916dc95e77b5fc7a40bdab35600d856b5be5dd0a4bbbb2075dffd51813425"
+    },
+    {
+      "path": ".github/workflows/umbra-u229-seed-transfer-cross-seed.yml",
+      "bytes": 891,
+      "sha256": "442f94c191e6853ccc3e7a026cf3ccc207a9912062283040081e985c6c27af75"
+    },
+    {
+      "path": ".github/workflows/umbra-u230-seed-transfer-adversarial.yml",
+      "bytes": 892,
+      "sha256": "e224587b5dff051605cb07daa5ea894154dbe8e6e4e690afcef0c74b2656b8fb"
+    },
+    {
+      "path": ".github/workflows/umbra-u231-drought-response-baseline.yml",
+      "bytes": 892,
+      "sha256": "6b7f59dd60d3a7119cb1a99028af24bb2809f86a02305c2c696bca543d8448c7"
+    },
+    {
+      "path": ".github/workflows/umbra-u232-drought-response-edge.yml",
+      "bytes": 888,
+      "sha256": "23c55d0223d34944a58038eb7d85d454e654cd5bd8ca8fce46efea0754720fa2"
+    },
+    {
+      "path": ".github/workflows/umbra-u233-drought-response-stress.yml",
+      "bytes": 890,
+      "sha256": "464eaa026c8daf33956038cdb8bf743564b9eda4f5e99baf750fa6674770cf76"
+    },
+    {
+      "path": ".github/workflows/umbra-u234-drought-response-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "ee5068f07b84745427d1ce24cc8e8a94f07e017a09175519376e56dd3af7e6ea"
+    },
+    {
+      "path": ".github/workflows/umbra-u235-drought-response-adversarial.yml",
+      "bytes": 895,
+      "sha256": "232333cfe0bcbe4476c25c1ccfa9ea129500d7f7f511f17e3d16b20f7e51f25a"
+    },
+    {
+      "path": ".github/workflows/umbra-u236-trade-fragility-baseline.yml",
+      "bytes": 891,
+      "sha256": "41546c1a83dc2e7cc9527cb96d48cc4d3524a4f00ebadfd327121d0086caf4f0"
+    },
+    {
+      "path": ".github/workflows/umbra-u237-trade-fragility-edge.yml",
+      "bytes": 887,
+      "sha256": "3d2e2de8f2cdc81b4fa047b3d607f5ed4ffc59d1eb5cb6d14c62961fedee1ec8"
+    },
+    {
+      "path": ".github/workflows/umbra-u238-trade-fragility-stress.yml",
+      "bytes": 889,
+      "sha256": "352a17c79a7c18ab98ff681144485ce6ba69aed13719ad008d7141dc5833d55f"
+    },
+    {
+      "path": ".github/workflows/umbra-u239-trade-fragility-cross-seed.yml",
+      "bytes": 893,
+      "sha256": "319f6e0adb2a39948cc7aa89ba9b59dca5da93b5053df98667f6398968fb29af"
+    },
+    {
+      "path": ".github/workflows/umbra-u240-trade-fragility-adversarial.yml",
+      "bytes": 894,
+      "sha256": "3d23444cc6b90f07f8f777afe9bb6922a05e6d879b9a055c44483f36a0148df7"
+    },
+    {
+      "path": ".github/workflows/umbra-u241-equity-growth-baseline.yml",
+      "bytes": 889,
+      "sha256": "797b87341d683c02df10994009583e5771a131a0677c88cc5c8d828975e10e60"
+    },
+    {
+      "path": ".github/workflows/umbra-u242-equity-growth-edge.yml",
+      "bytes": 885,
+      "sha256": "ab23dad52074e557b70e6b44a583b7c9b2287f7ce916c701678fa3f32efe9659"
+    },
+    {
+      "path": ".github/workflows/umbra-u243-equity-growth-stress.yml",
+      "bytes": 887,
+      "sha256": "b87d5fa94eeaa328dcad36601c9aa2526e46f97d543232dbe56ce9d7dc534857"
+    },
+    {
+      "path": ".github/workflows/umbra-u244-equity-growth-cross-seed.yml",
+      "bytes": 891,
+      "sha256": "fc5b011a098a24c33d5178b6a9c37c66e991c9c941ce4cc96ca3fbd09dba92bf"
+    },
+    {
+      "path": ".github/workflows/umbra-u245-equity-growth-adversarial.yml",
+      "bytes": 892,
+      "sha256": "1fbbd80884b9d61933276e5b39409557515c4edc149622703785463a0430fea5"
+    },
+    {
+      "path": ".github/workflows/umbra-u246-conservation-innovation-baseline.yml",
+      "bytes": 899,
+      "sha256": "d2157d1efb7daf1c6885fb398a9f6940d03ad2bce5fcbcc58822a725db3be6ef"
+    },
+    {
+      "path": ".github/workflows/umbra-u247-conservation-innovation-edge.yml",
+      "bytes": 895,
+      "sha256": "632644ac0b0cde7924c086d01a63ca6b43b370c31982a870364d006e2d095b01"
+    },
+    {
+      "path": ".github/workflows/umbra-u248-conservation-innovation-stress.yml",
+      "bytes": 897,
+      "sha256": "4cefde346eddee6dfb87860612256522196a0514f5355a48e0bcd3303fbc00a3"
+    },
+    {
+      "path": ".github/workflows/umbra-u249-conservation-innovation-cross-seed.yml",
+      "bytes": 901,
+      "sha256": "278d79f17d3206d68de7ab16b6e3f553926ff5541ebb852306f53a280d7902f6"
+    },
+    {
+      "path": ".github/workflows/umbra-u250-conservation-innovation-adversarial.yml",
+      "bytes": 902,
+      "sha256": "582dfe2cea9634fee48029c035291a7fc7859d8da9e0e71d2292d1c7d89edf65"
+    },
+    {
+      "path": ".github/workflows/umbra-u251-epidemic-resilience-baseline.yml",
+      "bytes": 895,
+      "sha256": "ef578f2604122a213b01e6f3516096c722fa98ba9bfa3aa0b0b62749cf298139"
+    },
+    {
+      "path": ".github/workflows/umbra-u252-epidemic-resilience-edge.yml",
+      "bytes": 891,
+      "sha256": "5e7070cd7a3ef4e963d04ed0233c2ef66e62447eb033fc583853601c7b3fd028"
+    },
+    {
+      "path": ".github/workflows/umbra-u253-epidemic-resilience-stress.yml",
+      "bytes": 893,
+      "sha256": "f8a1a15f6be418fb47ca72d5c7b6119320d1251f0fd6db63811c2bee63a16331"
+    },
+    {
+      "path": ".github/workflows/umbra-u254-epidemic-resilience-cross-seed.yml",
+      "bytes": 897,
+      "sha256": "360e057e0e34bf38f7fd8b1e08ff4ea27a02088c509b6d8f6a3e1a16a38b9d0f"
+    },
+    {
+      "path": ".github/workflows/umbra-u255-epidemic-resilience-adversarial.yml",
+      "bytes": 898,
+      "sha256": "b956b65fe9602fd7adbda30d9818c2254a498ed99242a0b981c22c76997e7e59"
+    },
+    {
+      "path": ".github/workflows/umbra-u256-carbon-efficiency-baseline.yml",
+      "bytes": 893,
+      "sha256": "8ec388b464968def74a2fbd03cc943e1069ee9dcbcce05ea060272a2eb747788"
+    },
+    {
+      "path": ".github/workflows/umbra-u257-carbon-efficiency-edge.yml",
+      "bytes": 889,
+      "sha256": "a4bcf9609333c22174b09706a66fbd9665ae662e312ba403f9e36c6d597e398f"
+    },
+    {
+      "path": ".github/workflows/umbra-u258-carbon-efficiency-stress.yml",
+      "bytes": 891,
+      "sha256": "7235015c6969bc7131a5e5427b97316bcb2c1c9de09720ec2bbe63a032b14550"
+    },
+    {
+      "path": ".github/workflows/umbra-u259-carbon-efficiency-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "ced47c328661e0175035816c4652e0c5f668e5fe9cd266336e6e24b5cee2f1e4"
+    },
+    {
+      "path": ".github/workflows/umbra-u260-carbon-efficiency-adversarial.yml",
+      "bytes": 896,
+      "sha256": "12c9db5b5dd2877162bb65b6ee8b716122a1918d3c1b546dfd30cdcbbc5ce796"
+    },
+    {
+      "path": ".github/workflows/umbra-u261-regional-survival-baseline.yml",
+      "bytes": 893,
+      "sha256": "56afa860512a2d53db9fcd692ae963892da98c0a8399f5bbd5ff93d5f4d8768c"
+    },
+    {
+      "path": ".github/workflows/umbra-u262-regional-survival-edge.yml",
+      "bytes": 889,
+      "sha256": "a7e2487ebb370b9beb6c11491fba69182ec9608b3d3575e93a9e18d861d1b767"
+    },
+    {
+      "path": ".github/workflows/umbra-u263-regional-survival-stress.yml",
+      "bytes": 891,
+      "sha256": "83575375728e2b56b4126b7c0122fff2bb5011f21a4607dea6f1bf11e4b9fb02"
+    },
+    {
+      "path": ".github/workflows/umbra-u264-regional-survival-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "bde959cbf598c435500a78a7a9630189ef1de72e9d46aaae98831885df42b22e"
+    },
+    {
+      "path": ".github/workflows/umbra-u265-regional-survival-adversarial.yml",
+      "bytes": 896,
+      "sha256": "b10902db04611763cb2dd60f44b67fd418e15b46bfaf9b3038e1c5daf2f90378"
+    },
+    {
+      "path": ".github/workflows/umbra-u266-regime-rotation-baseline.yml",
+      "bytes": 891,
+      "sha256": "0efd382f80c5ff654083a92eb0e11091c3bcaa48884a84191268cfecb4ae9c21"
+    },
+    {
+      "path": ".github/workflows/umbra-u267-regime-rotation-edge.yml",
+      "bytes": 887,
+      "sha256": "a5b4914d98d492d0e3263c1219b7176c44718e2dafa369280ef58dd4602d5302"
+    },
+    {
+      "path": ".github/workflows/umbra-u268-regime-rotation-stress.yml",
+      "bytes": 889,
+      "sha256": "d51389c88fea406558ab2820f35f159d89248fdd30ad7fb7febe3fddcb6536e9"
+    },
+    {
+      "path": ".github/workflows/umbra-u269-regime-rotation-cross-seed.yml",
+      "bytes": 893,
+      "sha256": "815bba0238f19fb156c753793470139976d522e8b27506019ad8ffe7583362c7"
+    },
+    {
+      "path": ".github/workflows/umbra-u270-regime-rotation-adversarial.yml",
+      "bytes": 894,
+      "sha256": "fd52e9ce687fc66b3fb3b8955f7e726e181dbf7322c115423ac923572b2183b7"
+    },
+    {
+      "path": ".github/workflows/umbra-u271-resource-portfolio-baseline.yml",
+      "bytes": 894,
+      "sha256": "18362b8f484dca1df33e7623983724dc8a934fd7dcf9528427e90068bf173a33"
+    },
+    {
+      "path": ".github/workflows/umbra-u272-resource-portfolio-edge.yml",
+      "bytes": 890,
+      "sha256": "753e489850ba5766e207aa62f05ae1aefaa9080b57f13d7f020ef6eecf5c2f64"
+    },
+    {
+      "path": ".github/workflows/umbra-u273-resource-portfolio-stress.yml",
+      "bytes": 892,
+      "sha256": "f2f44ca1e0d3f8f612cdc661046826170912f03204d4ea5183a945c30a8cff99"
+    },
+    {
+      "path": ".github/workflows/umbra-u274-resource-portfolio-cross-seed.yml",
+      "bytes": 896,
+      "sha256": "2e08a489d9371cae06eab322a2898c214533088b93a4b94391abe563f9b7fa0a"
+    },
+    {
+      "path": ".github/workflows/umbra-u275-resource-portfolio-adversarial.yml",
+      "bytes": 897,
+      "sha256": "00c840d18c275e141277bd822efd690c3692c050dea46c62e4a3dbd36aae4103"
+    },
+    {
+      "path": ".github/workflows/umbra-u276-replication-audit-baseline.yml",
+      "bytes": 893,
+      "sha256": "9b8f2059ca9b39437dd2dd45a86b8d616a7e540f6026de06ebaaf74cb75293a8"
+    },
+    {
+      "path": ".github/workflows/umbra-u277-replication-audit-edge.yml",
+      "bytes": 889,
+      "sha256": "8dc16022442a1168eaed836486b53b633bc7858d79de53d7b6191f6ff5deb1ad"
+    },
+    {
+      "path": ".github/workflows/umbra-u278-replication-audit-stress.yml",
+      "bytes": 891,
+      "sha256": "9ae9a40c628d51f6b3d8660a1088faa9000398f13a92c0a63955ee85556502cb"
+    },
+    {
+      "path": ".github/workflows/umbra-u279-replication-audit-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "961724cc1d0a1c5c17ecc65b3684f7f19ddda24da424df8c86b9b86210cd6ace"
+    },
+    {
+      "path": ".github/workflows/umbra-u280-replication-audit-adversarial.yml",
+      "bytes": 896,
+      "sha256": "4081f343bc0b524477088662307ad191040608205616e5683df0c5c12ad4aaff"
+    },
+    {
+      "path": ".github/workflows/umbra-u281-counterfactual-race-baseline.yml",
+      "bytes": 895,
+      "sha256": "007006235896a7952afae2edc8c33a5b0f881cd61a45c5d7fcf855a14749601c"
+    },
+    {
+      "path": ".github/workflows/umbra-u282-counterfactual-race-edge.yml",
+      "bytes": 891,
+      "sha256": "ee68d58c3898ba8e0068da64e08708b606318d8367cae62c140d4768ec61e237"
+    },
+    {
+      "path": ".github/workflows/umbra-u283-counterfactual-race-stress.yml",
+      "bytes": 893,
+      "sha256": "513b96be6d3ffd9df67848df6967a807e31476d151e967e8c9d735b52a10a8ee"
+    },
+    {
+      "path": ".github/workflows/umbra-u284-counterfactual-race-cross-seed.yml",
+      "bytes": 897,
+      "sha256": "549b4f4260f88238f837f81d5be3eff8fc17de7840aa4339352bc9cdccb8e3b4"
+    },
+    {
+      "path": ".github/workflows/umbra-u285-counterfactual-race-adversarial.yml",
+      "bytes": 898,
+      "sha256": "dede262fc101040a7a16ada641a894732f3486c3275b41a9a0deacbec23cbc8e"
+    },
+    {
+      "path": ".github/workflows/umbra-u286-adversarial-seeds-baseline.yml",
+      "bytes": 893,
+      "sha256": "6cc9a1c9e84140859057006d5554189f5b7bc91f2833e1aab82d4443033a91f9"
+    },
+    {
+      "path": ".github/workflows/umbra-u287-adversarial-seeds-edge.yml",
+      "bytes": 889,
+      "sha256": "86e92d0a8616395f18fe7e1d1d6f2acf057877139512c5ec013b3b111473e458"
+    },
+    {
+      "path": ".github/workflows/umbra-u288-adversarial-seeds-stress.yml",
+      "bytes": 891,
+      "sha256": "1c1c4f7de9206798543546756698371b98befd30158d74a0b4540bb2e9f9723e"
+    },
+    {
+      "path": ".github/workflows/umbra-u289-adversarial-seeds-cross-seed.yml",
+      "bytes": 895,
+      "sha256": "f1c47a9d08074cdf6f5e21193b07b5994bbe20189bdb2cf3be0e0dfef701043b"
+    },
+    {
+      "path": ".github/workflows/umbra-u290-adversarial-seeds-adversarial.yml",
+      "bytes": 896,
+      "sha256": "12e93608ac253ced934a27233393fb8b2f829252142ec0f246eb41040dfb951a"
+    },
+    {
+      "path": ".github/workflows/umbra-u291-null-contender-baseline.yml",
+      "bytes": 890,
+      "sha256": "f7eee1929e7fd04ec2865934b44d44c00a6d7c445250c284fb0ef04260703704"
+    },
+    {
+      "path": ".github/workflows/umbra-u292-null-contender-edge.yml",
+      "bytes": 886,
+      "sha256": "44cb6335265a10e8b755f3ab49d59bc6823168c7d7aa44afaa0b904159a64881"
+    },
+    {
+      "path": ".github/workflows/umbra-u293-null-contender-stress.yml",
+      "bytes": 888,
+      "sha256": "4d188b4bc4fcc69c79c09edd1b943a23765b01fe0e19b13cbbd1146158be3383"
+    },
+    {
+      "path": ".github/workflows/umbra-u294-null-contender-cross-seed.yml",
+      "bytes": 892,
+      "sha256": "9045a483880461a03936855970b451c53d0861896e4b902938baefe620727930"
+    },
+    {
+      "path": ".github/workflows/umbra-u295-null-contender-adversarial.yml",
+      "bytes": 893,
+      "sha256": "44afd096b18f8f95ba11ac2cca35901a043eb9cc25f7778ee90d9b6e292e385d"
+    },
+    {
+      "path": ".github/workflows/umbra-u296-policy-tradeoffs-baseline.yml",
+      "bytes": 892,
+      "sha256": "0cfbb1d55d3514a682336f16b06bdc80e0ef80569a16b0930a4cd2bdd1649ee9"
+    },
+    {
+      "path": ".github/workflows/umbra-u297-policy-tradeoffs-edge.yml",
+      "bytes": 888,
+      "sha256": "a449af07ce750e446ac7ded3e37250385302eae9542e8e7eb45d836a2d4272e7"
+    },
+    {
+      "path": ".github/workflows/umbra-u298-policy-tradeoffs-stress.yml",
+      "bytes": 890,
+      "sha256": "793e14707ff31cf49db03fec4605e2e77aa249a3832a7e1fa1429af1f963f8ef"
+    },
+    {
+      "path": ".github/workflows/umbra-u299-policy-tradeoffs-cross-seed.yml",
+      "bytes": 894,
+      "sha256": "4dcd6d7557a095eae35fb5c4dfa2997a92e375c14c66b5a4e64a84a02e213529"
+    },
+    {
+      "path": ".github/workflows/umbra-u300-policy-tradeoffs-adversarial.yml",
+      "bytes": 895,
+      "sha256": "4e714cfc0eacc46402968341ec780615582d5c93654076fd92f0a0a885f9240e"
+    },
+    {
+      "path": ".github/workflows/unit.yml",
+      "bytes": 1050,
+      "sha256": "38b5a5d7f5ce3ed82b1e1725c890f31d18124d8d90704b03b2c41da009dfb8be"
+    },
+    {
+      "path": "docs/WORKFLOW_LAB_300.md",
+      "bytes": 5679,
+      "sha256": "2cbc61bbc54ee788883cb60ae610dd67f60f37b2e516df3fe8a69c785c8cacdc"
+    },
+    {
+      "path": "scripts/generate_umbra_workflows.py",
+      "bytes": 3695,
+      "sha256": "2d58f0a59a6f6a8089558e3e3c5eddd56cfb73999da0b8c159590944565e82ca"
+    },
+    {
+      "path": "scripts/umbra_lab.mjs",
+      "bytes": 15778,
+      "sha256": "4ab9b7f4caec2cb4a79a305430b4a550ff60797460d0b04329657a9e2acce4f6"
+    },
+    {
+      "path": "scripts/umbra_workflow_registry.json",
+      "bytes": 119831,
+      "sha256": "16a7ca55bfa630cfde9720a31b6f4005edd921dc9eaa4f089a10ecea7dc29c52"
+    },
+    {
+      "path": "scripts/validate_umbra_workflows.py",
+      "bytes": 1887,
+      "sha256": "2ea2b9a265883b5779d012bfac0f09cbae568560de628b097e198df07907111b"
+    }
+  ],
+  "purpose": "UMBRA-only manual simulation labs, no autonomous deployment or MYRIAD integration"
+}

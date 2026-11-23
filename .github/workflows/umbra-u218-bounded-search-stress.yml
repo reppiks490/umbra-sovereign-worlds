@@ -1,0 +1,27 @@
+# UMBRA Ω / U218: manually invoked synthetic research. No automatic deployment or trading.
+name: 'U218 | EVOLUTION / Bounded Search / Stress'
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: 'umbra-u218-${{ github.ref }}'
+  cancel-in-progress: true
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 'Execute U218 evidence case'
+        run: 'node scripts/umbra_lab.mjs --id U218 --out-dir workflow-artifacts'
+      - name: Upload synthetic evidence (not independent scientific validation)
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'umbra-u218-synthetic-evidence'
+          path: 'workflow-artifacts/U218.json'
+          if-no-files-found: error
+          retention-days: 14

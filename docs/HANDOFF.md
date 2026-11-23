@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-109 civic audit fail-closed draft (2026-11-23)
+
+Dedicated branch `fix/um-109-civic-audit-fail-closed` addresses issue #15. `society.mjs` rejects nonfinite fiscal/food residuals and missing/non-array civic collections without treating invalid state as conserved. `tests/society.test.mjs` adds adversarial residual and malformed-collection cases and checks G04/G05 failure for nonfinite residuals. This changes audit behavior only, not seeded world advancement. Draft PR and exact-head GitHub Actions remain acceptance gates; the independent public chatgpt.site source and local browser data are untouched. The Court still assumes structurally valid world arrays for its other gates; this is not a general hostile-object sandbox.

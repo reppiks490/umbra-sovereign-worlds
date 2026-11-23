@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-103 browser proof (separate test branch)
+
+The new `tests/served_smoke.py` must run on CI in addition to the existing inline/fallback smoke. It starts a loopback HTTP server, verifies actual module requests and worker roundtrips, checks a malformed worker protocol, then exercises the fallback on a phone viewport. This does not deploy UMBRA or prove empirical model fidelity. Update the verification record with a real run URL; do not infer success from the test source. Stale when the test or workflow changes.

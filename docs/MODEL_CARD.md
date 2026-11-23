@@ -1,4 +1,4 @@
-# Model card — UMBRA Sovereign Worlds 4.0.0
+# Model card — UMBRA Sovereign Worlds 5.0.0
 
 Status: **synthetic educational/artistic simulation**. This document follows the broad purpose/schedule/assumptions/evaluation distinctions of Grimm et al.'s 2020 ODD modeling protocol. **This is NOT a validated agent-based population model.**
 
@@ -10,6 +10,7 @@ Explore *within-model* feedback between synthetic settlement growth, resource sc
 
 - **World**: a deterministic set of 42 fixed synthetic geographic regions, arranged by a Fibonacci sphere. Six nearest spherical neighbors are precomputed per region.
 - **Settlement**: an aggregated state record (population, food, water, energy, knowledge, wealth, illness, stress, health, lineage generation, culture group, drought trait). No individual persons or households exist.
+- **Civic institutions**: one rule-based council per region, four factions, elections, diplomatic corridors, tax/grant transfers, food aid and a bounded civic ledger. No individual voters or autonomous officials exist.
 - **World**: totals, climate state, trade events, provenance parameters, and bounded history.
 - **Events**: synthetic changes caused by the model rules; they are not observed external events.
 
@@ -25,7 +26,8 @@ Each turn `stepWorld`:
 4. Applies threshold-driven migrations and founding, inheriting some attributes from parent colonies.
 5. Moves food from nearby surplus settlements to deficit settlements when trade is enabled.
 6. Diffuses technology to adjacent colonies; updates carbon/biodiversity and generates chronicle events.
-7. Aggregates state; records a bounded time-series and sparse snapshots.
+7. Advances the synthetic civic layer: elections, taxation, grants, treaties, aid and exposure; audits internal fiscal/food conservation.
+8. Aggregates state; records a bounded time-series and sparse snapshots.
 
 `engine.mjs` is the authoritative specification. All parameters are **hand-selected**, not calibrated, and the apparent variable meanings (medicine, climate, etc.) are analogies, not physical dimensional measures. Measurements like "residents" in this simulation can be fractional internally and are rounded only for display; they should not be interpreted as counts of real individuals. Some rules impose synthetic ceilings and approximations, e.g. maximum resources per region and capped population. The disease process does not implement real-world compartmental epidemiology. The wealth and emissions measures have no empirical units.
 
@@ -53,7 +55,8 @@ Each turn `stepWorld`:
 
 ## Reproducibility and verification
 
-- `node --test tests/engine.test.mjs`: deterministic same-seed replay, split stepping, exogenous shocks across policies, zero-effect same policy, 42 unique region names, bounds, long stress, passport input checks.
+- `node --test tests/*.test.mjs`: deterministic, civic and Reality Court tests; proposed archive tests on the UM-101 feature branch.
+- Historical `node --test tests/engine.test.mjs`: deterministic same-seed replay, split stepping, exogenous shocks across policies, zero-effect same policy, 42 unique region names, bounds, long stress, passport input checks.
 - `python tests/smoke.py`: browser behavior at three viewports, chart/controls and JavaScript errors; uses inline browser assembly in restricted environment.
 - `buildPassport`: seed, version, policy, turn, totals, bounded history, optional experiment statistics, creation timestamp and assumptions. Export includes an optional locally computed SHA-256 hash over the pre-checksum JSON payload; import verifies it in secure contexts when present. No certificate, private signing key, timestamp authority, or independent witness exists. If a checksum is absent, source authenticity is unverified.
 
@@ -67,7 +70,7 @@ Each turn `stepWorld`:
 ## Known model limitations
 
 1. Fixed regions and a heuristic sparse-neighbor network; no road or travel-time geometry.
-2. No individual cognition, families, religion, language, class or politics; emergent narratives are synthetic event templates.
+2. No individual cognition, families, religion, language or class. Rule-based settlement-level elections and diplomacy exist, but not actual voters, laws, political actors or validated institutions.
 3. No energy technology lifecycle, trophic ecology, real environmental feedback cycles, immigration borders or institutional incentives.
 4. Dynamics can saturate heuristic resource thresholds; avoid mistaking model equilibrium for empirical universal law.
 5. Trade flows are one-step local resource transfers, not endogenous currency prices or a real market with order books.
@@ -81,3 +84,7 @@ Each turn `stepWorld`:
 
 - Grimm et al. (2020). [The ODD protocol: second update](https://www.jasss.org/23/2/7.html). DOI 10.18564/jasss.4259.
 - NetLogo (current manual). [BehaviorSpace](https://docs.netlogo.org/behaviorspace) — reproducible computational experiments and repeatable seeds. UMBRA does not embed NetLogo.
+
+## Proposed UM-101 archive extension (not merged)
+
+The feature branch adds `archive.mjs` for SHA-256-chained full-world snapshots with strict bounds, version pinning and independent replay from genesis. Imported snapshots must exactly match a reconstructed synthetic world even if all hashes are recomputed. It does not add browser storage, a cloud database, digital signatures, public validation or a deployed endpoint. See `docs/ARCHIVE.md`. Its new tests remain unverified until CI runs; this section becomes stale when archive schema, engine version or merge status changes.

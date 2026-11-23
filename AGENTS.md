@@ -8,7 +8,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 
 - `engine.mjs` owns deterministic world/ecology rules, while `society.mjs` owns synthetic civic mechanisms and double-entry transfer accounting. Both are DOM-independent and Node-testable.
 - `court.mjs` owns independent replay and engineering/scientific-status gates.
-- `observatory.mjs` owns browser UI, rendering, event wiring and graphics telemetry; do not mix business rules into it.
+- `observatory.mjs` owns browser UI, rendering, data-lens presentation, event wiring and graphics telemetry; do not mix business rules into it. The proposed UM-102 lenses are documented in `docs/PLANET_LENSES.md`.
 - `lab.worker.mjs` owns off-thread experiment invocation; preserve deterministic equivalence with the fallback.
 - `world.css` and `index.html` own responsive presentation and accessible semantics.
 - `tests/` owns executable proof for claims.
@@ -32,3 +32,7 @@ Evolve a beautiful, instrumented, scientifically honest synthetic living-world l
 - Exports never impersonate cryptographic signatures. Secure-context checksum is optional; import must verify a present checksum.
 - No arbitrary code execution from imported JSON. No `eval`, nontrusted HTML injection, or unlicensed API fetching.
 - Never hide unverified modules or claim absent tests were executed.
+
+## UM-102 visual data integrity
+
+Planet heat fields must be derived from the **actual synthetic model state**, never unrelated decorative random signals; they may not alter world rules. Accessible labels must describe measured synthetic proxies accurately (not real population density, unrest or climate observations). Preserve the 42-region limit, reduced-motion behavior, keyboard controls and a no-overlay option. `tests/smoke.py` exercises all lens modes and a reduced-motion phone viewport. UI performance and real-device visual quality remain review requirements; this rule becomes stale when the renderer is replaced.

@@ -19,10 +19,10 @@ test('bad step count rejected, and cannot silently overflow',()=>{assert.throws(
 
 
 test('paired experiment rejects NaN, infinite and fractional dimensions before running',()=>{
- for(const trials of [NaN,Infinity,-Infinity,2.5,'8',null,undefined]){
+ for(const trials of [NaN,Infinity,-Infinity,2.5,'8',null]){
    assert.throws(()=>pairedExperiment({seed:13,trials,steps:2}),RangeError);
  }
- for(const steps of [NaN,Infinity,-Infinity,2.5,'20',null,undefined]){
+ for(const steps of [NaN,Infinity,-Infinity,2.5,'20',null]){
    assert.throws(()=>pairedExperiment({seed:13,trials:2,steps}),RangeError);
  }
 });

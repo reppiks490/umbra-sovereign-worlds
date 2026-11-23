@@ -1,0 +1,27 @@
+# UMBRA U2133 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U2133 | T5 adversarial-resilience | multi-horizon-stability | food | long-horizon 1"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u2133-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U2133 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U2133 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u2133-evidence"
+          path: advanced-evidence/U2133.json
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,27 @@
+# UMBRA U2245 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U2245 | T5 adversarial-resilience | multi-horizon-stability | carbon | boundary 1"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u2245-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U2245 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U2245 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u2245-evidence"
+          path: advanced-evidence/U2245.json
+          if-no-files-found: error
+          retention-days: 7

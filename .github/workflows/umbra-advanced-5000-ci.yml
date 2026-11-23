@@ -1,0 +1,48 @@
+name: UMBRA advanced 5000 synthetic workflow qualification
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: umbra-advanced-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate 5000 unique manual-only workflows
+        run: python3 scripts/validate_umbra_advanced_workflows.py
+      - name: Validate simulator engine syntax
+        run: |
+          node --check scripts/umbra_advanced_lab.mjs
+          node scripts/umbra_advanced_lab.mjs --validate
+  experiment:
+    needs: catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Independently execute 500 deterministic synthetic cases
+        run: node scripts/umbra_advanced_lab.mjs --audit-shard "${{ matrix.shard }}/10" --summary-file "advanced-audit/shard-${{ matrix.shard }}.json"
+      - name: Upload aggregated evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: umbra-advanced-shard-${{ matrix.shard }}
+          path: advanced-audit/shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 7

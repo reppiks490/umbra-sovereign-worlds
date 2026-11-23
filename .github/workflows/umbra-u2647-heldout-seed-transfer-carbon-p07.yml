@@ -1,0 +1,27 @@
+# UMBRA U2647 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U2647 | T6 evolutionary-search | heldout-seed-transfer | carbon | boundary 3"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u2647-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U2647 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U2647 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u2647-evidence"
+          path: advanced-evidence/U2647.json
+          if-no-files-found: error
+          retention-days: 7

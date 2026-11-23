@@ -1,0 +1,27 @@
+# UMBRA U5270 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U5270 | T8 metascience | corruption-falsification | biodiversity | regime-shift 2"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u5270-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U5270 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U5270 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u5270-evidence"
+          path: advanced-evidence/U5270.json
+          if-no-files-found: error
+          retention-days: 7

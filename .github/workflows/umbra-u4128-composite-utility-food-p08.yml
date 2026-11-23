@@ -1,0 +1,27 @@
+# UMBRA U4128 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U4128 | T7 sovereign-optimization | composite-utility | food | boundary 4"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u4128-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U4128 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U4128 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u4128-evidence"
+          path: advanced-evidence/U4128.json
+          if-no-files-found: error
+          retention-days: 7

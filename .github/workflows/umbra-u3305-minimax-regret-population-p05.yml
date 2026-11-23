@@ -1,0 +1,27 @@
+# UMBRA U3305 — bounded, manually invoked synthetic research case; no deployment/trading.
+name: "U3305 | T7 sovereign-optimization | minimax-regret | population | boundary 1"
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: "umbra-u3305-${{ github.ref }}"
+  cancel-in-progress: true
+jobs:
+  experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: "Execute U3305 advanced synthetic experiment"
+        run: node scripts/umbra_advanced_lab.mjs --id U3305 --out-dir advanced-evidence
+      - name: Upload independent simulation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: "umbra-u3305-evidence"
+          path: advanced-evidence/U3305.json
+          if-no-files-found: error
+          retention-days: 7

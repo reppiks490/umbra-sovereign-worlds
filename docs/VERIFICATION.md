@@ -20,6 +20,6 @@ python -m playwright install chromium
 python tests/smoke.py
 ```
 
-## UM-102 planetary data-lens branch — pending CI
+## UM-102 planetary data-lens branch — verified CI, production not validated
 
-`feature/um-102-planetary-data-lenses` extends `tests/smoke.py` to select all five synthetic data fields plus OFF on desktop/tablet/phone, checks the read-only diagnostic lens state, and tests a separate reduced-motion phone viewport. This branch is **not yet verified by an observed CI run** and has not been assessed on an actual mobile GPU. Preserve previous historical results but never claim they cover these new visuals. Stale after a matching CI run URL/SHA is observed.
+`feature/um-102-planetary-data-lenses` extends `tests/smoke.py` to select all five synthetic data fields plus OFF on desktop/tablet/phone, checks the read-only diagnostic lens state, and tests a separate reduced-motion phone viewport. GitHub Actions [run 45103208648](https://github.com/reppiks490/umbra-sovereign-worlds/actions/runs/45103208648) on SHA `71ddd6c316e2433ba52852d50acd512924575378` completed successfully: **31/31 Node baseline tests**, **3/3 browser viewport smoke tests** (1440×900, 390×844, 768×1024), and **a separate reduced-motion 390px viewport test** (lenses interactive, zero JS errors and overflow). The browser suite inlines ESM and deliberately uses worker fallback. This does **not** establish served ESM in this branch, production deployment, independent usability review, or real-device iPhone GPU frame-time profiling. Stale when a subsequent commit or new renderer supersedes the recorded CI evidence.

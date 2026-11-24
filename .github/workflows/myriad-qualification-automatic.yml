@@ -1,0 +1,292 @@
+name: MYRIAD automatic research qualification v18-v32
+on:
+  schedule:
+    - cron: '53 6,18 * * *'
+  push:
+    branches: [main]
+    paths: ['.github/workflows/myriad-qualification-automatic.yml']
+permissions:
+  contents: read
+concurrency:
+  group: myriad-qualification-automatic
+  cancel-in-progress: false
+jobs:
+  umbra-evolution-mesh-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify checked-in source integrity
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V18_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V19_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V20_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V21_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+      - name: Verify complete algorithm and workflow address space
+        run: python3 scripts/umbra_evolution_mesh.py validate --full
+      - name: Execute negative, determinism and training tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_umbra_evolution_mesh.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_fabric_v18.py' -v
+          python3 scripts/myriad_bank_fabric.py plan
+          python3 scripts/evolution_source_registry.py validate
+          python3 -m unittest discover -s tests -p 'test_evolution_algorithms_v19.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_transfer_v19.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_tribunal_v19.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_observatory_v19.py' -v
+          python3 scripts/evolution_transfer_curriculum_v19.py --seeds 2 --budgets 32 --output /tmp/v19-transfer-ci.json
+      - name: Execute bounded mesh and verify actual UMBRA v5 simulation bridge
+        run: |
+          python3 scripts/umbra_evolution_mesh.py tick --hour 2026-11-23T19 --shards 256 --shard 1 --limit 6 --steps 8 --ledger /tmp/mesh.sqlite3 --output /tmp/mesh.jsonl
+          node scripts/umbra_evolution_bridge.mjs --input /tmp/mesh.jsonl --output /tmp/bridge.json --limit 4
+          node -e "const x=require('/tmp/bridge.json'); if(x.qualified_umbra_replays.length!==4||x.auto_promotions!==0)process.exit(1);"
+      - name: Qualify twelve independent optimizer candidates on the REAL UMBRA v5 simulator
+        run: |
+          python3 scripts/evolution_tournament_v19.py --start 1 --count 12 --budget 48 --output /tmp/evolution-v19-candidates.jsonl
+          node scripts/umbra_evolution_bridge.mjs --input /tmp/evolution-v19-candidates.jsonl --output /tmp/evolution-v19-bridge.json --limit 12
+          node -e "const x=require('/tmp/evolution-v19-bridge.json');if(x.qualified_umbra_replays.length!==12||x.auto_promotions!==0||x.live_deployments!==0)process.exit(1)"
+      - name: Verify 19 actual independent optimizer methods, safe archive recovery and multi-process leases
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_archive_recovery_v20.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_algorithms_v20.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_scheduler_v20.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_tournament_v20.py' -v
+          python3 scripts/evolution_algorithms_v20.py --budget 24 --seeds 1 --dimensions 3 --output /tmp/v20-algorithm-receipts.json
+      - name: Seal seven independent optimizer candidates and validate with actual UMBRA v5 worldline engine
+        run: |
+          python3 scripts/evolution_umbra_tournament_v20.py --start 1 --count 7 --budget 32 --output /tmp/v20-candidates.jsonl
+          node scripts/umbra_evolution_bridge.mjs --input /tmp/v20-candidates.jsonl --output /tmp/v20-worldlines.json --limit 7
+          node -e "const x=require('/tmp/v20-worldlines.json');if(x.qualified_umbra_replays.length!==7||x.auto_promotions!==0||x.live_deployments!==0)process.exit(1)"
+      - name: Verify source-bound prior-hour agent collaboration lineage
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_lineage_v21.py' -v
+  myriad-local-model-v22-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and exercise bounded local fixture
+        run: |
+          python3 -m py_compile scripts/evolution_local_model_v22.py
+          python3 -m unittest discover -s tests -p 'test_evolution_local_model_v22.py' -v
+  myriad-bank-verifier-v23-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Byte-accurate historical source manifest
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V18_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V23_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+      - name: Adversarial checkpoint and legacy bank geometry tests
+        run: |
+          python3 -m py_compile scripts/myriad_bank_fabric.py
+          python3 -m unittest discover -s tests -p 'test_myriad_bank_verifier_v23.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_fabric_v18.py' -v
+  myriad-model-evidence-v24-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify exact source bytes and compile
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V24_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_model_evidence_v24.py
+      - name: Private evidence, tamper, authorization and deadline tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_model_evidence_v24.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_local_model_v22.py' -v
+  myriad-neural-curriculum-v25-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check reproducible source manifest
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V25_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_neural_curriculum_v25.py
+      - name: Test planning, consent, parameter budgets and non-destructive output guards
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_neural_curriculum_v25.py' -v
+          python3 scripts/evolution_neural_curriculum_v25.py plan
+      # The user-owned private source weights and CPU PyTorch installation are
+      # deliberately not copied to GitHub Actions. These tests do NOT run training.
+  myriad-model-queue-v26-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check exact source and compile
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V26_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_model_queue_v26.py
+      - name: Verify transactional claims, identity-bound HMAC receipts, and failure isolation
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_model_queue_v26.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_model_evidence_v24.py' -v
+          python3 scripts/evolution_model_queue_v26.py status --db /tmp/model-queue-v26-ci.sqlite3
+      # CI intentionally never supplies model tokens or starts external inference.
+  myriad-neural-probe-v27-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check source bytes, compile and execute private-safe regression tests
+        run: |
+          python3 -c "import hashlib,json,pathlib;m=json.load(open('research/EVOLUTION_V27_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in m['files'].items())"
+          python3 -m py_compile scripts/evolution_neural_probe_v27.py
+          python3 -m unittest discover -s tests -p 'test_evolution_neural_probe_v27.py' -v
+      - name: Check research report describes verified scope without model weights
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V27_INDEPENDENT_NEURAL_PROBE_SUMMARY.json'));assert d['agent_networks_evaluated']==10 and d['ability_adapters_evaluated']==10000 and d['historic_full_weights_restored'] is False and d['private_weights_uploaded_to_github'] is False and d['production_authority'] is False"
+  myriad-transfer-v28-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify source manifest and compile
+        run: |
+          python3 -c "import hashlib,json,pathlib;v=json.load(open('research/EVOLUTION_V28_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==d['sha256'] and pathlib.Path(p).stat().st_size==d['size'] for p,d in v['files'].items())"
+          python3 -m py_compile scripts/evolution_transfer_ood_v28.py
+      - name: Run preregistration, negative-baseline and forgery gates
+        run: python3 -m unittest discover -s tests -p 'test_evolution_transfer_ood_v28.py' -v
+      - name: Validate aggregate summary and release isolation
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V28_CROSS_TASK_TRANSFER_SUMMARY.json'));assert d['comparisons']==66 and d['wins_both_count']==0 and d['beats_zero_count']==0 and d['beats_source_count']==18 and d['private_checkpoints_published'] is False and d['production_authority'] is False"
+  myriad-artifact-registry-v29-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify exact source and CI configuration
+        run: |
+          python3 -c "import json,hashlib,pathlib;m=json.load(open('research/EVOLUTION_V29_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] and pathlib.Path(p).stat().st_size==v['size'] for p,v in m['files'].items())"
+          python3 -m py_compile scripts/evolution_artifact_registry_v29.py
+      - name: Execute adversarial file, signature and safetensors tests
+        run: python3 -m unittest discover -s tests -p 'test_evolution_artifact_registry_v29.py' -v
+      - name: Verify release and outside provenance claims are explicitly closed
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V29_LOCAL_REGISTRY_AUDIT.json'));assert d['registered_files']==13 and d['registered_bytes']==8868357 and d['model_origin_authenticated'] is False and d['production_authority'] is False and d['private_weights_published'] is False"
+  myriad-transfer-gate-v30-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check exact source hashes and Python syntax
+        run: |
+          python3 -c "import hashlib,json,pathlib;d=json.load(open('research/EVOLUTION_V30_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==x['sha256'] and pathlib.Path(p).stat().st_size==x['size'] for p,x in d['files'].items())"
+          python3 -m py_compile scripts/evolution_cross_task_gate_v30.py
+      - name: Check model admission forbids unsupported transfer and production claims
+        run: python3 -m unittest discover -s tests -p 'test_evolution_transfer_gate_v30.py' -v
+      - name: Check private replay outcome is clearly marked blocked, no promotion
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V30_ADMISSION_SUMMARY.json'));assert d['status']=='BLOCKED_TRANSFER_EVIDENCE' and d['wins_both']==0 and d['comparison_count']==66 and d['independently_replayed_from_saved_FP16'] is True and d['production_authority'] is False and d['automatic_promotion'] is False and d['production_release_gates_verified']==0"
+  myriad-railway-preflight-v31-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate Dockerfile, exact hashes, and read-only server
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V31_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] and pathlib.Path(p).stat().st_size==v['size'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V18_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V23_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_railway_preflight_v31.py
+          python3 -m unittest discover -s tests -p 'test_evolution_railway_preflight_v31.py' -v
+      - name: Fail if production deployment is claimed by source audit
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V31_RAILWAY_BUILD_AUDIT.json'));assert d['observed_builder']=='RAILPACK' and d['observed_failure_stage']=='BUILD_IMAGE' and d['docker_image_built'] is False and d['railway_builder_changed'] is False and d['railway_production_deployment_attempted'] is False and d['production_authority'] is False"
+  myriad-multitask-v32-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Require exact source bytes before validation
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib
+          d=json.loads(pathlib.Path('research/EVOLUTION_V32_SOURCE_MANIFEST.json').read_text())
+          for p,v in d['files'].items():
+              b=pathlib.Path(p).read_bytes()
+              assert len(b)==v['size'] and hashlib.sha256(b).hexdigest()==v['sha256'],p
+          print('Source manifest verified; CI does NOT execute private FP16 training')
+          PY
+      - name: Compile and test safety gates (private training excluded)
+        run: |
+          python3 -m py_compile scripts/evolution_multitask_v32.py tests/test_evolution_multitask_v32.py
+          python3 -m unittest discover -s tests -p 'test_evolution_multitask_v32.py' -v

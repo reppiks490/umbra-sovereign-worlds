@@ -44,35 +44,107 @@ def plan():
                                 {'name':'retrieval_memory','target_bytes':8_000_000_000,'status':'proposed_capacity_only'}]}
 
 
+def _strict_manifest_object(pairs):
+    """Prevent ambiguous JSON objects with duplicate evidence fields."""
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise ValueError(f'Duplicate checkpoint manifest field: {key}')
+        obj[key] = value
+    return obj
+
+
+def _assert_hex_digest(value, field):
+    if not isinstance(value, str) or len(value) != 64 or any(x not in '0123456789abcdef' for x in value):
+        raise ValueError(f'Invalid SHA-256 digest for {field}')
+
+
 def verify_sample(archive):
-    """Read the actual ten-agent, 10,000-ability saved checkpoint, row by row."""
+    """Check the *entire* portable 10-agent/10k-adapter archive without training claims.
+
+    A matching byte digest only authenticates bytes against the manifest in this
+    archive. It does NOT establish independent training, owner identity, or
+    presence of historical full 8.22GB/640MB banks.
+    """
+    expected_sizes = {'manifest.json': 1_000_000,
+                      'agent_weights.fp16': 10*BASE_AGENT_WIDTH*DTYPE_BYTES,
+                      'ability_weights.fp16': 10_000*BASE_ABILITY_WIDTH*DTYPE_BYTES,
+                      'ability_steps.u8': 10_000}
     with zipfile.ZipFile(archive) as z:
-        names={p.filename for p in z.infolist()}
-        required={'manifest.json','agent_weights.fp16','ability_weights.fp16','ability_steps.u8'}
-        if not required<=names or any(z.getinfo(x).file_size>25_000_000 for x in required):
-            raise ValueError('Invalid or oversized portable checkpoint')
-        m=json.loads(z.read('manifest.json'))
-        if m.get('schema')!='myriad.portable_joint_bank.v1':raise ValueError('Wrong saved-bank schema')
-        agent=z.read('agent_weights.fp16');abilities=z.read('ability_weights.fp16');steps=z.read('ability_steps.u8')
-        if len(agent)!=10*BASE_AGENT_WIDTH*2 or len(abilities)!=10_000*BASE_ABILITY_WIDTH*2 or len(steps)!=10_000:
-            raise ValueError('Incorrect sample extent')
-        if sha256(agent)!=m['agent_weight_sha256'] or sha256(abilities)!=m['ability_weight_sha256']:
-            raise ValueError('Checkpoint hash mismatch')
-        for item in m['agent_rows']:
-            i=item['agent'];raw=agent[(i-1)*BASE_AGENT_WIDTH*2:i*BASE_AGENT_WIDTH*2]
-            if sha256(raw)!=item['sha256']:raise ValueError(f'Agent row {i} mismatch')
-        for item in m['ability_ranges']:
-            lo,hi=item['start']-1,item['end']
-            if sha256(abilities[lo*BASE_ABILITY_WIDTH*2:hi*BASE_ABILITY_WIDTH*2])!=item['sha256']:
-                raise ValueError('Ability block mismatch')
-            if sha256(steps[lo:hi])!=item['steps_sha256']:raise ValueError('Ability step receipt mismatch')
-        return {'schema':SCHEMA,'source':'original saved ten-agent checkpoint',
-                'verified_agents':10,'verified_ability_adapters':10_000,
-                'complete_original_10k_agent_bank_verified':False,
-                'complete_original_10m_ability_bank_verified':False,
-                'agent_sha256':sha256(agent),'ability_sha256':sha256(abilities),'ability_steps_sha256':sha256(steps),
-                'source_archive_sha256':sha256(Path(archive).read_bytes()),
-                'source_training_claim':'archived synthetic training only, no external mastery certification'}
+        infos = z.infolist()
+        names = [entry.filename for entry in infos]
+        if len(names) != len(expected_sizes) or set(names) != set(expected_sizes):
+            raise ValueError('Unexpected, duplicated or missing portable checkpoint member')
+        for entry in infos:
+            if entry.is_dir() or entry.flag_bits & 0x1:
+                raise ValueError('Encrypted/directory checkpoint members are prohibited')
+            limit = expected_sizes[entry.filename]
+            if entry.filename == 'manifest.json':
+                if not 1 <= entry.file_size <= limit:
+                    raise ValueError('Manifest size out of bounds')
+            elif entry.file_size != limit:
+                raise ValueError(f'Wrong checkpoint byte extent: {entry.filename}')
+        m = json.loads(z.read('manifest.json'), object_pairs_hook=_strict_manifest_object)
+        if not isinstance(m, dict) or m.get('schema') != 'myriad.portable_joint_bank.v1':
+            raise ValueError('Wrong saved-bank schema')
+        if type(m.get('agent_parameters')) is not int or m['agent_parameters'] != BASE_AGENT_WIDTH:
+            raise ValueError('Incorrect agent parameter shape')
+        if type(m.get('ability_parameters')) is not int or m['ability_parameters'] != BASE_ABILITY_WIDTH:
+            raise ValueError('Incorrect ability parameter shape')
+        if m.get('auto_promote') is not False:
+            raise ValueError('Portable checkpoint cannot carry promotion authority')
+        agent = z.read('agent_weights.fp16')
+        abilities = z.read('ability_weights.fp16')
+        steps = z.read('ability_steps.u8')
+        _assert_hex_digest(m.get('agent_weight_sha256'), 'whole agent bank')
+        _assert_hex_digest(m.get('ability_weight_sha256'), 'whole ability bank')
+        if sha256(agent) != m['agent_weight_sha256'] or sha256(abilities) != m['ability_weight_sha256']:
+            raise ValueError('Checkpoint whole-bank hash mismatch')
+        rows = m.get('agent_rows')
+        if not isinstance(rows, list) or len(rows) != 10:
+            raise ValueError('All ten original agent-row receipts are required')
+        for expected, item in enumerate(rows, 1):
+            if not isinstance(item, dict) or type(item.get('agent')) is not int or item['agent'] != expected:
+                raise ValueError('Agent row identities must be unique, ordered and complete')
+            if type(item.get('steps')) is not int or item['steps'] <= 0:
+                raise ValueError('Agent training step count must be positive')
+            _assert_hex_digest(item.get('sha256'), f'agent row {expected}')
+            lo = (expected-1)*BASE_AGENT_WIDTH*DTYPE_BYTES
+            hi = expected*BASE_AGENT_WIDTH*DTYPE_BYTES
+            if sha256(agent[lo:hi]) != item['sha256']:
+                raise ValueError(f'Agent row {expected} mismatch')
+        ranges = m.get('ability_ranges')
+        if not isinstance(ranges, list) or not 1 <= len(ranges) <= 10_000:
+            raise ValueError('Ability range receipts are required')
+        previous_end = 0
+        for idx, item in enumerate(ranges, 1):
+            if not isinstance(item, dict):
+                raise ValueError('Malformed ability-range receipt')
+            start, end = item.get('start'), item.get('end')
+            if type(start) is not int or type(end) is not int or start != previous_end+1 or end < start or end > 10_000:
+                raise ValueError('Ability ranges must be ordered, contiguous and nonoverlapping')
+            _assert_hex_digest(item.get('sha256'), f'ability range {idx}')
+            _assert_hex_digest(item.get('steps_sha256'), f'ability steps range {idx}')
+            lo, hi = (start-1)*BASE_ABILITY_WIDTH*DTYPE_BYTES, end*BASE_ABILITY_WIDTH*DTYPE_BYTES
+            if sha256(abilities[lo:hi]) != item['sha256']:
+                raise ValueError(f'Ability block {start}:{end} mismatch')
+            train_steps = steps[start-1:end]
+            if any(v == 0 for v in train_steps) or sha256(train_steps) != item['steps_sha256']:
+                raise ValueError(f'Ability training-step evidence mismatch: {start}:{end}')
+            previous_end = end
+        if previous_end != 10_000:
+            raise ValueError('Ability-range receipts do not cover the entire bank')
+        return {'schema': SCHEMA, 'source': 'verified portable ten-agent checkpoint',
+                'verified_agents': 10, 'verified_ability_adapters': 10_000,
+                'complete_original_10k_agent_bank_verified': False,
+                'complete_original_10m_ability_bank_verified': False,
+                'agent_sha256': sha256(agent), 'ability_sha256': sha256(abilities),
+                'ability_steps_sha256': sha256(steps),
+                'source_archive_sha256': sha256(Path(archive).read_bytes()),
+                'source_import_status': m.get('agent_rows_imported_as', 'unspecified'),
+                'sample_receipt_coverage_verified': True,
+                'training_provenance_independently_attested': False,
+                'source_training_claim': 'byte-and-manifest coverage only; learning quality and identity are unverified'}
 
 
 def verify_full(agent_dir, ability_dir):

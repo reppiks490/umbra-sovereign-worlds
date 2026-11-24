@@ -1,0 +1,31 @@
+name: MYRIAD v2.3 checkpoint evidence gate
+on:
+  pull_request:
+    paths:
+      - 'scripts/myriad_bank_fabric.py'
+      - 'tests/test_myriad_bank_verifier_v23.py'
+      - 'docs/EVOLUTION_V23_CHECKPOINT_VERIFICATION.md'
+      - 'research/EVOLUTION_V18_SOURCE_MANIFEST.json'
+      - 'research/EVOLUTION_V23_SOURCE_MANIFEST.json'
+      - '.github/workflows/myriad-bank-verifier-v23-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Byte-accurate historical source manifest
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V18_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V23_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+      - name: Adversarial checkpoint and legacy bank geometry tests
+        run: |
+          python3 -m py_compile scripts/myriad_bank_fabric.py
+          python3 -m unittest discover -s tests -p 'test_myriad_bank_verifier_v23.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_fabric_v18.py' -v

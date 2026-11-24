@@ -49,8 +49,8 @@
       "size": 7107
     },
     "scripts/myriad_bank_fabric.py": {
-      "sha256": "94f3e49bc37744aac4f87c86fefdc0b810b99935f65a87d1442ec3e1a5faa5ff",
-      "size": 15006
+      "sha256": "92904b64458aa3f94681d283039bc7529e26d568476d81588abe1536d61819e0",
+      "size": 19054
     },
     "scripts/umbra_evolution_bridge.mjs": {
       "sha256": "b4c6a8df4f10d45bb3dd9203ca4b381a539d8ad59c678ca98d180ad8c550a475",

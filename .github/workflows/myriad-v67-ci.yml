@@ -1,0 +1,27 @@
+name: MYRIAD v6.7 paired research protocol
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_research_protocol_v67.py'
+      - 'tests/test_evolution_research_protocol_v67.py'
+      - '.github/workflows/myriad-v67-ci.yml'
+permissions:
+  contents: read
+jobs:
+  paired-protocol:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    env:
+      PYTHONPATH: ${{ github.workspace }}/scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -p 'test_evolution_research_protocol_v67.py' -v

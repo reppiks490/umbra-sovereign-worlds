@@ -1,0 +1,3 @@
+# v6.7 paired research protocol
+
+Four identical cases per compact/explicit comparison, digest-pinned Qwen3 1.7B, independent action and evidence scores, strict case identities, private HMAC receipts and replay. Three focused local tests passed. This pilot uses the existing sixteen template families; it does not prove novel-domain reasoning. No routing admission, production authority or auto-promotion. The first local scheduler integration attempt was interrupted by remote file-write latency; local deployment and live paired results remain unverified at publication. Existing v6.6 scheduler remains intact.

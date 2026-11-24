@@ -24,6 +24,8 @@ on:
       - 'tests/test_evolution_mcp_bridge_v92.py'
       - 'scripts/evolution_skill_catalog_v93.py'
       - 'tests/test_evolution_skill_catalog_v93.py'
+      - 'scripts/evolution_graph_training_v94.py'
+      - 'tests/test_evolution_graph_training_v94.py'
       - 'scripts/evolution_temporal_evidence_v85.py'
       - 'tests/test_evolution_temporal_evidence_v85.py'
       - 'scripts/evolution_capability_fabric_v86.py'
@@ -94,3 +96,4 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_evolution_task_adapter_v61.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_adapter_stress_v77.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_adapter_intervention_v80.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_graph_training_v94.py' -v

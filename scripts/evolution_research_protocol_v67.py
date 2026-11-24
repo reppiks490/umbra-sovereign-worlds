@@ -97,9 +97,10 @@ def verify(record,key):
     return validate_receipt(r)
 def run(root,virtual):
     if scale.free_mb()<2500 or virtual<6000 or teacher.request('/api/ps')[0].get('models'):return {'status':'deferred_resource_guard','production_authority':False}
-    key=ev.secret();seed=int(time.time())//300;c=cases(seed)
+    from evolution_paired_audit_v71 import plan
+    key=ev.secret();design=plan(int(time.time()));seed=design["seed"];c=cases(seed)
     r={'schema':'myriad.research_protocol.v67','seed':seed,'model':MODEL,'digest':PINS[MODEL],'results':[],'production_authority':False,'errors':[]}
-    order=('compact','explicit') if seed%2==0 else ('explicit','compact')
+    order=('compact','explicit') if design['first']=='compact' else ('explicit','compact')
     for protocol in order:
         try:r['results'].append(infer(c,protocol))
         except Exception as e:r['errors'].append({'protocol':protocol,'error_class':type(e).__name__})

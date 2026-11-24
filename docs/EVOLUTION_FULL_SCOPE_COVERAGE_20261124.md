@@ -20,3 +20,16 @@ Authorized PC online. All three existing MYRIAD scheduled tasks returned Ready a
 
 ## Operating rule
 Each iteration reads current HEAD and fresh evidence, chooses a noncolliding substantive improvement, tests, documents and checks exact-SHA CI. Maintain this full workstream register; prioritize measured deficits over version inflation. Reconcile historical documentation with newer receipts. This audit is not evidence of independently reading every source line, recovering private archives, or executing the entire fleet.
+
+## Continuity delta — v7.3–v8.1 (2026-11-24)
+
+- **Fleet:** latest public snapshot: 195000 enrolled, 120 distinct inference-backed completions, 16 model calls, 56 peer-linked records. v7.5 signed fleet reconciliation installed; current public snapshot still 81 added algorithms, pending next publisher refresh after v7.9 installation. No full hourly fleet claim.
+- **Algorithms:** five new executable methods v7.9, source registry expected aggregate 86 after installation; 20/20 focused and 24/24 CI, exact live imports and hash verification. v8.1 eight procedural reasoning families (240 generated objective cross-checks), not trained abilities. Original 250000 independent implementation target remains open.
+- **Ability bank:** v7.8 structural read-only audit verified 270336 stored rows, 270336000 bytes, 6488064 recorded row updates, all 270336 reported improved. Optional replay is separate. 10M numeric and 10M semantic targets not conflated.
+- **Neural bank:** 32 larger agents, 96 MB original larger bank, 16 residual adapters. Existing public checkpoint bytes 109152000 include earlier retained generations, not 48 distinct larger agents. No recovered 8.22GB or 640MB historical bank. Library size-ranked scoped metadata surfaced historical compressed ledgers and small private archives only; full archive lineage unresolved. No private contents uploaded.
+- **Transfer:** v7.7 frozen cohort 101/256 all-baseline wins, 113/256 quadratic wins, zero universal winners, zero original-route retention failures. v8.0 matched-budget intervention preregistered, 4/4 exact-source tests and 24/24 CI; real cohort blocked by RAM threshold, no new learning gain claim.
+- **Runtime:** v7.4, v7.6, v7.8/v7.9 modules live hash-verified; exact v7.9 install PID 516; v8.0 experiment staged, not live scheduled. Existing paired protocol first trial failed explicit response, still requires fresh signed observation. Existing three local schedules preserved.
+- **Resources:** last inspected physical free RAM 3280 MiB, virtual 10659 MiB, free disk 28875055104 bytes. Retain guard thresholds and 6 GiB reserve. 40GB bank targets cannot fit together in current available storage. No purchases or resource escalation.
+- **Release:** draft PR #21 only. 13 gates remain binding. No merge, production integration, automatic routing, Codex, or private artifacts exported.
+
+Prioritize actual v8.0 matched training in eligible idle window, v8.1 pinned-model trial, new tasks and independent baselines, private evidence replay, historical recovery and verified observatory freshness. Transition between workstreams on blockers; do not treat version or CI as project completion.

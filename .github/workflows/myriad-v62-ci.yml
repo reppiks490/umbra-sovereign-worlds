@@ -8,6 +8,8 @@ on:
       - 'tests/test_evolution_adapter_stress_v77.py'
       - 'scripts/evolution_adapter_intervention_v80.py'
       - 'tests/test_evolution_adapter_intervention_v80.py'
+      - 'scripts/evolution_novel_reasoning_v81.py'
+      - 'tests/test_evolution_novel_reasoning_v81.py'
       - 'scripts/evolution_model_tournament_v62.py'
       - 'scripts/evolution_quality_supervisor_v59.py'
       - 'tests/test_evolution_*v6[0-2].py'
@@ -33,6 +35,7 @@ jobs:
           python-version: '3.11'
       - run: python -m unittest discover -s tests -p 'test_evolution_algorithms_v60.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_model_tournament_v62.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_novel_reasoning_v81.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_quality_supervisor_v59.py' -v
   training:
     runs-on: ubuntu-latest

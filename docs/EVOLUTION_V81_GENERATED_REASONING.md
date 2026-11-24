@@ -1,0 +1,7 @@
+# v8.1 generated numerical reasoning, exact answers and witnesses
+
+Eight procedural task families: knapsack, exact Bayesian fraction, GF(2) parity count, robust maximin, critical path, weighted interval selection, forbidden-vertex shortest path, bounded inventory. Four distinct families per seed, shuffled presentation. Exact integer answer and explicit witness/tie convention; no answer key in prompt. Strict JSON, complete unique ids, separate answer/witness/joint scoring. These are bounded synthetic problems, not real-world mastery. Current source is a benchmark only; no live model inference or scheduler integration claimed.
+
+Windows RED PID 22412 missing module. GREEN PID 28912 4/4 tests. Expanded independent objective cross-check PID 24152 5/5 tests; 240 generated tasks compared against independent algorithms, plus eight manually solved fixtures, duplicate/type rejection and answer/witness scoring. Graph cases are increasing-node DAGs; no arbitrary graph inputs or unrestricted exponential enumeration. Fixture witness conventions fixed before implementation (path vertex mask and stock allocation decimal encoding). Do not report 240 generated problems as 240 independently trained abilities.
+
+Next gate: exact-source CI, bounded live pinned-model evaluation with private signed receipts, no automatic routing, no changes to existing scheduler until qualified. Preserve failure denominator and separate family counts. v8.0 full training cohort not run as free RAM 3280 MiB was below 3500 MiB training admission threshold. No bypass.

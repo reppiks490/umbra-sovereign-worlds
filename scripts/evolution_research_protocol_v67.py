@@ -1,5 +1,5 @@
 """Paired prompt experiment. No automatic admission or answer leakage."""
-import hashlib,hmac,json,time,math
+import hashlib,hmac,json,time,math,os
 import evolution_research_v37 as research
 import evolution_fleet_integrity_v55 as integrity
 import evolution_teacher_v40 as teacher
@@ -95,10 +95,42 @@ def verify(record,key):
     if not isinstance(sig,str) or not hmac.compare_digest(ev.sign(r,key),sig):
         raise ValueError('receipt authentication')
     return validate_receipt(r)
+def reserve_window(root,seed,key):
+    """Fail-closed, durable at-most-once admission; a claim is not a receipt."""
+    if type(seed) is not int or seed<0 or not root.is_dir() or root.is_symlink():
+        raise ValueError('invalid window reservation')
+    folder=root/'protocol-claims-v72'
+    if folder.is_symlink():raise ValueError('symlink claim directory')
+    folder.mkdir(exist_ok=True)
+    marker=folder/(str(seed)+'.claim')
+    if marker.exists() or marker.is_symlink():return False
+    # Migrate existing v67/v71 records without changing their signed contents.
+    history=root/'teacher-v40'
+    if history.is_symlink():raise ValueError('symlink evidence directory')
+    found=False
+    for i,path in enumerate(history.glob('protocol-v67-*.json'),1):
+        if i>4096 or path.is_symlink() or not path.is_file():
+            raise ValueError('invalid or excessive protocol history')
+        with path.open('rb') as f:raw=f.read(65537)
+        if len(raw)>65536:raise ValueError('oversized protocol receipt')
+        record=json.loads(raw,object_pairs_hook=research.unique_pairs)
+        verify(record,key)
+        found=found or record['seed']==seed
+    if found:return False
+    try:
+        with marker.open('xb') as f:
+            f.write(ev.canonical({'schema':'myriad.protocol_claim.v72','seed':seed,'production_authority':False})+b'\n')
+            f.flush();os.fsync(f.fileno())
+    except FileExistsError:return False
+    # Never auto-remove the claim after errors or process interruption.
+    return True
+
 def run(root,virtual):
     if scale.free_mb()<2500 or virtual<6000 or teacher.request('/api/ps')[0].get('models'):return {'status':'deferred_resource_guard','production_authority':False}
     from evolution_paired_audit_v71 import plan
-    key=ev.secret();design=plan(int(time.time()));seed=design["seed"];c=cases(seed)
+    key=ev.secret();design=plan(int(time.time()));seed=design["seed"]
+    if not reserve_window(root,seed,key):return {'status':'deferred_duplicate_window','seed':seed,'production_authority':False}
+    c=cases(seed)
     r={'schema':'myriad.research_protocol.v67','seed':seed,'model':MODEL,'digest':PINS[MODEL],'results':[],'production_authority':False,'errors':[]}
     order=('compact','explicit') if design['first']=='compact' else ('explicit','compact')
     for protocol in order:

@@ -35,3 +35,21 @@ test('court catches manually corrupted settlement reserves and fails determinist
  const r=runCourt(w);assert.equal(r.rows.find(x=>x.id==='G02').status,'fail');
  assert.equal(r.rows.find(x=>x.id==='G07').status,'fail');
 });
+
+test('court fails closed on sparse, null and undefined settlements when replay is bounded',()=>{
+ for(const mutation of [w=>delete w.towns[0],w=>{w.towns[0]=undefined},w=>{w.towns[0]=null}]){
+  const w=simulate(37,DEFAULT_POLICY,10);mutation(w);
+  const r=runCourt(w,{replayLimit:0});
+  for(const id of ['G01','G02','G03'])assert.equal(r.rows.find(x=>x.id===id).status,'fail',id);
+  assert.equal(r.rows.find(x=>x.id==='G07').status,'blocked');
+ }
+});
+test('court rejects absent or nonfinite settlement resources without a false population pass',()=>{
+ for(const mutation of [t=>delete t.p,t=>{t.food=NaN},t=>{t.water=Infinity}]){
+  const w=simulate(38,DEFAULT_POLICY,10);mutation(w.towns[0]);
+  const r=runCourt(w,{replayLimit:0});
+  assert.equal(r.rows.find(x=>x.id==='G02').status,'fail');
+  assert.equal(r.rows.find(x=>x.id==='G03').status,'fail');
+  assert.equal(r.rows.find(x=>x.id==='G07').status,'blocked');
+ }
+});

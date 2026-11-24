@@ -1,0 +1,36 @@
+{
+  "docker_image_built": false,
+  "files": {
+    ".github/workflows/myriad-railway-preflight-v31-ci.yml": {
+      "sha256": "b44cd28f7085b21ca0489facceb87aadd04f2cdd495a349f513b1bb62040bf61",
+      "size": 1887
+    },
+    "docs/EVOLUTION_V31_OBSERVATORY_DEPLOYMENT_PREFLIGHT.md": {
+      "sha256": "31190ddb563a5b81b296153f2a3e0f3dcbb89c8dd78bdc961af54c6c892a4437",
+      "size": 4415
+    },
+    "evolution/Dockerfile": {
+      "sha256": "0ed6c5811c35403d78775aff62187128cd95f96c933833025afc1095e799bb64",
+      "size": 756
+    },
+    "research/EVOLUTION_V18_SOURCE_MANIFEST.json": {
+      "sha256": "8c9a049122dc82313cd109a68644fc14f60977716cc761c4fef3950488c40dee",
+      "size": 2938
+    },
+    "research/EVOLUTION_V31_RAILWAY_BUILD_AUDIT.json": {
+      "sha256": "a9124d8427b57b8c63a56618ad18411bdfa244a5c2111722027c59b178393ec5",
+      "size": 908
+    },
+    "scripts/evolution_railway_preflight_v31.py": {
+      "sha256": "b5f8e04c6f7d6162cd60fa63baa4d611167696bc176735d57651c3f0d817ed6c",
+      "size": 1951
+    },
+    "tests/test_evolution_railway_preflight_v31.py": {
+      "sha256": "8eb392e8aab3df3c172887ba03b320d29d0e4f3df2a4e9dd1ae988119f262d08",
+      "size": 6066
+    }
+  },
+  "production_deployed": false,
+  "schema": "myriad.observatory_preflight.v31.source",
+  "source_only": true
+}

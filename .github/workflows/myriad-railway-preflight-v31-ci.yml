@@ -1,0 +1,32 @@
+name: MYRIAD v3.1 read-only observatory port and deployment preflight
+on:
+  pull_request:
+    paths:
+      - 'evolution/Dockerfile'
+      - 'scripts/evolution_railway_preflight_v31.py'
+      - 'tests/test_evolution_railway_preflight_v31.py'
+      - 'docs/EVOLUTION_V31_*'
+      - 'research/EVOLUTION_V31_*'
+      - 'research/EVOLUTION_V18_SOURCE_MANIFEST.json'
+      - '.github/workflows/myriad-railway-preflight-v31-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate Dockerfile, exact hashes, and read-only server
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V31_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] and pathlib.Path(p).stat().st_size==v['size'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V18_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_railway_preflight_v31.py
+          python3 -m unittest discover -s tests -p 'test_evolution_railway_preflight_v31.py' -v
+      - name: Fail if production deployment is claimed by source audit
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V31_RAILWAY_BUILD_AUDIT.json'));assert d['observed_builder']=='RAILPACK' and d['observed_failure_stage']=='BUILD_IMAGE' and d['docker_image_built'] is False and d['railway_builder_changed'] is False and d['railway_production_deployment_attempted'] is False and d['production_authority'] is False"

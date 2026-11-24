@@ -173,7 +173,7 @@ def connect(path):
     return db
 
 
-def peer_for(db, wf, hour):
+def peer_evidence_for(db, wf, hour):
     # Only a *previously recorded* and explicitly unpromoted peer record can be used.
     # Strict earlier-hour selection: same-hour worker completion order is not
     # an independent validation signal. Never copy rejected peer candidates.
@@ -208,8 +208,16 @@ def peer_for(db, wf, hour):
             recorded=item.get('delta',{}).get(metric)
             if not isinstance(recorded,(int,float)) or not math.isfinite(recorded) or abs(raw-recorded)>2e-7 or raw<=.0001:
                 raise ValueError('forged peer qualification')
-        return params
+        return {'parameters':params,'parent_workflow':item['workflow'],
+                'parent_hour':item['hour'],'parent_receipt_sha256':h,
+                'parent_domain':item['domain']}
     return None
+
+
+def peer_for(db,wf,hour):
+    """Legacy parameters-only facade: all callers still receive a list."""
+    parent=peer_evidence_for(db,wf,hour)
+    return parent['parameters'] if parent else None
 
 
 def run_batch(args):
@@ -235,9 +243,12 @@ def run_batch(args):
             wf = workflow(index)
             if db.execute('SELECT 1 FROM runs WHERE hour=? AND workflow=?',(hour,wf['id'])).fetchone():
                 duplicates += 1; continue
-            peer = peer_for(db, wf, hour)
+            parent = peer_evidence_for(db, wf, hour)
+            peer = parent['parameters'] if parent else None
             record = train(wf,hour=hour,steps=args.steps,peer=peer)
-            record['peer_used'] = peer is not None
+            record['peer_used'] = parent is not None
+            record['peer_provenance_schema']='umbra.evolution.parent_link.v21'
+            record['peer_parent']={k:parent[k] for k in ('parent_workflow','parent_hour','parent_receipt_sha256','parent_domain')} if parent else None
             # Peer metadata is in the final receipt, with digest recomputed.
             record.pop('receipt_sha256')
             record['receipt_sha256'] = digest(record)

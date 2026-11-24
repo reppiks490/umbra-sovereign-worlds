@@ -110,9 +110,12 @@ def process(db_path,*,max_jobs=12,steps=3,owner='local-worker',clock=None):
             idx,due=item;wf=mesh.workflow(idx)
             h=datetime.fromtimestamp(due,tz=timezone.utc).strftime('%Y-%m-%dT%H')
             try:
-                peer=mesh.peer_for(db,wf,h)
+                parent=mesh.peer_evidence_for(db,wf,h)
+                peer=parent['parameters'] if parent else None
                 record=mesh.train(wf,hour=h,steps=steps,peer=peer)
-                record['peer_used']=peer is not None
+                record['peer_used']=parent is not None
+                record['peer_provenance_schema']='umbra.evolution.parent_link.v21'
+                record['peer_parent']={k:parent[k] for k in ('parent_workflow','parent_hour','parent_receipt_sha256','parent_domain')} if parent else None
                 record.pop('receipt_sha256');record['receipt_sha256']=mesh.digest(record)
                 finish(db,fenced_owner,idx,due,record,clock_tick())
                 completed+=1;last.append({'worker':wf['id'],'receipt':record['receipt_sha256']})

@@ -1,0 +1,26 @@
+{
+  "files": {
+    "docs/EVOLUTION_V21_ENGINEERING.md": {
+      "bytes": 5302,
+      "sha256": "c6daf55c595bac4653c7ca8794410660d3ee893e7c6caf3c57dacc018e7f578b"
+    },
+    "research/EVOLUTION_V21_LINEAGE_AUDIT_SUMMARY.json": {
+      "bytes": 1319,
+      "sha256": "aa1ec72cec286d8aabaf92f808f140fd4fad619a9ba53df89c871c5217ccb65e"
+    },
+    "scripts/evolution_lineage_v21.py": {
+      "bytes": 6100,
+      "sha256": "84f7103948b9b1b881eeeec182f1857cefb19808dc2b8453391725b40912849f"
+    },
+    "tests/test_evolution_lineage_v21.py": {
+      "bytes": 4208,
+      "sha256": "3fa83ca2a41d5bcece545616449047b835a041316abd5856061f5c13ddfb2be2"
+    }
+  },
+  "historical_parent_links_verified": 0,
+  "model_weight_updates": 0,
+  "new_receipts_embed_parent_hashes": true,
+  "previous_reviewed_source": "umbra.evolution.v20.source.v1",
+  "production_authority": false,
+  "schema": "umbra.evolution.v21.source.v1"
+}

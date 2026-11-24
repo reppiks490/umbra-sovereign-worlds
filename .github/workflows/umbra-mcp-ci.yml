@@ -4,6 +4,7 @@ on:
     paths:
       - 'mcp/**'
       - 'tests/mcp-*.test.mjs'
+      - 'tests/local_model_inventory.test.mjs'
       - '.github/workflows/umbra-mcp-ci.yml'
   workflow_dispatch:
 permissions:
@@ -17,4 +18,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/mcp-protocol.test.mjs tests/mcp-runtime.test.mjs
+      - run: node --test tests/mcp-protocol.test.mjs tests/mcp-runtime.test.mjs tests/local_model_inventory.test.mjs

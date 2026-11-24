@@ -1,0 +1,33 @@
+name: MYRIAD v2.6 bounded model-worker queue qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_model_queue_v26.py'
+      - 'scripts/evolution_model_evidence_v24.py'
+      - 'scripts/evolution_local_model_v22.py'
+      - 'tests/test_evolution_model_queue_v26.py'
+      - 'docs/EVOLUTION_V26_DURABLE_MODEL_QUEUE.md'
+      - 'research/EVOLUTION_V26_SOURCE_MANIFEST.json'
+      - '.github/workflows/myriad-model-queue-v26-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check exact source and compile
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V26_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_model_queue_v26.py
+      - name: Verify transactional claims, identity-bound HMAC receipts, and failure isolation
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_model_queue_v26.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_model_evidence_v24.py' -v
+          python3 scripts/evolution_model_queue_v26.py status --db /tmp/model-queue-v26-ci.sqlite3
+      # CI intentionally never supplies model tokens or starts external inference.

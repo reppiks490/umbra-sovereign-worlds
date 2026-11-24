@@ -73,7 +73,7 @@ def _points(x):
 def _dist(x,y):return sum((u-v)**2 for u,v in zip(x,y))
 def dbscan(x,eps,min_pts):
     _points(x)
-    if eps<0 or type(min_pts) is not int or min_pts<1:raise ValueError('invalid parameters')
+    if not math.isfinite(eps) or eps<0 or type(min_pts) is not int or min_pts<1:raise ValueError('invalid parameters')
     labels=[-2]*len(x);cluster=0
     def neighbors(i):return [j for j,v in enumerate(x) if _dist(x[i],v)<=eps*eps]
     for i in range(len(x)):
@@ -93,6 +93,7 @@ def dbscan(x,eps,min_pts):
     return labels
 def kmeans(x,centers,steps=100):
     _points(x);_points(centers)
+    if type(steps) is not int or steps<1:raise ValueError('iteration budget')
     if len(x[0])!=len(centers[0]):raise ValueError('geometry')
     centers=[list(v) for v in centers]
     for _ in range(steps):
@@ -121,7 +122,9 @@ def bayes(prior,likelihood):
 def _hmm(prior,t,e,obs):
     n=len(prior)
     if not n or not obs or len(t)!=n or len(e)!=n or any(len(r)!=n for r in t) or not e[0] or any(len(r)!=len(e[0]) for r in e) or any(type(o) is not int or not 0<=o<len(e[0]) for o in obs):raise ValueError('hmm geometry')
-    if any(not math.isfinite(v) or not 0<=v<=1 for r in [prior]+list(t)+list(e) for v in r):raise ValueError('probability')
+    rows=[prior]+list(t)+list(e)
+    if any(not math.isfinite(v) or not 0<=v<=1 for r in rows for v in r):raise ValueError('probability')
+    if any(not math.isclose(math.fsum(r),1.0,rel_tol=0.0,abs_tol=1e-10) for r in rows):raise ValueError('probability normalization')
 def viterbi(prior,t,e,obs):
     _hmm(prior,t,e,obs);n=len(prior);log=lambda x:math.log(x) if x else -math.inf
     p=[log(prior[i])+log(e[i][obs[0]]) for i in range(n)];paths=[[i] for i in range(n)]
@@ -131,6 +134,7 @@ def viterbi(prior,t,e,obs):
             i=max(range(n),key=lambda i:(round(p[i]+log(t[i][j]),14),-i))
             q.append(p[i]+log(t[i][j])+log(e[j][o]));new.append(paths[i]+[j])
         p=q;paths=new
+    if max(p)==-math.inf:raise ValueError('impossible observation sequence')
     return paths[max(range(n),key=lambda i:(round(p[i],14),-i))]
 def forward(prior,t,e,obs):
     _hmm(prior,t,e,obs);n=len(prior);p=[prior[i]*e[i][obs[0]] for i in range(n)]
@@ -151,6 +155,7 @@ def trapezoid(f,a,b,n):
 def gauss_jordan(a,b):
     n=len(b)
     if not n or len(a)!=n or any(len(r)!=n for r in a):raise ValueError('geometry')
+    if any(not math.isfinite(v) for r in a for v in r) or any(not math.isfinite(v) for v in b):raise ValueError('nonfinite matrix')
     m=[list(r)+[v] for r,v in zip(a,b)]
     for j in range(n):
         i=max(range(j,n),key=lambda i:abs(m[i][j]))

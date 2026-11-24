@@ -1,4 +1,4 @@
-name: MYRIAD automatic research qualification v18-v62
+name: MYRIAD automatic research qualification v18-v67
 on:
   schedule:
     - cron: '53 6,18 * * *'
@@ -514,3 +514,39 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install torch==2.15.0+cpu --index-url https://download.pytorch.org/whl/cpu
       - run: python -m unittest discover -s tests -p 'test_evolution_task_adapter_v61.py' -v
+  protocol-v67:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: ${{ github.workspace }}/scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: de4cdb446ebf10fcb4b7d3a91494d4c4051173b3
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -p 'test_evolution_tool_research_v64.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_algorithms_v65.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_resource_v66.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_research_protocol_v67.py' -v
+  regularized-training-v67:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONPATH: scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: de4cdb446ebf10fcb4b7d3a91494d4c4051173b3
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install torch==2.15.0+cpu --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m unittest discover -s tests -p 'test_evolution_distill_v63.py' -v

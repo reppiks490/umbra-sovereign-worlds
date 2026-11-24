@@ -1,0 +1,7 @@
+# MYRIAD v6.9 — paired receipt integrity
+
+Baseline adc877cbf890b3cfaf6c6eb8bf7b7818621189ee. Reproduced 13 failing adversarial subcases in 7 new tests against the v6.7 implementation on the authorized Windows PC. After patch, all 18 focused tests (7 new, 3 protocol, 2 schedule, 2 supervisor, 4 resource) passed in a temporary isolated copy. No actual live model request was made by these tests.
+
+The verifier now checks exact schema, pinned model identity and digest, integer seed, exclusive complete coverage of the two protocols by successes/errors, coherent completion status, exact fields, response digest format, finite nonnegative elapsed time, strict type-preserving independent score replay and comparison replay. Validate before the private writer and verify the HMAC after signing. Existing valid v6.7 receipts retain the same format. The HTTP response digest is format-checked; raw HTTP bytes are not retained for independent reconstruction. HMAC is not external attestation.
+
+Source commit b872764298535cc8b84fd7635d783583de5aa701; regression commit 79d6f71f3cba6b0f694267f97cf5851b2b16b6f5; Windows/Linux CI inclusion commit 66e2f67033bf8068cd967866358b321709992faa. Recheck current HEAD CI. No production authority, no merge, no Codex, no paid resources. Live installation of v6.9 and live paired inference are not established by this source qualification. Preserve existing active scheduler and only update during a verified safe idle window. Maintain the full-scope coverage register and remaining numerical targets.

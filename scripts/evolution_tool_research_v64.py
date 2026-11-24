@@ -69,12 +69,27 @@ def decode(cases,raw):
     if not isinstance(v,list) or len(v)!=len(cases) or any(not isinstance(x,str) or x not in EXPECTED for x in v):raise ValueError('invalid model plan')
     return v
 def verify(record,key):
+    if not isinstance(record,dict):raise ValueError('invalid receipt')
     r=dict(record);sig=r.pop('hmac_sha256',None)
-    if not isinstance(sig,str) or not hmac.compare_digest(ev.sign(r,key),sig) or r['schema']!='myriad.tool_research.v64' or r['production_authority'] is not False:raise ValueError('invalid receipt')
-    if r['status']=='completed':
-        c_=cases(r['seed'])
-        if r['case_sha256']!=hashlib.sha256(ev.canonical(c_)).hexdigest() or r['results']!=[evaluate(q,m) for q,m in zip(c_,decode(c_,r['raw']))]:raise ValueError('replay mismatch')
+    hex64=lambda s:isinstance(s,str) and len(s)==64 and all(c in '0123456789abcdef' for c in s)
+    if not hex64(sig) or not hmac.compare_digest(ev.sign(r,key),sig):raise ValueError('invalid authentication')
+    base={'schema','seed','model','digest','case_sha256','production_authority','arbitrary_code_execution','status'}
+    status=r.get('status')
+    if status not in ('completed','failed'):raise ValueError('invalid status')
+    extra={'raw','response_sha256','results'} if status=='completed' else {'error_class'}
+    if set(r)!=base|extra or r['schema']!='myriad.tool_research.v64' or r['model']!='qwen3:1.7b' or r['digest']!=PINS['qwen3:1.7b'] or r['production_authority'] is not False or r['arbitrary_code_execution'] is not False:raise ValueError('invalid metadata')
+    if type(r['seed']) is not int or not 0<=r['seed']<=2**63-1:raise ValueError('invalid seed')
+    c_=cases(r['seed'])
+    if r['case_sha256']!=hashlib.sha256(ev.canonical(c_)).hexdigest():raise ValueError('case identity')
+    if status=='failed':
+        e=r['error_class']
+        if not isinstance(e,str) or not 1<=len(e)<=80 or not e.isidentifier():raise ValueError('invalid failure')
+    else:
+        if not hex64(r['response_sha256']) or not isinstance(r['raw'],str) or not 1<=len(r['raw'])<=8192 or not isinstance(r['results'],list):raise ValueError('invalid outcome')
+        expected=[evaluate(q,m) for q,m in zip(c_,decode(c_,r['raw']))]
+        if ev.canonical(r['results'])!=ev.canonical(expected):raise ValueError('replay mismatch')
     return True
+
 def run(root,virtual):
     key=ev.secret();seed=int(time.time())//300;model='qwen3:1.7b';digest=PINS[model]
     if scale.free_mb()<2500:return {'status':'deferred_memory','production_authority':False}

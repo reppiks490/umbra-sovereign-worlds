@@ -1,0 +1,30 @@
+name: MYRIAD v3.0 independent FP16 admission evidence safety
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_cross_task_gate_v30.py'
+      - 'tests/test_evolution_transfer_gate_v30.py'
+      - 'docs/EVOLUTION_V30_*'
+      - 'research/EVOLUTION_V30_*'
+      - '.github/workflows/myriad-transfer-gate-v30-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check exact source hashes and Python syntax
+        run: |
+          python3 -c "import hashlib,json,pathlib;d=json.load(open('research/EVOLUTION_V30_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==x['sha256'] and pathlib.Path(p).stat().st_size==x['size'] for p,x in d['files'].items())"
+          python3 -m py_compile scripts/evolution_cross_task_gate_v30.py
+      - name: Check model admission forbids unsupported transfer and production claims
+        run: python3 -m unittest discover -s tests -p 'test_evolution_transfer_gate_v30.py' -v
+      - name: Check private replay outcome is clearly marked blocked, no promotion
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V30_ADMISSION_SUMMARY.json'));assert d['status']=='BLOCKED_TRANSFER_EVIDENCE' and d['wins_both']==0 and d['comparison_count']==66 and d['independently_replayed_from_saved_FP16'] is True and d['production_authority'] is False and d['automatic_promotion'] is False and d['production_release_gates_verified']==0"

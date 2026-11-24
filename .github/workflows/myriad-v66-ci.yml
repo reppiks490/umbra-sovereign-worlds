@@ -4,6 +4,8 @@ on:
     paths:
       - 'scripts/evolution_distill_v63.py'
       - 'scripts/evolution_tool_research_v64.py'
+      - 'scripts/evolution_window_claim_v96.py'
+      - 'tests/test_evolution_window_claim_v96.py'
       - 'scripts/evolution_algorithms_v65.py'
       - 'scripts/evolution_quality_supervisor_v59.py'
       - 'tests/test_evolution_*v6[3-6].py'
@@ -28,6 +30,7 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m unittest discover -s tests -p 'test_evolution_tool_research_v64.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_window_claim_v96.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_algorithms_v65.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_resource_v66.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_quality_supervisor_v59.py' -v

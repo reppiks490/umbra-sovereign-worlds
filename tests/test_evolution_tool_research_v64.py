@@ -44,4 +44,20 @@ class ReceiptTests(unittest.TestCase):
   for p in ({**r,'error_class':'bad error'},{**r,'raw':'[]'},{k:v for k,v in r.items() if k!='error_class'}):
    with self.assertRaises(ValueError):m.verify(self.signed(p),b'x'*32)
 
+
+class AdmissionTests(unittest.TestCase):
+ def test_low_resource_guard_never_requests_model_or_key(self):
+  from unittest.mock import patch
+  from pathlib import Path
+  with patch.object(m.scale,'free_mb',return_value=2499),patch.object(m.teacher,'request') as request,patch.object(m.ev,'secret') as secret:
+   self.assertEqual(m.run(Path('.'),6000)['status'],'deferred_resource')
+   request.assert_not_called();secret.assert_not_called()
+ def test_duplicate_window_never_calls_inference(self):
+  from unittest.mock import patch
+  from pathlib import Path
+  from types import SimpleNamespace
+  with patch.object(m.scale,'free_mb',return_value=3500),patch.object(m.shutil,'disk_usage',return_value=SimpleNamespace(free=7*1024**3)),patch.object(m.teacher,'request',return_value=({'models':[]},b'')) as request,patch.object(m.ev,'secret',return_value=b'x'*32),patch.object(m.claims,'reserve',return_value=False),patch.object(m.native,'_pin') as pin:
+   self.assertEqual(m.run(Path('.'),6500)['status'],'deferred_duplicate_window')
+   request.assert_called_once_with('/api/ps');pin.assert_not_called()
+
 if __name__=='__main__':unittest.main()

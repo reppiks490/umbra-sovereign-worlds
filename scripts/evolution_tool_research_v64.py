@@ -1,5 +1,5 @@
 """Model-selected inert numerical tool dispatch with independently computed references."""
-import hashlib,hmac,itertools,json,math,random,time
+import hashlib,hmac,itertools,json,math,random,time,shutil
 from pathlib import Path
 import evolution_algorithms_v49 as a
 import evolution_algorithms_v56 as b
@@ -10,6 +10,7 @@ import evolution_fleet_scale_v36 as scale
 import evolution_research_orchestrator_v39 as orch
 import evolution_native_ollama_v33 as native
 from evolution_reliability_v43 import PINS
+import evolution_window_claim_v96 as claims
 EXPECTED=('dijkstra','max_flow','knapsack','inversions','welford','miller_rabin','quickselect','fft')
 QUESTIONS=('Minimum total nonnegative edge cost from vertex 0 to 4.','Maximum units that can move from vertex 0 to 4 subject to directed capacities.','Maximum total value of indivisible items under the weight budget.','Count pairs in a sequence where an earlier number exceeds a later number.','Calculate sample variance using a numerically stable streaming method.','Determine whether the given positive integer is prime.','Find the element at the specified zero-based rank without sorting the full input.','Calculate the complex discrete frequency spectrum of a power-of-two signal.')
 def cases(seed):
@@ -91,8 +92,10 @@ def verify(record,key):
     return True
 
 def run(root,virtual):
+    if scale.free_mb()<2500 or virtual<6000 or shutil.disk_usage(root).free<6*1024**3:return {'status':'deferred_resource','production_authority':False}
+    if teacher.request('/api/ps')[0].get('models'):return {'status':'deferred_resident_model','production_authority':False}
     key=ev.secret();seed=int(time.time())//300;model='qwen3:1.7b';digest=PINS[model]
-    if scale.free_mb()<2500:return {'status':'deferred_memory','production_authority':False}
+    if not claims.reserve(root,seed,key,verify):return {'status':'deferred_duplicate_window','production_authority':False}
     c_=cases(seed);r={'schema':'myriad.tool_research.v64','seed':seed,'model':model,'digest':digest,'case_sha256':hashlib.sha256(ev.canonical(c_)).hexdigest(),'production_authority':False,'arbitrary_code_execution':False}
     try:
         native._pin(11434,model,digest,10)

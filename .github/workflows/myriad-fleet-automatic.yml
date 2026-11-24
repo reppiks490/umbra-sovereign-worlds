@@ -1,0 +1,110 @@
+name: MYRIAD automatic full logical fleet research
+on:
+  schedule:
+    - cron: '11 2,14 * * *'
+  push:
+    branches: [main]
+    paths: ['.github/workflows/myriad-fleet-automatic.yml']
+permissions:
+  contents: read
+concurrency:
+  group: myriad-fleet-automatic
+  cancel-in-progress: false
+jobs:
+  synthetic-fleet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 15
+      matrix:
+        group: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Execute all 13 assigned partitions with exact coverage checks
+        env:
+          GROUP: ${{ matrix.group }}
+        run: |
+          python3 - <<'PY'
+          import datetime, json, os, pathlib, subprocess, sys, hashlib
+          group=int(os.environ['GROUP'])
+          hour=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H')
+          out=pathlib.Path('fleet-evidence')
+          out.mkdir()
+          seen=set()
+          summaries=[]
+          for shard in range(group*13, (group+1)*13):
+              path=out/f'shard-{shard}.jsonl'
+              raw=subprocess.check_output([sys.executable,'scripts/umbra_evolution_mesh.py','tick','--hour',hour,'--shards','195','--shard',str(shard),'--limit','1000','--steps','12','--ledger',str(out/f'shard-{shard}.sqlite3'),'--output',str(path)],text=True)
+              result=json.loads(raw)
+              if result['processed']!=1000 or result['capacity_deferred']!=0:
+                  raise RuntimeError(f'incomplete shard {shard}: {result}')
+              ids=set()
+              with path.open() as stream:
+                  for line in stream:
+                      row=json.loads(line)
+                      wid=int(row['workflow'][1:])
+                      if wid in ids or wid in seen or (wid-1)%195!=shard:
+                          raise RuntimeError('duplicate or misassigned identity')
+                      if row['deployment_authorized'] or row['real_model_weight_training']:
+                          raise RuntimeError('invalid authority')
+                      ids.add(wid)
+              if len(ids)!=1000:
+                  raise RuntimeError('incomplete receipt coverage')
+              seen.update(ids)
+              summaries.append({'shard':shard,'count':len(ids),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+              (out/f'shard-{shard}.sqlite3').unlink()
+          assert len(seen)==13000
+          (out/'summary.json').write_text(json.dumps({'group':group,'hour':hour,'source':'479ca2e1f3f7c8e5badbd767d355d2b0b579131e','count':len(seen),'shards':summaries,'neural_training':False,'production_authority':False},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fleet-group-${{ matrix.group }}
+          path: |
+            fleet-evidence/summary.json
+            fleet-evidence/*.jsonl
+          retention-days: 1
+          if-no-files-found: error
+  coverage:
+    needs: synthetic-fleet
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: fleet-group-*
+          path: fleet
+      - name: Require full disjoint fleet coverage
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,hashlib
+          groups=set()
+          shards=set()
+          identities=set()
+          for p in pathlib.Path('fleet').glob('*/summary.json'):
+              r=json.loads(p.read_text())
+              assert r['group'] not in groups and r['count']==13000
+              assert r['source']=='479ca2e1f3f7c8e5badbd767d355d2b0b579131e'
+              groups.add(r['group'])
+              for s in r['shards']:
+                  shard=s['shard']
+                  assert shard not in shards and shard//13==r['group']
+                  shards.add(shard)
+                  q=p.parent/f'shard-{shard}.jsonl'
+                  assert hashlib.sha256(q.read_bytes()).hexdigest()==s['sha256']
+                  rows=[json.loads(x) for x in q.read_text().splitlines()]
+                  assert len(rows)==1000
+                  for row in rows:
+                      wid=int(row['workflow'][1:])
+                      assert 1<=wid<=195000 and (wid-1)%195==shard and wid not in identities
+                      identities.add(wid)
+          assert groups==set(range(15)) and shards==set(range(195))
+          assert identities==set(range(1,195001))
+          print('195000/195000 synthetic logical worker identities covered. No model-worker or neural-training claim.')
+          PY

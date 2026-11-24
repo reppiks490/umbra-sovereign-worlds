@@ -1,0 +1,28 @@
+{
+  "files": {
+    ".github/workflows/myriad-neural-curriculum-v25-ci.yml": {
+      "sha256": "7d159bf07caa183106d1d704f4b686294570a5251d414cdab219ca3334b53701",
+      "size": 1526
+    },
+    "docs/EVOLUTION_V25_SYNTHETIC_NEURAL_CURRICULUM.md": {
+      "sha256": "ec5c1504322c4bd5cffab1013da40242aef569837ae29df7730be0e97e1cb904",
+      "size": 4888
+    },
+    "research/EVOLUTION_V25_TRAINING_SUMMARY.json": {
+      "sha256": "2a861a25977d1a56091a0ebd69baa0ddaff0766e0f3eb67f589551e65aabaa0f",
+      "size": 1626
+    },
+    "scripts/evolution_neural_curriculum_v25.py": {
+      "sha256": "fb734e7cc2c03f50b98acab884024196e0905732e3122f7ec233a01d9d9261de",
+      "size": 15475
+    },
+    "tests/test_evolution_neural_curriculum_v25.py": {
+      "sha256": "1f877e54155341f054baff4b28486f1670231105ad720ff1030bba67ddd6a08c",
+      "size": 1892
+    }
+  },
+  "inference_models_connected": 0,
+  "production_weights_promoted": 0,
+  "schema": "myriad.v25.source.v1",
+  "status": "RESEARCH_ONLY_QUARANTINE"
+}

@@ -28,7 +28,6 @@ jobs:
         run: |
           python3 scripts/validate_daily_fleet.py catalog
           python3 scripts/validate_daily_fleet.py schedule
-          python3 scripts/validate_umbra_workflows.py
           python3 scripts/validate_umbra_advanced_workflows.py
           node scripts/umbra_lab.mjs --validate
           node scripts/umbra_advanced_lab.mjs --validate

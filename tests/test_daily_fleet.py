@@ -44,6 +44,9 @@ class FleetGate(unittest.TestCase):
         for n in range(2):
             (evidence/f'shard-{n}.json').write_text(json.dumps({'schema':'umbra.synthetic.advanced-shard.v1','shard':0,'totalShards':2,'passed':2,'failed':0,'expected':2,'aggregateDigest':'a'*64,'failures':[]}))
         with self.assertRaises(ValueError):verify_evidence(evidence,base_count=2,advanced_count=4,shards=2)
+    def test_no_legacy_300_only_validator(self):
+        wf=(pathlib.Path(__file__).resolve().parents[1]/'.github/workflows/umbra-daily-scenario-fleet.yml').read_text()
+        self.assertNotIn('python3 scripts/validate_umbra_workflows.py',wf)
     def test_schedule_is_two_daily_utc(self):
         path=pathlib.Path(__file__).resolve().parents[1]/'.github/workflows/umbra-daily-scenario-fleet.yml'
         self.assertTrue(validate_schedule(path)['valid'])

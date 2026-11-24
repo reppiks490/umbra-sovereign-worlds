@@ -13,6 +13,7 @@ import {fileURLToPath} from 'node:url';
 import {createWorld,advanceWorld,simulate,policyOf,DEFAULT_POLICY,SITE_COUNT,ENGINE_VERSION} from '../engine.mjs';
 import {civicAudit} from '../society.mjs';
 import {runCourt} from '../court.mjs';
+import {createSimulationRunner} from './umbra_independent_replay.mjs';
 
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const catalog=JSON.parse(readFileSync(join(ROOT,'scripts','umbra_advanced_registry.json'),'utf8'));
@@ -50,19 +51,17 @@ function makePolicies(r){
  return {baseline,p1,p2,p3,p4,extreme,mutation};
 }
 function run(r){
- let cached=new Map(),executionCount=0;
- function world(seed,policy,steps=r.steps){
-  const key=`${seed}|${steps}|${POLICY.map(a=>policy[a].toFixed(6)).join(',')}`;
-  if(!cached.has(key)){
-   assert.ok(Number.isInteger(steps)&&steps>=1&&steps<=1000);
-   const w=simulate(seed,policy,steps);assert.equal(w.tick,steps);
+ const runner=createSimulationRunner({
+  simulate:(seed,policy,steps)=>{assert.ok(Number.isInteger(steps)&&steps>=1&&steps<=1000);return simulate(seed,policy,steps);},
+  keyFor:(seed,policy,steps)=>`${seed}|${steps}|${POLICY.map(a=>policy[a].toFixed(6)).join(',')}`,
+  validate:(w,steps)=>{
+   assert.equal(w.tick,steps);
    const check=civicAudit(w);assert.ok(check.valid,`civic audit failed: ${check.issues.join(';')}`);
    for(const m of METRICS)assert.ok(finite(metricValue(w,m)),`${m} not finite`);
    assert.equal(w.towns.length,SITE_COUNT);
-   cached.set(key,w);executionCount++;
   }
-  return cached.get(key);
- }
+ });
+ const world=(seed,policy,steps=r.steps)=>runner.world(seed,policy,steps);
  const p=makePolicies(r),S=r.seed,M=r.metric,n=r.steps,d=r.amplitude;
  const A=(seed,policy,steps=n)=>sample(world(seed,policy,steps),M);
  const U=(seed,policy,steps=n)=>normal(metricValue(world(seed,policy,steps),M),M);
@@ -84,8 +83,9 @@ function run(r){
   const u00=U(S,p.baseline),u10=U(S,p.p1),u01=U(S,p.p2),u11=U(S,p.p3);
   detail={design:'two-axis factorial interaction',axis:[r.axis,r.otherAxis],interaction:clean(u11-u10-u01+u00),quadrants:[u00,u10,u01,u11]};break;}
  case 'placebo-falsification':{
-  const value=U(S,p.p1),other=U(S,p.p1);assert.equal(value,other);
-  detail={design:'identical treatment placebo',difference:clean(other-value),pass:true,replayDigest:SHA(A(S,p.p1))};break;}
+  const replay=runner.independentReplay(S,p.p1,n);
+  const value=normal(metricValue(replay.first,M),M),other=normal(metricValue(replay.second,M),M);assert.equal(value,other);
+  detail={design:'independently executed identical treatment placebo',difference:clean(other-value),pass:true,replayDigest:SHA(sample(replay.first,M)),firstStateDigest:replay.firstDigest,secondStateDigest:replay.secondDigest,independentExecutions:replay.executions};break;}
  case 'shock-recovery':{
   const before=U(S,p.baseline,Math.max(10,Math.floor(n/2))),during=U(S,p.extreme,n),after=U(S,p.extreme,Math.min(800,n+35));
   detail={design:'synthetic intervention stress trajectories, not real post-shock recovery',before,during,after,delta:clean(after-during)};break;}
@@ -150,7 +150,7 @@ function run(r){
   const weights=[.5,.3,.2];const grid=policyGrid.map((q,index)=>({index,score:clean(weights[0]*U(S,q)+weights[1]*normal(metricValue(world(S,q),alt),alt)+weights[2]*normal(metricValue(world(S,q),third),third))}));
   grid.sort((a,b)=>b.score-a.score||a.index-b.index);detail={design:'explicit synthetic three-objective scalarization',metrics:[M,alt,third],weights,grid,winner:grid[0].index};break;}
  case 'exact-replay':{
-  const q=p.p1;const a=world(S,q);const b=simulate(S,q,n);assert.deepEqual(sample(a,M),sample(b,M));
+  const q=p.p1;const a=world(S,q);const b=runner.world(S,q,n,{fresh:true});assert.deepEqual(sample(a,M),sample(b,M));
   detail={design:'seed-exact replication of same simulation',first:SHA(sample(a,M)),second:SHA(sample(b,M)),pass:true};break;}
  case 'chunk-equivalence':{
   const q=p.p2;const a=createWorld(S,q),first=Math.max(1,Math.floor(n/3));advanceWorld(a,first);advanceWorld(a,n-first);
@@ -171,7 +171,7 @@ function run(r){
   detail={design:'fault injection detected by independent engineering court',status:'detected',failedChecks:check.rows.filter(x=>x.status==='fail').map(x=>x.id),modelValidatedForRealWorld:false};break;}
  default:throw Error('Unsupported experimental method '+r.method);
  }
- const verification={caseId:r.id,method:r.method,metric:M,seed:S,horizon:n,uniqueWorldStates:executionCount,
+ const verification={caseId:r.id,method:r.method,metric:M,seed:S,horizon:n,uniqueWorldStates:runner.stats().distinctParameterKeys,simulationExecutions:runner.stats().simulationExecutions,
   data:detail,claim:'synthetic engineering research only',productionAuthorized:false,autoPromoted:false};
  const signature=SHA(verification);return {verification,sha256:signature};
 }

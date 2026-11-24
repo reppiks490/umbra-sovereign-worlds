@@ -25,3 +25,12 @@ Vary each of the seven parameters in predeclared increments, then use a small fa
 ## D: Audit record
 
 Exports contain seed, engine version, policy, generated data/assumptions, and optional experiment. The optional SHA-256 value only checks local file integrity and is not a signature or externally witnessed proof. The model engine is authoritative and recomputes state on import rather than trusting a snapshot of arbitrary serialized state.
+
+
+## E: Independent placebo replay in the advanced CLI lab (UM-111)
+
+The former placebo-falsification case compared two reads of the same cached world. That is not independent replay. The corrected case calls the simulator twice without using its cache, applies identical tick, settlement, civic and finite-metric checks, compares complete state digests and deep equality, and rejects reused object identity or divergence. The evidence includes both full-state digests and the two actual executions. The existing sample digest remains for comparison.
+
+`uniqueWorldStates` counts distinct seed/horizon/policy keys, while `simulationExecutions` counts actual full simulate() calls through the advanced-lab runner, including fresh exact replay; separately chunked advancement is not a full simulate() call. A placebo run should report one key and two executions. Existing evidence from before this fix cannot establish independent placebo reproduction. This is an engineering reproducibility control within the synthetic engine, not independent empirical validation.
+
+Verification: isolated helper RED missing module, GREEN four Node tests including divergent output, invalid second run, cache accounting and shared object rejection. Exact source hashes match the tested local bytes. A registered U1101 CLI test has been added; full repository and exact-head CI evidence are pending. No simulation-rule changes, external data, deployment, or production authority.

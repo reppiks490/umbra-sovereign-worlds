@@ -11,7 +11,16 @@ concurrency:
   group: myriad-fleet-automatic
   cancel-in-progress: false
 jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      hour: ${{ steps.clock.outputs.hour }}
+    steps:
+      - id: clock
+        run: echo "hour=$(date -u +%Y-%m-%dT%H)" >> "$GITHUB_OUTPUT"
   synthetic-fleet:
+    needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -30,11 +39,12 @@ jobs:
       - name: Execute all 13 assigned partitions with exact coverage checks
         env:
           GROUP: ${{ matrix.group }}
+          FLEET_HOUR: ${{ needs.plan.outputs.hour }}
         run: |
           python3 - <<'PY'
           import datetime, json, os, pathlib, subprocess, sys, hashlib
           group=int(os.environ['GROUP'])
-          hour=datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H')
+          hour=os.environ['FLEET_HOUR']
           out=pathlib.Path('fleet-evidence')
           out.mkdir()
           seen=set()
@@ -72,7 +82,7 @@ jobs:
           retention-days: 1
           if-no-files-found: error
   coverage:
-    needs: synthetic-fleet
+    needs: [plan, synthetic-fleet]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -81,15 +91,18 @@ jobs:
           pattern: fleet-group-*
           path: fleet
       - name: Require full disjoint fleet coverage
+        env:
+          FLEET_HOUR: ${{ needs.plan.outputs.hour }}
         run: |
           python3 - <<'PY'
-          import json,pathlib,hashlib
+          import json,pathlib,hashlib,os
           groups=set()
           shards=set()
           identities=set()
           for p in pathlib.Path('fleet').glob('*/summary.json'):
               r=json.loads(p.read_text())
               assert r['group'] not in groups and r['count']==13000
+              assert r['hour']==os.environ['FLEET_HOUR']
               assert r['source']=='479ca2e1f3f7c8e5badbd767d355d2b0b579131e'
               groups.add(r['group'])
               for s in r['shards']:

@@ -19,3 +19,7 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-109 proposed verification (2026-11-23)
+
+Source change: fail-closed `civicAudit` on NaN/infinite fiscal and food residuals and missing/null/non-array councils, corridors, ledger. Tests: new Node cases in `tests/society.test.mjs` asserting audit failures and Court G04/G05 failures. Execute `node --test tests/*.test.mjs` and browser smoke through GitHub Actions at the exact PR head; results must be recorded after observation, not inferred from source review. No empirical scientific validation or live-site deployment implied.

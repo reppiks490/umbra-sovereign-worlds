@@ -60,3 +60,23 @@ test('world passport includes readable fiscal audit, ledger and explicit synthet
  assert.equal(passport.version,'5.0.0');assert.equal(passport.mode,'synthetic model experiment');
  assert.ok(passport.totals.society.accounting.valid);assert.ok(passport.totals.society.ledger.length>0);
  assert.ok(passport.assumptions.some(x=>x.includes('synthetic')));});
+
+test('civic audit fails closed on nonfinite conservation residuals and Court gates',async()=>{
+ const {runCourt}=await import('../court.mjs');
+ for(const field of ['fiscalResidual','foodResidual'])for(const value of [NaN,Infinity,-Infinity]){
+  const w=createWorld(2026);w.society[field]=value;
+  const audit=civicAudit(w);assert.equal(audit.valid,false,`${field}=${value}`);
+  assert.ok(audit.issues.some(x=>x.includes(field==='fiscalResidual'?'fiscal':'aid')));
+  const rows=runCourt(w).rows;
+  assert.equal(rows.find(x=>x.id==='G04').status,'fail');
+  assert.equal(rows.find(x=>x.id==='G05').status,'fail');
+ }
+});
+test('civic audit returns structured failures for absent and malformed collections',()=>{
+ for(const field of ['councils','corridors','ledger'])for(const value of [undefined,null,{}]){
+  const w=createWorld(41);w.society[field]=value;
+  const result=civicAudit(w);
+  assert.equal(result.valid,false,`${field}=${String(value)}`);
+  assert.ok(result.issues.length>0);
+ }
+});

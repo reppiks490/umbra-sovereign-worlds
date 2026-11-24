@@ -16,3 +16,23 @@ test('every resource remains finite and nonnegative in long stress',()=>{for(con
 test('passport import reconstructs seed, policy and turn; rejects corrupted input',()=>{const w=simulate(1976,{trade:0,climate:.75},18),data=buildPassport(w);assert.deepEqual(validateImport(data),{seed:1976,tick:18,policy:w.policy});assert.throws(()=>validateImport({...data,version:'0.1'}));assert.throws(()=>validateImport({...data,tick:-1}));assert.throws(()=>validateImport({...data,policy:{...data.policy,trade:Infinity}}));});
 test('environmental random draws do not depend on state mutation',()=>{assert.equal(noise(122,42,10,4),noise(122,42,10,4));assert.ok(noise(122,42,10,4)>=0&&noise(122,42,10,4)<1)});
 test('bad step count rejected, and cannot silently overflow',()=>{assert.throws(()=>advanceWorld(createWorld(1),-1));assert.throws(()=>advanceWorld(createWorld(1),9999999));});
+
+
+test('paired experiment rejects NaN, infinite and fractional dimensions before running',()=>{
+ for(const trials of [NaN,Infinity,-Infinity,2.5,'8',null]){
+   assert.throws(()=>pairedExperiment({seed:13,trials,steps:2}),RangeError);
+ }
+ for(const steps of [NaN,Infinity,-Infinity,2.5,'20',null]){
+   assert.throws(()=>pairedExperiment({seed:13,trials:2,steps}),RangeError);
+ }
+});
+test('paired experiment preserves finite integer boundary clamps and reproducibility',()=>{
+ const a=pairedExperiment({seed:7,trials:1,steps:0});
+ assert.equal(a.trials,2);
+ assert.equal(a.steps,1);
+ assert.ok(Number.isFinite(a.mean)&&Number.isFinite(a.sd));
+ assert.deepEqual(a,pairedExperiment({seed:7,trials:2,steps:1}));
+ const upper=pairedExperiment({seed:7,trials:2,steps:2});
+ assert.equal(upper.paths.length,2);
+ assert.ok(upper.paths.every(row=>Number.isFinite(row.diff)));
+});

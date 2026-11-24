@@ -14,6 +14,9 @@ def phase(hour,minute):
 def admit(free_mb,free_disk,busy):return free_mb>=3500 and free_disk>=6*1024**3 and not busy
 def run(root,virtual,force=None):
     now=datetime.datetime.now(datetime.timezone.utc);mode=force or phase(now.hour,now.minute)
+    if mode=='benchmark':
+        import evolution_model_tournament_v62 as tournament
+        return tournament.run(root,virtual)
     if mode not in ('distill','evolve_agents'):return base.run(root,virtual,mode)
     key=ev.secret();report={'schema':'myriad.quality_window.v59','phase':mode,'epoch':int(time.time()),'production_authority':False,'errors':[]}
     busy=bool(teacher.request('/api/ps')[0].get('models'))
@@ -25,7 +28,7 @@ def run(root,virtual,force=None):
         if mode=='distill':
             cmd=[str(exe),str(here/'evolution_algorithm_distill_v57.py'),'--root',str(root/'distill-v57'),'--authorize','--rows','32','--steps','96']
         else:
-            cmd=[str(exe),str(here/'evolution_agent_evolution_v58.py'),'--source',str(root/'agent-v51'),'--root',str(root/'agent-evolution-v58'),'--authorize','--agents','8','--steps','64']
+            cmd=[str(exe),str(here/'evolution_task_adapter_v61.py'),'--source',str(root/'agent-v51'),'--root',str(root/'task-adapters-v61'),'--authorize','--agents','16','--steps','256']
         try:
             p=subprocess.run(cmd,capture_output=True,text=True,timeout=195)
             if p.returncode:raise RuntimeError('bounded training failed')

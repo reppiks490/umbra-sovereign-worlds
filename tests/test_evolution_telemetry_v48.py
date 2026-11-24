@@ -14,4 +14,14 @@ class Tests(unittest.TestCase):
  def test_future_rejected(self):
   v=m.snapshot(1000,{k:0 for k in m.FIELDS})
   with self.assertRaises(ValueError):m.validate(v,1)
+class AdversarialTests(unittest.TestCase):
+ def test_non_mapping_counts_fail_closed(self):
+  v=m.snapshot(1000,{k:0 for k in m.FIELDS})
+  for bad in (None,list(m.FIELDS),42):
+   with self.subTest(bad=bad):
+    with self.assertRaises(ValueError):m.validate({**v,'counts':bad},1000)
+ def test_invalid_reference_clock(self):
+  v=m.snapshot(1000,{k:0 for k in m.FIELDS})
+  for bad in (True,float('nan'),float('inf'),-1):
+   with self.assertRaises(ValueError):m.validate(v,bad)
 if __name__=='__main__':unittest.main()

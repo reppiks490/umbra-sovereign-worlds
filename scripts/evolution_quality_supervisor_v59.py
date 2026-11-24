@@ -20,6 +20,9 @@ def admit_window(mode,free_mb,virtual,free_disk,busy):
     return free_mb>=threshold and virtual>=6000 and free_disk>=6*1024**3 and not busy
 def run(root,virtual,force=None):
     now=datetime.datetime.now(datetime.timezone.utc);mode=force or phase(now.hour,now.minute)
+    if mode=='novel_reasoning':
+        import evolution_reasoning_runtime_v82 as reasoning
+        return reasoning.run(root,virtual)
     if mode=='protocol_research':
         import evolution_research_protocol_v67 as protocol
         return protocol.run(root,virtual)
@@ -49,7 +52,7 @@ def run(root,virtual,force=None):
             report['status']='failed';report['errors'].append(type(e).__name__)
     report['hmac_sha256']=ev.sign(report,key);orch.atomic(root/f'aggregate-{mode}-v59.json',report);return report
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--private',required=True);p.add_argument('--free-virtual-mib',type=int,required=True);p.add_argument('--authorize',action='store_true');p.add_argument('--phase',choices=['teacher','small_teacher','retrieval','worker','benchmark','fleet','ability_bank','agent_bank','distill','evolve_agents','tool_research','protocol_research']);a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--private',required=True);p.add_argument('--free-virtual-mib',type=int,required=True);p.add_argument('--authorize',action='store_true');p.add_argument('--phase',choices=['teacher','small_teacher','retrieval','worker','benchmark','fleet','ability_bank','agent_bank','distill','evolve_agents','tool_research','protocol_research','novel_reasoning']);a=p.parse_args()
     root=Path(a.private)
     if not a.authorize or root.is_symlink() or not root.is_dir():raise PermissionError('explicit private research authorization required')
     r=run(root,a.free_virtual_mib,a.phase);print(json.dumps(r,sort_keys=True));u=r.get('underlying',r)

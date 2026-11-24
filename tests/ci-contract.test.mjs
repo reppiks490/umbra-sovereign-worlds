@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 
 // Dependency-free, intentionally narrow workflow contract: catches accidental
 // removal of finite job budgets, least-privilege permissions, or smoke coverage.
-const workflow = readFileSync(new URL('../.github/workflows/unit.yml', import.meta.url), 'utf8');
+const workflow = readFileSync(new URL('../.github/workflows/unit.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 const jobBlock = (name) => {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const match = workflow.match(new RegExp('^  ' + escaped + ':\\n([\\s\\S]*?)(?=^  [a-z][a-z0-9_-]*:\\n|(?![\\s\\S]))', 'm'));

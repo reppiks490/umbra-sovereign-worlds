@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 const workflow = readFileSync(new URL('../.github/workflows/unit.yml', import.meta.url), 'utf8');
 const jobBlock = (name) => {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = workflow.match(new RegExp('^  ' + escaped + ':\\n([\\s\\S]*?)(?=^  [a-z][a-z0-9_-]*:\\n|$)', 'm'));
+  const match = workflow.match(new RegExp('^  ' + escaped + ':\\n([\\s\\S]*?)(?=^  [a-z][a-z0-9_-]*:\\n|(?![\\s\\S]))', 'm'));
   assert.ok(match, 'missing job: ' + name);
   return match[1];
 };

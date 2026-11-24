@@ -1,0 +1,30 @@
+name: MYRIAD v2.4 private model evidence qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_local_model_v22.py'
+      - 'scripts/evolution_model_evidence_v24.py'
+      - 'tests/test_evolution_model_evidence_v24.py'
+      - 'docs/EVOLUTION_V24_PRIVATE_EVIDENCE.md'
+      - 'research/EVOLUTION_V24_SOURCE_MANIFEST.json'
+      - '.github/workflows/myriad-model-evidence-v24-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify exact source bytes and compile
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V24_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_model_evidence_v24.py
+      - name: Private evidence, tamper, authorization and deadline tests
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_model_evidence_v24.py' -v
+          python3 -m unittest discover -s tests -p 'test_evolution_local_model_v22.py' -v

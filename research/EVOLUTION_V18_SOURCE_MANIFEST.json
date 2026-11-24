@@ -1,0 +1,79 @@
+{
+  "files": {
+    ".github/workflows/umbra-evolution-mesh-ci.yml": {
+      "sha256": "9e6a7ad3c0e9eb4a07d91f36f325b512d7f1f9b1d0aaafe6083d0332b1fecfd8",
+      "size": 5431
+    },
+    ".github/workflows/umbra-evolution-mesh-hourly.yml": {
+      "sha256": "fd71e5e1710f04bfaa029e8dd45573447a6967ce4ebe3cd1576908d5c111a360",
+      "size": 1175
+    },
+    "docs/UMBRA_EVOLUTION_FABRIC_V18.md": {
+      "sha256": "78f521ad04dfa3c2043b95a1db0b25ea7fd59ee73ea1f2f0fa12ca11635ceb01",
+      "size": 8347
+    },
+    "docs/UMBRA_EVOLUTION_MESH_HANDOFF.md": {
+      "sha256": "13760dc611964b0f5964f9ed88ca0685eb0e68c007a4b9823b1295acac249f15",
+      "size": 5762
+    },
+    "evolution/Dockerfile": {
+      "sha256": "0ed6c5811c35403d78775aff62187128cd95f96c933833025afc1095e799bb64",
+      "size": 756
+    },
+    "evolution/app.js": {
+      "sha256": "ca6601682fc8e3c3483cce7b64aff4af0c52bc45109f6cf14aef220e102a108a",
+      "size": 5516
+    },
+    "evolution/index.html": {
+      "sha256": "303198d740f3d0b63c3077b14479ed050a54d5306caee4511f2324b191268aed",
+      "size": 5512
+    },
+    "evolution/launch_windows.ps1": {
+      "sha256": "6810cd8ed91539a997e0f16cc817dcd2908cbe912a0428df1db5ab3c9dc6f14f",
+      "size": 579
+    },
+    "evolution/style.css": {
+      "sha256": "a7fe491d6cd2dd4602934caf0c95d20199c61d3ab4dc1497da8bf67ae9b2ab0d",
+      "size": 5459
+    },
+    "scripts/evolution_api.py": {
+      "sha256": "744feb5dbbd80bf2adcf603049aad9d3506c882e7b1e4edefe48badc0a49d582",
+      "size": 7649
+    },
+    "scripts/evolution_scheduler.py": {
+      "sha256": "4c47643260deabdf63d0aba151408cb0d2d367e767a8f293431bcbd9b6c1df28",
+      "size": 9177
+    },
+    "scripts/evolution_source_registry.py": {
+      "sha256": "a4a179aa8fa4731ba509a4a7268322fbb01ddcf548e0efd4621c66c5fc33a7a3",
+      "size": 7107
+    },
+    "scripts/myriad_bank_fabric.py": {
+      "sha256": "92904b64458aa3f94681d283039bc7529e26d568476d81588abe1536d61819e0",
+      "size": 19054
+    },
+    "scripts/umbra_evolution_bridge.mjs": {
+      "sha256": "b4c6a8df4f10d45bb3dd9203ca4b381a539d8ad59c678ca98d180ad8c550a475",
+      "size": 3502
+    },
+    "scripts/umbra_evolution_mesh.py": {
+      "sha256": "ea222355906de359fdde248e45e08789a51c3fc07dd8edb6fc486a2cd56d9405",
+      "size": 16763
+    },
+    "tests/test_evolution_fabric_v18.py": {
+      "sha256": "513803a31c3bbe1cec49dbaf078b372aad432686b817be5566b07555b114e383",
+      "size": 4067
+    },
+    "tests/test_umbra_evolution_mesh.py": {
+      "sha256": "9466b32f3bd688e4107d987709f336568e00a83d82a10fc4d48a1512d9adb3bc",
+      "size": 4804
+    }
+  },
+  "full_original_banks_included": false,
+  "schema": "myriad.umbra.evolution.review.v18",
+  "scope": "source only; no large neural checkpoint files",
+  "source_root": "reppiks490/umbra-sovereign-worlds",
+  "target_195000_live_hourly_model_workers_met": false,
+  "target_250000_invented_algorithms_met": false,
+  "trained_10_agents_archived_separately": true
+}

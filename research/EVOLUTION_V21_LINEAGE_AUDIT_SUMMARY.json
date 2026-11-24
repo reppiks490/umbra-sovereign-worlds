@@ -1,0 +1,41 @@
+{
+  "auto_merges": 0,
+  "historical_peer_causality_certified": false,
+  "new_parent_lineage_contract_requires_prior_hour": true,
+  "original_boolean_peer_used_false": 13,
+  "original_boolean_peer_used_true": 389987,
+  "original_explicit_parent_hash_records": 0,
+  "original_records": 390000,
+  "real_model_training": false,
+  "report_sha256": "8e2f707479fa088b4a073a2f1b448766679b4034913d6539472d059846b466f7",
+  "samples": [
+    {
+      "categories": {
+        "failed": 0,
+        "legacy_no_peer": 13,
+        "legacy_unproven": 1487,
+        "no_prior_parent": 0,
+        "verified_prior_hour": 0
+      },
+      "inspected": 1500,
+      "sha256": "704a7526d95ab1f43aa13308dde3ea069f83b81ce9c586c04bbcfedd1466ff05",
+      "start_row": 1
+    },
+    {
+      "categories": {
+        "failed": 0,
+        "legacy_no_peer": 0,
+        "legacy_unproven": 1500,
+        "no_prior_parent": 0,
+        "verified_prior_hour": 0
+      },
+      "inspected": 1500,
+      "sha256": "ce59592f06cebcf8adcf66fcc0b73dbf9c549d40f245979271f123675f296fd0",
+      "start_row": 195001
+    }
+  ],
+  "schema": "umbra.evolution.v21.historical_lineage_audit.v1",
+  "source_sqlite_sha256": "997eeb993681f37738deb59e334d861e45a965d6fe5ce033684f07d448e6d6d3",
+  "trade_authorization": false,
+  "verified_old_synthetic_numeric_receipts": 390000
+}

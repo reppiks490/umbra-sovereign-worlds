@@ -1,0 +1,65 @@
+{
+  "algorithm_configuration_catalog_unchanged": 250000,
+  "algorithm_impl_count": 12,
+  "files": {
+    "docs/EVOLUTION_V19_HANDOFF.md": {
+      "bytes": 4872,
+      "sha256": "29bb806dfa34fbfe416efa146ddc068857d6e02c31ccfeb7c29de21e64ed7097"
+    },
+    "docs/EVOLUTION_V19_INDEPENDENT_ALGORITHMS.md": {
+      "bytes": 9300,
+      "sha256": "f871aeef2cce357a152d0adbb6f0b5c4cee11521ce09f05b014344b881dcecfd"
+    },
+    "research/EVOLUTION_V19_1800_BUDGET_TRIALS_SUMMARY.json": {
+      "bytes": 1113,
+      "sha256": "91f5322224f02cfc2f3f2c7dd2b96cac295eb6d1430df03c709fd5bf6a601059"
+    },
+    "research/EVOLUTION_V19_TRANSFER_1800_SUMMARY.json": {
+      "bytes": 2173,
+      "sha256": "1716eb53ff5ee67625e935bbab3609d5701fdb1fabb0a010b9bd047967705f5b"
+    },
+    "research/EVOLUTION_V19_TRIBUNAL_AGGREGATE.json": {
+      "bytes": 1026,
+      "sha256": "53775ea64a634fa389347beab30973cb6c33bde4f4bf05ef8e0b8a87e86480ab"
+    },
+    "scripts/evolution_algorithms_v19.py": {
+      "bytes": 16982,
+      "sha256": "90d49320ecf2e738c12437450c943e64c86c5118e9f58695453c727e8f755d7e"
+    },
+    "scripts/evolution_tournament_v19.py": {
+      "bytes": 4232,
+      "sha256": "cafed9aa46c88241d3e611c94d31367df28fd5bd8f11d41e0f2a434dfef557e2"
+    },
+    "scripts/evolution_transfer_curriculum_v19.py": {
+      "bytes": 3253,
+      "sha256": "5fe9544d85d8e68bdcdff0e300fcd48ab26e07bcbe893bd51dd6fb116695067a"
+    },
+    "scripts/evolution_tribunal_v19.py": {
+      "bytes": 12739,
+      "sha256": "9465e477d9cbdd030f97cb190f0ea85e77de732ba0d6caf2b74fbf7357278261"
+    },
+    "tests/test_evolution_algorithms_v19.py": {
+      "bytes": 3670,
+      "sha256": "6e3d14589da353a65b75e53a49727b1e622562a246ef1ba79243519f1c611724"
+    },
+    "tests/test_evolution_observatory_v19.py": {
+      "bytes": 1978,
+      "sha256": "96a31b0032db23bc4d190e88b6e83fd1573c9d52bf89c0547868f932fd1c9da6"
+    },
+    "tests/test_evolution_transfer_v19.py": {
+      "bytes": 1529,
+      "sha256": "1a5159734d5960eb4763075c5528cf3979c781d4fff858fe2573445f7593ba59"
+    },
+    "tests/test_evolution_tribunal_v19.py": {
+      "bytes": 4925,
+      "sha256": "36bc99e11a2fb9af59e020ea074569dc38e208e34e37a6f620d47fa9eaf57900"
+    }
+  },
+  "live_model_weights_included": false,
+  "logical_worker_catalog_unchanged": 195000,
+  "production_permissions": "none",
+  "schema": "umbra.evolution.v19.source.v1",
+  "source_only": true,
+  "two_hour_synthetic_receipt_count": 390000,
+  "verified_hourly_research_cycles": 2
+}

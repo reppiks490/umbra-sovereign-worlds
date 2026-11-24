@@ -1,0 +1,13 @@
+# v9.4 — actual weighted graph-reasoning curriculum comparison
+
+Independent isolated CPU experiment using PyTorch 2.10.0+cpu, no private source weights or local PC model calls. Six learned 65-parameter neural candidates, three matched initializations, identical per-arm graph batches and 300 optimizer steps per candidate (1800 total, 21600 graph instances including repeated arms). One-step teacher-state versus closed-loop multi-step curriculum; equal optimizer steps do not imply equal compute. Train graph sizes 4/8 and scale 1. Independent Dijkstra reference verified against exact min-plus relaxation. Held-out 4/8/16/32, scales 1/3, 384 graphs per arm across 3 seeds, source vertex excluded from error. Per-seed cohorts paired; no test-driven selection. Five RED/GREEN fixture tests passed in Linux, exact blobs 2ac3ba402111894b591deeb4d67fb9d8b43759e0 and dd8d8434b6b56de862297fe469f6c1fab9dd71b2. CI pending.
+
+| Mean MAE in original weight units (equal cohort weighting) | Initialization | Teacher | Closed-loop |
+|---|---:|---:|---:|
+| All | 23.705302 | 6.488735 | 7.306449 |
+| In-distribution | 7.026644 | 3.684336 | 1.453317 |
+| Out-of-distribution | 29.264854 | 7.423534 | 9.257493 |
+
+Per-seed OOD teacher/closed-loop MAE: 5.951934/7.164918, 9.897831/10.304431, 6.420837/10.303131. Closed-loop won 0/3 OOD seed comparisons; it improved ID on all 3. Do not promote either over exact deterministic reference, which remains accurate. Preserve negative outcome. Candidate weight arrays saved as numeric JSON in isolated working directory only (not existing local PC bank, not exported to GitHub). Report is reproducible from code/seed/steps; not a claim of semantic learning, real-world transfer, new executable algorithm count or live fleet training. Follow-up: test scale-equivariant message architecture with matched teacher-state baseline, fresh seeds and unseen scale; do not reuse these evaluation graphs for fitting.
+
+v93 24/24 CI and exact Linux hashes, local corpus import not yet run. v91 real protected scheduler audit observed_epoch 1795554245: all four historical receipts verified; tool family 3 completed, 2 distinct verified seeds, 1 duplicate seed record, 6 qualified tasks after duplicate exclusion; reasoning family 1 completed, 0 joint qualified tasks, 0 rejected across both. Status issues_detected due duplicate. Preserve old records; prevent recurrence using authenticated historical scan and exclusive window claim. No raw receipt/key export. PC physical memory last observed 331 MiB, larger local training blocked; isolated synthetic work continues independently. Preserve all release gates and draft-only constraints.

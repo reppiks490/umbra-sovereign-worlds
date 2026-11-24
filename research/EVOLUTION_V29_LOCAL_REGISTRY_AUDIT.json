@@ -1,0 +1,21 @@
+{
+  "all_artifact_bytes_hashed": true,
+  "candidate_restored_and_verified": true,
+  "hmac_secret_persisted": false,
+  "license_independently_verified": false,
+  "model_origin_authenticated": false,
+  "private_weights_published": false,
+  "production_authority": false,
+  "railway_deployment_mutated": false,
+  "railway_failure_reason": "RAILPACK No start command detected",
+  "railway_failure_stage": "BUILD_IMAGE",
+  "railway_service_state": "FAILED",
+  "registered_bytes": 8868357,
+  "registered_files": 13,
+  "schema": "myriad.model_artifact_registry.local_audit.v29",
+  "source_libraries": [
+    "Hugging Face safetensors format",
+    "Railway official docs"
+  ],
+  "tamper_attacks_detected": 1
+}

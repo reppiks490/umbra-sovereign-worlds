@@ -1,0 +1,29 @@
+name: MYRIAD v2.7 saved FP16 inference probe source qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_neural_probe_v27.py'
+      - 'tests/test_evolution_neural_probe_v27.py'
+      - 'docs/EVOLUTION_V27_INDEPENDENT_NEURAL_PROBE.md'
+      - 'research/EVOLUTION_V27_*'
+      - '.github/workflows/myriad-neural-probe-v27-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check source bytes, compile and execute private-safe regression tests
+        run: |
+          python3 -c "import hashlib,json,pathlib;m=json.load(open('research/EVOLUTION_V27_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in m['files'].items())"
+          python3 -m py_compile scripts/evolution_neural_probe_v27.py
+          python3 -m unittest discover -s tests -p 'test_evolution_neural_probe_v27.py' -v
+      - name: Check research report describes verified scope without model weights
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V27_INDEPENDENT_NEURAL_PROBE_SUMMARY.json'));assert d['agent_networks_evaluated']==10 and d['ability_adapters_evaluated']==10000 and d['historic_full_weights_restored'] is False and d['private_weights_uploaded_to_github'] is False and d['production_authority'] is False"

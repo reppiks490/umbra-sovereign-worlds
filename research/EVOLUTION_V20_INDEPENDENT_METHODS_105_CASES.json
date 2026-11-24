@@ -1,0 +1,1070 @@
+{
+  "budget": 48,
+  "case_count": 105,
+  "cases": [
+    {
+      "baseline": -0.35027723881309136,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.254092519,
+      "method": "halton-qmc",
+      "score": -0.0961847203,
+      "seed": 0,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.29782129707732785,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.141397468,
+      "method": "halton-qmc",
+      "score": -0.1564238289,
+      "seed": 1,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.25830173725261557,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.142570153,
+      "method": "halton-qmc",
+      "score": -0.115731584,
+      "seed": 2,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.678139600298975,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.403504863,
+      "method": "halton-qmc",
+      "score": -0.2746347372,
+      "seed": 0,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -0.3679849699855339,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": -0.0,
+      "method": "halton-qmc",
+      "score": -0.36798497,
+      "seed": 1,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -1.3993580232086715,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.935198966,
+      "method": "halton-qmc",
+      "score": -0.4641590577,
+      "seed": 2,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -46.64283550361856,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 20.99712013,
+      "method": "halton-qmc",
+      "score": -25.6457153732,
+      "seed": 0,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -47.84029638952784,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 20.206282652,
+      "method": "halton-qmc",
+      "score": -27.634013738,
+      "seed": 1,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -48.743830504814156,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 19.063411928,
+      "method": "halton-qmc",
+      "score": -29.6804185772,
+      "seed": 2,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -533.2468145264496,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 504.083214683,
+      "method": "halton-qmc",
+      "score": -29.1635998432,
+      "seed": 0,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -673.8534765625495,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 614.577534121,
+      "method": "halton-qmc",
+      "score": -59.2759424414,
+      "seed": 1,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -118.70609328505964,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 70.006484687,
+      "method": "halton-qmc",
+      "score": -48.6996085976,
+      "seed": 2,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -0.9969259946904502,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.521498965,
+      "method": "halton-qmc",
+      "score": -0.4754270298,
+      "seed": 0,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.9728135941924213,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.423510739,
+      "method": "halton-qmc",
+      "score": -0.5493028551,
+      "seed": 1,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.7589836831704898,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.249239115,
+      "method": "halton-qmc",
+      "score": -0.5097445685,
+      "seed": 2,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.35027723881309136,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.340256851,
+      "method": "inverse-bfgs",
+      "score": -0.0100203881,
+      "seed": 0,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.29782129707732785,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.295065849,
+      "method": "inverse-bfgs",
+      "score": -0.002755448,
+      "seed": 1,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.25830173725261557,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.253200315,
+      "method": "inverse-bfgs",
+      "score": -0.0051014222,
+      "seed": 2,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.678139600298975,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.662638124,
+      "method": "inverse-bfgs",
+      "score": -0.0155014761,
+      "seed": 0,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -0.3679849699855339,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.35631996,
+      "method": "inverse-bfgs",
+      "score": -0.0116650098,
+      "seed": 1,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -1.3993580232086715,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 1.370473697,
+      "method": "inverse-bfgs",
+      "score": -0.0288843267,
+      "seed": 2,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -46.64283550361856,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 29.901504051,
+      "method": "inverse-bfgs",
+      "score": -16.7413314529,
+      "seed": 0,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -47.84029638952784,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 28.709128432,
+      "method": "inverse-bfgs",
+      "score": -19.1311679572,
+      "seed": 1,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -48.743830504814156,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 19.578290252,
+      "method": "inverse-bfgs",
+      "score": -29.1655402527,
+      "seed": 2,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -533.2468145264496,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 508.378421314,
+      "method": "inverse-bfgs",
+      "score": -24.8683932123,
+      "seed": 0,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -673.8534765625495,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 595.55982841,
+      "method": "inverse-bfgs",
+      "score": -78.2936481527,
+      "seed": 1,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -118.70609328505964,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 112.300075534,
+      "method": "inverse-bfgs",
+      "score": -6.4060177506,
+      "seed": 2,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -0.9969259946904502,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.920160377,
+      "method": "inverse-bfgs",
+      "score": -0.0767656176,
+      "seed": 0,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.9728135941924213,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.965687664,
+      "method": "inverse-bfgs",
+      "score": -0.0071259306,
+      "seed": 1,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.7589836831704898,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.625066102,
+      "method": "inverse-bfgs",
+      "score": -0.1339175811,
+      "seed": 2,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.35027723881309136,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.250200557,
+      "method": "rank-mu-covariance-es",
+      "score": -0.1000766818,
+      "seed": 0,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.29782129707732785,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.220898511,
+      "method": "rank-mu-covariance-es",
+      "score": -0.076922786,
+      "seed": 1,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.25830173725261557,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.207623377,
+      "method": "rank-mu-covariance-es",
+      "score": -0.05067836,
+      "seed": 2,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.678139600298975,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.416417646,
+      "method": "rank-mu-covariance-es",
+      "score": -0.2617219547,
+      "seed": 0,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -0.3679849699855339,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.187080239,
+      "method": "rank-mu-covariance-es",
+      "score": -0.1809047313,
+      "seed": 1,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -1.3993580232086715,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 1.320336679,
+      "method": "rank-mu-covariance-es",
+      "score": -0.0790213444,
+      "seed": 2,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -46.64283550361856,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 22.913300277,
+      "method": "rank-mu-covariance-es",
+      "score": -23.7295352265,
+      "seed": 0,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -47.84029638952784,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 21.163127703,
+      "method": "rank-mu-covariance-es",
+      "score": -26.6771686866,
+      "seed": 1,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -48.743830504814156,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 25.122496252,
+      "method": "rank-mu-covariance-es",
+      "score": -23.6213342528,
+      "seed": 2,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -533.2468145264496,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 511.053123394,
+      "method": "rank-mu-covariance-es",
+      "score": -22.1936911321,
+      "seed": 0,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -673.8534765625495,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 631.654585219,
+      "method": "rank-mu-covariance-es",
+      "score": -42.1988913432,
+      "seed": 1,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -118.70609328505964,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 79.660812553,
+      "method": "rank-mu-covariance-es",
+      "score": -39.0452807317,
+      "seed": 2,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -0.9969259946904502,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.606283796,
+      "method": "rank-mu-covariance-es",
+      "score": -0.3906421983,
+      "seed": 0,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.9728135941924213,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.77548497,
+      "method": "rank-mu-covariance-es",
+      "score": -0.1973286239,
+      "seed": 1,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.7589836831704898,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.58142176,
+      "method": "rank-mu-covariance-es",
+      "score": -0.1775619235,
+      "seed": 2,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.35027723881309136,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.289100982,
+      "method": "gaussian-process-ei",
+      "score": -0.0611762573,
+      "seed": 0,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.29782129707732785,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.27559642,
+      "method": "gaussian-process-ei",
+      "score": -0.0222248772,
+      "seed": 1,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.25830173725261557,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.217311223,
+      "method": "gaussian-process-ei",
+      "score": -0.0409905138,
+      "seed": 2,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.678139600298975,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.602056529,
+      "method": "gaussian-process-ei",
+      "score": -0.0760830713,
+      "seed": 0,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -0.3679849699855339,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.23798311,
+      "method": "gaussian-process-ei",
+      "score": -0.1300018599,
+      "seed": 1,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -1.3993580232086715,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 1.362415833,
+      "method": "gaussian-process-ei",
+      "score": -0.0369421899,
+      "seed": 2,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -46.64283550361856,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 11.116548288,
+      "method": "gaussian-process-ei",
+      "score": -35.5262872153,
+      "seed": 0,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -47.84029638952784,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 15.784656503,
+      "method": "gaussian-process-ei",
+      "score": -32.0556398862,
+      "seed": 1,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -48.743830504814156,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 18.92553859,
+      "method": "gaussian-process-ei",
+      "score": -29.8182919149,
+      "seed": 2,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -533.2468145264496,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 524.144643538,
+      "method": "gaussian-process-ei",
+      "score": -9.1021709889,
+      "seed": 0,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -673.8534765625495,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 672.028792766,
+      "method": "gaussian-process-ei",
+      "score": -1.8246837962,
+      "seed": 1,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -118.70609328505964,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 113.374892507,
+      "method": "gaussian-process-ei",
+      "score": -5.3312007785,
+      "seed": 2,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -0.9969259946904502,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.620514644,
+      "method": "gaussian-process-ei",
+      "score": -0.3764113511,
+      "seed": 0,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.9728135941924213,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.757691852,
+      "method": "gaussian-process-ei",
+      "score": -0.2151217423,
+      "seed": 1,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.7589836831704898,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.492838377,
+      "method": "gaussian-process-ei",
+      "score": -0.2661453058,
+      "seed": 2,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.35027723881309136,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.295827494,
+      "method": "artificial-bee-colony",
+      "score": -0.0544497449,
+      "seed": 0,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.29782129707732785,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.128601501,
+      "method": "artificial-bee-colony",
+      "score": -0.1692197956,
+      "seed": 1,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.25830173725261557,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.224437853,
+      "method": "artificial-bee-colony",
+      "score": -0.0338638839,
+      "seed": 2,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.678139600298975,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.387757943,
+      "method": "artificial-bee-colony",
+      "score": -0.2903816569,
+      "seed": 0,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -0.3679849699855339,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.042502215,
+      "method": "artificial-bee-colony",
+      "score": -0.3254827546,
+      "seed": 1,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -1.3993580232086715,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 1.197964296,
+      "method": "artificial-bee-colony",
+      "score": -0.2013937271,
+      "seed": 2,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -46.64283550361856,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 25.432956329,
+      "method": "artificial-bee-colony",
+      "score": -21.209879175,
+      "seed": 0,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -47.84029638952784,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 11.126993208,
+      "method": "artificial-bee-colony",
+      "score": -36.7133031819,
+      "seed": 1,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -48.743830504814156,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 16.352370176,
+      "method": "artificial-bee-colony",
+      "score": -32.3914603284,
+      "seed": 2,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -533.2468145264496,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 499.034577337,
+      "method": "artificial-bee-colony",
+      "score": -34.2122371895,
+      "seed": 0,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -673.8534765625495,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 506.72572095,
+      "method": "artificial-bee-colony",
+      "score": -167.1277556125,
+      "seed": 1,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -118.70609328505964,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 114.223298473,
+      "method": "artificial-bee-colony",
+      "score": -4.4827948116,
+      "seed": 2,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -0.9969259946904502,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.603334169,
+      "method": "artificial-bee-colony",
+      "score": -0.3935918252,
+      "seed": 0,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.9728135941924213,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.436858826,
+      "method": "artificial-bee-colony",
+      "score": -0.535954768,
+      "seed": 1,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.7589836831704898,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.387752919,
+      "method": "artificial-bee-colony",
+      "score": -0.3712307643,
+      "seed": 2,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.35027723881309136,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.307149288,
+      "method": "harmony-search",
+      "score": -0.0431279506,
+      "seed": 0,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.29782129707732785,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.258211088,
+      "method": "harmony-search",
+      "score": -0.0396102089,
+      "seed": 1,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.25830173725261557,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.201153043,
+      "method": "harmony-search",
+      "score": -0.0571486942,
+      "seed": 2,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.678139600298975,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.559931911,
+      "method": "harmony-search",
+      "score": -0.1182076892,
+      "seed": 0,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -0.3679849699855339,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.192363276,
+      "method": "harmony-search",
+      "score": -0.1756216937,
+      "seed": 1,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -1.3993580232086715,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 1.271678952,
+      "method": "harmony-search",
+      "score": -0.1276790709,
+      "seed": 2,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -46.64283550361856,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 24.848462095,
+      "method": "harmony-search",
+      "score": -21.7943734088,
+      "seed": 0,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -47.84029638952784,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 37.363186051,
+      "method": "harmony-search",
+      "score": -10.4771103387,
+      "seed": 1,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -48.743830504814156,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 28.471606317,
+      "method": "harmony-search",
+      "score": -20.2722241878,
+      "seed": 2,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -533.2468145264496,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 500.120273007,
+      "method": "harmony-search",
+      "score": -33.1265415194,
+      "seed": 0,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -673.8534765625495,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 550.984101014,
+      "method": "harmony-search",
+      "score": -122.8693755482,
+      "seed": 1,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -118.70609328505964,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 111.621106763,
+      "method": "harmony-search",
+      "score": -7.0849865217,
+      "seed": 2,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -0.9969259946904502,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.644228861,
+      "method": "harmony-search",
+      "score": -0.3526971336,
+      "seed": 0,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.9728135941924213,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.621191405,
+      "method": "harmony-search",
+      "score": -0.3516221887,
+      "seed": 1,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.7589836831704898,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.421447514,
+      "method": "harmony-search",
+      "score": -0.3375361694,
+      "seed": 2,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.35027723881309136,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.341635848,
+      "method": "ucb-operator-bandit",
+      "score": -0.0086413912,
+      "seed": 0,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.29782129707732785,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.168426821,
+      "method": "ucb-operator-bandit",
+      "score": -0.1293944761,
+      "seed": 1,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.25830173725261557,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.222125624,
+      "method": "ucb-operator-bandit",
+      "score": -0.0361761134,
+      "seed": 2,
+      "task": "shifted-sphere"
+    },
+    {
+      "baseline": -0.678139600298975,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.577002986,
+      "method": "ucb-operator-bandit",
+      "score": -0.1011366138,
+      "seed": 0,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -0.3679849699855339,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.094141212,
+      "method": "ucb-operator-bandit",
+      "score": -0.2738437575,
+      "seed": 1,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -1.3993580232086715,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 1.291478352,
+      "method": "ucb-operator-bandit",
+      "score": -0.1078796717,
+      "seed": 2,
+      "task": "rotated-quadratic"
+    },
+    {
+      "baseline": -46.64283550361856,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 27.551685356,
+      "method": "ucb-operator-bandit",
+      "score": -19.0911501473,
+      "seed": 0,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -47.84029638952784,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 33.688862326,
+      "method": "ucb-operator-bandit",
+      "score": -14.1514340639,
+      "seed": 1,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -48.743830504814156,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 37.267094368,
+      "method": "ucb-operator-bandit",
+      "score": -11.4767361369,
+      "seed": 2,
+      "task": "rastrigin"
+    },
+    {
+      "baseline": -533.2468145264496,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 478.109790377,
+      "method": "ucb-operator-bandit",
+      "score": -55.1370241498,
+      "seed": 0,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -673.8534765625495,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 657.912722127,
+      "method": "ucb-operator-bandit",
+      "score": -15.9407544358,
+      "seed": 1,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -118.70609328505964,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 61.761051115,
+      "method": "ucb-operator-bandit",
+      "score": -56.9450421703,
+      "seed": 2,
+      "task": "rosenbrock"
+    },
+    {
+      "baseline": -0.9969259946904502,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.857277715,
+      "method": "ucb-operator-bandit",
+      "score": -0.1396482796,
+      "seed": 0,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.9728135941924213,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.831344861,
+      "method": "ucb-operator-bandit",
+      "score": -0.1414687328,
+      "seed": 1,
+      "task": "huber-robust"
+    },
+    {
+      "baseline": -0.7589836831704898,
+      "calls": 48,
+      "claimed_original_invention": false,
+      "improvement": 0.627963418,
+      "method": "ucb-operator-bandit",
+      "score": -0.1310202654,
+      "seed": 2,
+      "task": "huber-robust"
+    }
+  ],
+  "methods": [
+    "halton-qmc",
+    "inverse-bfgs",
+    "rank-mu-covariance-es",
+    "gaussian-process-ei",
+    "artificial-bee-colony",
+    "harmony-search",
+    "ucb-operator-bandit"
+  ],
+  "production_merge_authorized": false,
+  "real_model_training_steps": 0,
+  "schema": "umbra.independent.optimizer.benchmark.v2",
+  "sha256": "c058ff0f01c0b0b8f42d36f08f46692f47b62fcbe465e2244c640bdef99cbfa4",
+  "synthetic_only": true
+}

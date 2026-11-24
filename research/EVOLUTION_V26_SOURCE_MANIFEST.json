@@ -1,0 +1,26 @@
+{
+  "files": {
+    ".github/workflows/myriad-model-queue-v26-ci.yml": {
+      "sha256": "b730b4bfeb721edca54d07ac391cdd96874e2e2b1de74b879b0813987a081ba1",
+      "size": 1526
+    },
+    "docs/EVOLUTION_V26_DURABLE_MODEL_QUEUE.md": {
+      "sha256": "75225839df9a6ba1cf46e79601d7af9f00041499a40e18af02534c6cbb02d8f0",
+      "size": 6227
+    },
+    "scripts/evolution_model_queue_v26.py": {
+      "sha256": "791e80aa5c68922e57d1c822a4cdcfc1cc1382cba169c531fbd132bef9ff4a5a",
+      "size": 13322
+    },
+    "tests/test_evolution_model_queue_v26.py": {
+      "sha256": "0ab2a090d5936e9b2ebe9cdae76a17d3c7f5d6e3c2b1ecda7242ba4824d1bdff",
+      "size": 11899
+    }
+  },
+  "model_inference_connections_executed": 0,
+  "model_training_events": 0,
+  "public_raw_model_outputs": false,
+  "registered_neural_processes_started": 0,
+  "schema": "myriad.evolution.v26.source.v1",
+  "status": "RESEARCH_ONLY_OPT_IN"
+}

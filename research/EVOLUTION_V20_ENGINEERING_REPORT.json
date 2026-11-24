@@ -1,0 +1,68 @@
+{
+  "actual_independent_invented_algorithms": 0,
+  "archived_receipts_do_not_prove_actual_intelligence": true,
+  "auto_approve": false,
+  "case_report_sha256": "5167047186ceb39d57cb9b9fa19843e3b410cf4fe29ffd2d187d26a189cae4d3",
+  "method_metrics": {
+    "artificial-bee-colony": {
+      "cases": 15,
+      "median_improvement": 0.603334169,
+      "negative": 0,
+      "positive": 15,
+      "zero": 0
+    },
+    "gaussian-process-ei": {
+      "cases": 15,
+      "median_improvement": 0.757691852,
+      "negative": 0,
+      "positive": 15,
+      "zero": 0
+    },
+    "halton-qmc": {
+      "cases": 15,
+      "median_improvement": 0.521498965,
+      "negative": 0,
+      "positive": 14,
+      "zero": 1
+    },
+    "harmony-search": {
+      "cases": 15,
+      "median_improvement": 0.644228861,
+      "negative": 0,
+      "positive": 15,
+      "zero": 0
+    },
+    "inverse-bfgs": {
+      "cases": 15,
+      "median_improvement": 0.965687664,
+      "negative": 0,
+      "positive": 15,
+      "zero": 0
+    },
+    "rank-mu-covariance-es": {
+      "cases": 15,
+      "median_improvement": 0.77548497,
+      "negative": 0,
+      "positive": 15,
+      "zero": 0
+    },
+    "ucb-operator-bandit": {
+      "cases": 15,
+      "median_improvement": 0.857277715,
+      "negative": 0,
+      "positive": 15,
+      "zero": 0
+    }
+  },
+  "optimizer_implementations_added": 7,
+  "optimizer_implementations_before": 12,
+  "optimizer_implementations_total": 19,
+  "original_full_ability_weight_bank_accessible": false,
+  "original_full_agent_weight_bank_accessible": false,
+  "parameterized_experiment_configs": 250000,
+  "schema": "umbra.evolution.v20.science.v1",
+  "sealed_umbra_validation_candidate_count": 7,
+  "synthetic_math_benchmark_cases": 105,
+  "trading_authorized": false,
+  "two_cycle_receipts_verified": 390000
+}

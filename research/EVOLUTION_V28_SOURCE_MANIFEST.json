@@ -1,0 +1,29 @@
+{
+  "files": {
+    ".github/workflows/myriad-transfer-v28-ci.yml": {
+      "sha256": "e29147092526b9efe32a306c2884b89be726a1fb764bc4b9bdd0e193bb0a9c64",
+      "size": 1530
+    },
+    "docs/EVOLUTION_V28_CROSS_TASK_TRANSFER.md": {
+      "sha256": "0bc74af84aec483b0efde4872d99a368c8b03a7ff860aad05fe4e66696651146",
+      "size": 6063
+    },
+    "research/EVOLUTION_V28_CROSS_TASK_TRANSFER_SUMMARY.json": {
+      "sha256": "3f1907485e5092d540553a36046e764d2dc383a52b124880c77902ca6dc22de7",
+      "size": 1741
+    },
+    "scripts/evolution_transfer_ood_v28.py": {
+      "sha256": "eb870a08c9e4f500eca58f505dca7c752b8d7484f0abb4bffcf94d181d042b8c",
+      "size": 11515
+    },
+    "tests/test_evolution_transfer_ood_v28.py": {
+      "sha256": "43a661746b48a87456e514161550f49fc8212866e35d6a84f18bec904e8a2fe4",
+      "size": 3040
+    }
+  },
+  "independent_cross_task_baseline_wins": 0,
+  "market_edge_certified": false,
+  "production_authority": false,
+  "schema": "myriad.synthetic_cross_task_transfer.v28.source",
+  "scope": "public source and aggregated metrics only; private original and trained FP16 absent"
+}

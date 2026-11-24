@@ -1,0 +1,30 @@
+{
+  "files": {
+    ".github/workflows/myriad-multitask-v32-ci.yml": {
+      "sha256": "42ed6f0eea29e654c41eb53c611d1e58d4874d1fc233a01cc5051f92d01ab2db",
+      "size": 1464
+    },
+    "docs/EVOLUTION_V32_MULTITASK_SYNTHETIC_TRANSFER.md": {
+      "sha256": "28a6c6150deadd1e466e6c415c3d4660d889847c4572876414addcfd9a853737",
+      "size": 4519
+    },
+    "research/EVOLUTION_V32_SYNTHETIC_TRANSFER_SUMMARY.json": {
+      "sha256": "5c5ddc2e75d1e09f3cd01d7b63de9ed649027bb1b99989eb8914d5a3c6243925",
+      "size": 952
+    },
+    "scripts/evolution_multitask_v32.py": {
+      "sha256": "7fc689f5a87e7ea162a0dc9d81c78338fd4035ea881331ea091464f5bc03e365",
+      "size": 11704
+    },
+    "tests/test_evolution_multitask_v32.py": {
+      "sha256": "b619838b3975ebe3a7c08e0bec6aa69ba16fc5c02c981648bebec5cdfefc4074",
+      "size": 2702
+    },
+    "tests/test_evolution_multitask_v32_private.py": {
+      "sha256": "67ce008db9633e77b11716762dcffd51832d84c6912cf622b0c52ca7eff423ef",
+      "size": 1797
+    }
+  },
+  "private_bytes_in_git": false,
+  "schema": "myriad.source_integrity.v32"
+}

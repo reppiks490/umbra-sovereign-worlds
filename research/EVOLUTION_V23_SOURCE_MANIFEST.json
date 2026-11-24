@@ -1,0 +1,30 @@
+{
+  "files": {
+    ".github/workflows/myriad-bank-verifier-v23-ci.yml": {
+      "sha256": "9a39c85fcbe0a693ca8d9ec6b26c9d20237c118c732b193ecd9aafbfaac5598d",
+      "size": 1479
+    },
+    "docs/EVOLUTION_V23_CHECKPOINT_VERIFICATION.md": {
+      "sha256": "829d8f52dd96a7fdf93de617a965a99cb5551e044ca5a6e9bb3679fc8134db9a",
+      "size": 3694
+    },
+    "research/EVOLUTION_V18_SOURCE_MANIFEST.json": {
+      "sha256": "8c9a049122dc82313cd109a68644fc14f60977716cc761c4fef3950488c40dee",
+      "size": 2938
+    },
+    "scripts/myriad_bank_fabric.py": {
+      "sha256": "92904b64458aa3f94681d283039bc7529e26d568476d81588abe1536d61819e0",
+      "size": 19054
+    },
+    "tests/test_myriad_bank_verifier_v23.py": {
+      "sha256": "cb17956aeb5a4619daf0d5e7e4315512cfaafb6430d4f92d8df3cbae85c09c46",
+      "size": 6720
+    }
+  },
+  "historical_full_neural_banks_present": false,
+  "independent_training_provenance": false,
+  "schema": "myriad.evolution.v23.source.v1",
+  "source_sample_abilities": 10000,
+  "source_sample_agents": 10,
+  "status": "RESEARCH_ONLY_NOT_PROMOTABLE"
+}

@@ -1,0 +1,54 @@
+{
+  "files": {
+    "docs/EVOLUTION_V20_ENGINEERING.md": {
+      "bytes": 6908,
+      "sha256": "07a30142e498e2fad0d98eca18bbef487a9ef20d17aeaeb24eb845cddc7ff9fe"
+    },
+    "docs/EVOLUTION_V20_HANDOFF.md": {
+      "bytes": 3307,
+      "sha256": "b05ad7484d23347190f0d70558fe9245aef7492b1772ded780e3aa9c5832435f"
+    },
+    "research/EVOLUTION_V20_ENGINEERING_REPORT.json": {
+      "bytes": 1810,
+      "sha256": "1f65a3d56ae0638c4768f9726c07934fb144ce5cbeab514263e3677e6e026162"
+    },
+    "research/EVOLUTION_V20_INDEPENDENT_METHODS_105_CASES.json": {
+      "bytes": 27943,
+      "sha256": "5167047186ceb39d57cb9b9fa19843e3b410cf4fe29ffd2d187d26a189cae4d3"
+    },
+    "scripts/evolution_algorithms_v20.py": {
+      "bytes": 13556,
+      "sha256": "f7e5e41d6111f11f9db96d8093452385465d583f434daf097cf744803591f180"
+    },
+    "scripts/evolution_archive_recovery_v20.py": {
+      "bytes": 9442,
+      "sha256": "0ee07c82a45a5a5a78100f18e40ca42958e18e6f4f5ee3beb086fdd0888625fa"
+    },
+    "scripts/evolution_umbra_tournament_v20.py": {
+      "bytes": 3955,
+      "sha256": "94f491ab404ad6b66a11750d401d4f8e5d1a9abf9228dba75f1b4d969a6be93a"
+    },
+    "tests/test_evolution_algorithms_v20.py": {
+      "bytes": 2364,
+      "sha256": "cc6c6d88d82648dbd856852d2514ac1dd552ada788e57518ac36eaeac8a858e1"
+    },
+    "tests/test_evolution_archive_recovery_v20.py": {
+      "bytes": 4179,
+      "sha256": "c7dc3f870307881437020da75f266299a291630e6733bc74404f1ec258e6805a"
+    },
+    "tests/test_evolution_scheduler_v20.py": {
+      "bytes": 4143,
+      "sha256": "939fe49e263c4b2571b0525884524dc38f5c3f0d66eebd5478d6a1b757266d94"
+    },
+    "tests/test_evolution_tournament_v20.py": {
+      "bytes": 1248,
+      "sha256": "0dd77d7f3e943551a0c4fff4dbbf64e0b4df309bb83dd9b17274e994707cf62c"
+    }
+  },
+  "live_broker_authorization": false,
+  "logical_workflow_identities": 195000,
+  "optimizer_impls_total": 19,
+  "real_model_training": false,
+  "review_only": true,
+  "schema": "umbra.evolution.v20.source.v1"
+}

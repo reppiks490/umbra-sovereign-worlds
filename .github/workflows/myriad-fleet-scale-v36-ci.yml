@@ -1,0 +1,21 @@
+name: MYRIAD v3.6 bounded local fleet scale verification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_fleet_scale_v36.py'
+      - 'tests/test_evolution_fleet_scale_v36.py'
+      - '.github/workflows/myriad-fleet-scale-v36-ci.yml'
+permissions:
+  contents: read
+jobs:
+  scale:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: PYTHONPATH=scripts python -m unittest discover -s tests -p 'test_evolution_fleet_scale_v36.py' -v

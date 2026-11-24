@@ -1,0 +1,7 @@
+# v9.1 — authenticated historical receipt audit
+
+Read-only bounded scan of v64 tool and v82 reasoning receipts using their strict replay verifiers. Reports only aggregate counts, failure outcomes, duplicate seed records and qualified tasks. Missing evidence is not success. Duplicate authenticated seeds contribute zero qualified tasks irrespective of filesystem order. A valid receipt with a failed inference remains a valid failure record, not successful reasoning. No new model calls. Never export raw receipts, identifiers, HMACs, or secrets. This is local authentication, not independent attestation.
+
+RED PID 34680: missing audit module. GREEN PID 29308: four tests. Additional RED PID 33172 exposed duplicate seed count inflation; GREEN PID 10952: all five tests passed, including tamper, duplicate JSON keys, oversized receipt, failure retention and completed score replay. All fixtures signed with synthetic test key. Actual historical replay pending. Explicit receipt_audit phase wired into supervisor without changing default phase schedule; local launcher allowlist update and exact-source verification required before using protected runner. No manual credential handling.
+
+v90 exact six tests passed PID 34424 and 24/24 CI. Concurrent stage already present was validated rather than overwritten. Local physical RAM fluctuated 1726–2608 MiB in latest inspections, so larger training remains blocked. v90 live inference not yet qualified. Acquisition and training goals remain active, no auto-promotion, no production merges.

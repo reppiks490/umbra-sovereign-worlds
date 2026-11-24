@@ -1,0 +1,33 @@
+name: MYRIAD v2.5 neural curriculum source-and-safety qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_neural_curriculum_v25.py'
+      - 'scripts/myriad_bank_fabric.py'
+      - 'tests/test_evolution_neural_curriculum_v25.py'
+      - 'docs/EVOLUTION_V25_SYNTHETIC_NEURAL_CURRICULUM.md'
+      - 'research/EVOLUTION_V25_TRAINING_SUMMARY.json'
+      - 'research/EVOLUTION_V25_SOURCE_MANIFEST.json'
+      - '.github/workflows/myriad-neural-curriculum-v25-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check reproducible source manifest
+        run: |
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V25_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -m py_compile scripts/evolution_neural_curriculum_v25.py
+      - name: Test planning, consent, parameter budgets and non-destructive output guards
+        run: |
+          python3 -m unittest discover -s tests -p 'test_evolution_neural_curriculum_v25.py' -v
+          python3 scripts/evolution_neural_curriculum_v25.py plan
+      # The user-owned private source weights and CPU PyTorch installation are
+      # deliberately not copied to GitHub Actions. These tests do NOT run training.

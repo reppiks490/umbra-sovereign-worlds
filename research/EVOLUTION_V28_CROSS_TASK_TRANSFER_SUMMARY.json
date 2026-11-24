@@ -1,0 +1,68 @@
+{
+  "beats_source_count": 18,
+  "beats_zero_count": 0,
+  "comparisons": 66,
+  "family_per_seed": {
+    "980004": {
+      "antipodal": {
+        "beats_source": 0,
+        "beats_zero": 0,
+        "comparisons": 11,
+        "wins_both": 0
+      },
+      "independent_linear": {
+        "beats_source": 4,
+        "beats_zero": 0,
+        "comparisons": 11,
+        "wins_both": 0
+      },
+      "nonlinear_interaction": {
+        "beats_source": 5,
+        "beats_zero": 0,
+        "comparisons": 11,
+        "wins_both": 0
+      }
+    },
+    "980005": {
+      "antipodal": {
+        "beats_source": 0,
+        "beats_zero": 0,
+        "comparisons": 11,
+        "wins_both": 0
+      },
+      "independent_linear": {
+        "beats_source": 4,
+        "beats_zero": 0,
+        "comparisons": 11,
+        "wins_both": 0
+      },
+      "nonlinear_interaction": {
+        "beats_source": 5,
+        "beats_zero": 0,
+        "comparisons": 11,
+        "wins_both": 0
+      }
+    }
+  },
+  "full_historical_banks_verified": false,
+  "method": "exact saved FP16 weights; three preregistered unrelated synthetic task families; original weights and zero predictor comparators",
+  "private_checkpoints_published": false,
+  "private_receipt_sha256": {
+    "980004": "e34252e94a805de1df911853bc7f8da2500b15b5ac70ffbb28d7f20375b01050",
+    "980005": "6bcba684cc18afb74bcdba29829cbadd4beaa0edef250c9d480aeb96a90a254c"
+  },
+  "production_authority": false,
+  "real_world_generalization_claim": false,
+  "schema": "myriad.synthetic_cross_task.transfer_summary.v28",
+  "seeds": [
+    980004,
+    980005
+  ],
+  "tasks": [
+    "antipodal",
+    "nonlinear_interaction",
+    "independent_linear"
+  ],
+  "trained_weights_included": false,
+  "wins_both_count": 0
+}

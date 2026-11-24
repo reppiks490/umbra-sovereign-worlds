@@ -1,0 +1,33 @@
+name: MYRIAD v3.7-v3.9 specialist and source research qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_research_v37.py'
+      - 'scripts/evolution_live_research_v38.py'
+      - 'scripts/evolution_research_orchestrator_v39.py'
+      - 'tests/test_evolution_*v37.py'
+      - 'tests/test_evolution_*v38.py'
+      - 'tests/test_evolution_*v39.py'
+      - '.github/workflows/myriad-specialist-research-v39-ci.yml'
+permissions:
+  contents: read
+jobs:
+  research:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    env:
+      PYTHONPATH: ${{ github.workspace }}/scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -p 'test_evolution_research_v37.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_live_research_v38.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_research_orchestrator_v39.py' -v

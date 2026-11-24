@@ -1,0 +1,23 @@
+{
+  "configured_dockerfile_path": "evolution/Dockerfile",
+  "docker_image_built": false,
+  "local_http_health_success": true,
+  "local_http_write_rejected_403": true,
+  "local_test_count": 7,
+  "observed_builder": "RAILPACK",
+  "observed_failure_message": "No start command detected",
+  "observed_failure_stage": "BUILD_IMAGE",
+  "observed_healthcheck_path": "/api/health",
+  "observed_start_command": null,
+  "prior_dockerfile_missing_api_runtime_module": true,
+  "production_authority": false,
+  "project": "MYRIAD Evolution Observatory",
+  "railway_builder_changed": false,
+  "railway_production_deployment_attempted": false,
+  "schema": "myriad.observatory_railway.build_audit.v31",
+  "service": "evolution-observatory",
+  "source_healthcheck_uses_assigned_port": true,
+  "source_uses_assigned_port": true,
+  "staged_copy_only_runtime_boots": true,
+  "staged_methods_and_tribunal_endpoints_work": true
+}

@@ -1,0 +1,28 @@
+{
+  "files": {
+    ".github/workflows/myriad-transfer-gate-v30-ci.yml": {
+      "sha256": "c06546f73fb2460d1f8ec3f9926d1ad3d71c2e33acf7c426eb5ef9d57b3b305b",
+      "size": 1651
+    },
+    "docs/EVOLUTION_V30_RELEASE_ADMISSION.md": {
+      "sha256": "ddb1cca085d0d58305f6dcd5105cdc32e0d1fba9cc7b8387621b867639267315",
+      "size": 4708
+    },
+    "research/EVOLUTION_V30_ADMISSION_SUMMARY.json": {
+      "sha256": "c8f8f9ebc45d5a4318da91bc3253b118b698ff7dde0829b4c0f9cdd4b20c1683",
+      "size": 989
+    },
+    "scripts/evolution_cross_task_gate_v30.py": {
+      "sha256": "d65083b89a2f2b665cb09f841711719c1722268fea4928bb24b83d28a4fb84ca",
+      "size": 8003
+    },
+    "tests/test_evolution_transfer_gate_v30.py": {
+      "sha256": "847904d2341bc1ec8e829f247a3e39f756b196b1d4bd9b876550e6b3138ee747",
+      "size": 5044
+    }
+  },
+  "private_neural_weights_published": false,
+  "public_report": true,
+  "release_permission": false,
+  "schema": "myriad.cross_task_admission.v30.source"
+}

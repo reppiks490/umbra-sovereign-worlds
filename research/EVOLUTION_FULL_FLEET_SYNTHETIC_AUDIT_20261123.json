@@ -1,0 +1,47 @@
+{
+  "schema": "umbra.evolution.full_fleet_synthetic_audit.v1",
+  "source_commit": "691a5caa3ffd7551b454f7b432c39fc429110bcc",
+  "recorded_workflows": 195000,
+  "unique_workflows": 195000,
+  "trained_neural_networks_in_this_run": 0,
+  "synthetic_optimizer_steps_per_identity": 12,
+  "synthetic_optimizer_steps_total": 2340000,
+  "reviewable_synthetic_proposals": 18402,
+  "verified_peer_exchanges": 194987,
+  "all_worker_ids_covered": true,
+  "sqlite_integrity_check": "ok",
+  "receipt_chain_sha256": "b575aa674b54dbe82759a5c9b789bd100fe13ed877d5129c3c6b451e0461ecb2",
+  "elapsed_seconds": 280.19,
+  "mean_identity_records_per_second": 696.0,
+  "peak_rss_mb": 359.4,
+  "real_software_integrations_merged": 0,
+  "full_fleet_hourly_24x7_guaranteed": false,
+  "source_training": "toy synthetic policy, never presented as real-world agent intelligence",
+  "sample_receipts": [
+    {
+      "workflow": "E000001",
+      "hour": "2026-11-23T18",
+      "receipt": "cfbb6323b8314d3324349c6cd97e705d2f386cbb3c6152acfd063828f5a472f7"
+    },
+    {
+      "workflow": "E010001",
+      "hour": "2026-11-23T18",
+      "receipt": "f6d17157efab1af58fe6467594046fb5019129c63a52c78b52c824eb2af711e7"
+    },
+    {
+      "workflow": "E050001",
+      "hour": "2026-11-23T18",
+      "receipt": "060ac86410567673955b6400898ba6b4ae2e59ad771dddb3e766cdb99074da43"
+    },
+    {
+      "workflow": "E150001",
+      "hour": "2026-11-23T18",
+      "receipt": "3d223a07d7b4fef7f22daf13c881f4cccf8292aab8e591d6fe72231a7c410e40"
+    },
+    {
+      "workflow": "E195000",
+      "hour": "2026-11-23T18",
+      "receipt": "3dbcbab16103be9b319617cda203cd69a4cb4451ed550a8ffe204816038ac0c6"
+    }
+  ]
+}

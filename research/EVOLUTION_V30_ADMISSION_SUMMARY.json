@@ -1,0 +1,30 @@
+{
+  "artifact_receipt_sha256": "dd24bc280f207c8d5b19c19938765ce78ee606e73501c60ea53f9dbb680dd810",
+  "automatic_promotion": false,
+  "comparison_count": 66,
+  "independently_replayed_from_saved_FP16": true,
+  "market_alpha_certified": false,
+  "per_seed_family_wins_both": {
+    "980004": {
+      "antipodal": 0,
+      "independent_linear": 0,
+      "nonlinear_interaction": 0
+    },
+    "980005": {
+      "antipodal": 0,
+      "independent_linear": 0,
+      "nonlinear_interaction": 0
+    }
+  },
+  "private_source_receipt_shas": {
+    "980004": "8afaf2512ef32e5fd69b8071e125b93f46572087fb460a9f2480eb57ecc37f98",
+    "980005": "d2513998031cd54aa53b1c12aeee2aff9fe915faf22ea3986df1c80887dc8971"
+  },
+  "private_weights_in_public_repository": false,
+  "production_authority": false,
+  "production_release_gates_verified": 0,
+  "schema": "myriad.synthetic_cross_task_admission.v30",
+  "status": "BLOCKED_TRANSFER_EVIDENCE",
+  "threshold_wins_both_per_family_per_seed": 6,
+  "wins_both": 0
+}

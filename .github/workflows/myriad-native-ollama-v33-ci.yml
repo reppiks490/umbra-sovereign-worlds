@@ -1,0 +1,21 @@
+name: MYRIAD v3.3 native model adapter source verification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_native_ollama_v33.py'
+      - 'tests/test_evolution_native_ollama_v33.py'
+      - '.github/workflows/myriad-native-ollama-v33-ci.yml'
+permissions:
+  contents: read
+jobs:
+  native-adapter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -p 'test_evolution_native_ollama_v33.py' -v

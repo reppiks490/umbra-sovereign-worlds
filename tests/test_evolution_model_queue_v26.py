@@ -192,6 +192,22 @@ class WorkerQueueTests(unittest.TestCase):
   self.assertEqual(q.status(self.db,self.clock)['ready'],2)
   self.assertEqual(q.status(self.db,self.clock)['overdue_ready'],0)
   self.assertEqual(len(list(output_dir.glob('*.private.json'))),2)
+ def test_elapsed_lease_cannot_finish_after_model_response(self):
+  # Inference can take longer than a lease. A frozen claim timestamp must not
+  # be reused as the completion time, or an expired result gets approved.
+  e=evidence_module()
+  q.enroll(self.db,1,1,self.clock)
+  def late_local_reply(port,model,seed,count,max_tokens,budget,timeout,deadline_seconds,out,authorize=False):
+   raw=json.loads(self.signed_fixture(1,self.clock).read_text())
+   Path(out).write_text(json.dumps(raw))
+   return raw
+  with patch.object(e,'run',side_effect=late_local_reply):
+   with patch.object(q.time,'time',side_effect=[self.clock,self.clock+121,self.clock+121,self.clock+121]):
+    response=q.process(self.db,Path(self.tmp.name)/'private',model='deterministic-fixture',port=1234,
+      max_jobs=1,count=2,max_tokens=8,budget=16,timeout=2,deadline_seconds=5,
+      clock=None,authorize=True)
+  self.assertEqual(response['model_evaluation_occurrences'],0)
+  self.assertEqual(q.status(self.db,self.clock+121)['completed_occurrences'],0)
  def test_model_failure_quarantines_without_auto_retry(self):
   e=evidence_module()
   q.enroll(self.db,1,1,self.clock,repeat=True)

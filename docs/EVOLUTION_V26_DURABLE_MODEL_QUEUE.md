@@ -8,7 +8,7 @@ The existing 195,000 independently addressable logical workflow identities have 
 
 - All `E000001`–`E195000` worker IDs are addressable; **none are auto-enrolled** and no models are automatically launched.
 - Explicitly enroll **at most 128 IDs per call**, optionally recurring every 3,600 seconds; no default hourly schedule or full-fleet registration. Each actual `run` is independently authorized and bounded to **four workers**, **four toy evaluation prompts per worker**, per-call token caps and an elapsed-time checkpoint.
-- Lease claims use SQLite `BEGIN IMMEDIATE`, unique worker IDs and a random invocation-specific owner token. Expired/reclaimed leases cannot be completed by their former owner. Separate `model_runs` primary keys provide idempotent per-hour receipts.
+- Lease claims use SQLite `BEGIN IMMEDIATE`, unique worker IDs and a random invocation-specific owner token. Expired/reclaimed leases cannot be completed by their former owner. **Completion checks the current wall clock after model inference, not the earlier claim timestamp; results arriving after the lease deadline fail closed.** Separate `model_runs` primary keys provide idempotent per-hour receipts.
 - Each completion requires a **private regular JSON file** with a v2.4 HMAC, independently replayed arithmetic scoring, `production_authority=false`, the deterministic seed derived from the exact `(worker_id, scheduled_hour)`, and a filename scoped to the same occurrence.
 - Failed evaluations enter a **quarantined** state, not an automatic-retry-and-promote state. The separate private raw output is never written into the SQLite database or public repository. Only the HMAC digest, local evidence path, completed requests, score, and previous-hour digest are stored.
 - The `previous_hmac` chain is **an archival lineage link**, not evidence that one model learned from another. No model checkpoint or optimizer is automatically updated, no code is automatically integrated or merged, and no broker orders are possible.
@@ -36,7 +36,7 @@ The upstream server's model identity and token usage are **self-reported**. This
 ## Failure and provenance tests
 
 - Reject ID zero, ID beyond 195,000, duplicate enrollment and batches exceeding 128 identities.
-- Simultaneous owners lease distinct workers; earlier owners cannot complete a stolen or expired lease.
+- Simultaneous owners lease distinct workers; earlier owners cannot complete a stolen or expired lease. A separate regression simulates a late model response after a 120-second lease and verifies that the result is never accepted.
 - Signed private evidence must pass v2.4 output replay and HMAC verification; valid receipts bound to the **wrong worker/seed or wrong scoped filename** are rejected even when internally HMAC-valid.
 - Two mocked local model evaluations generate two independently verified occurrences; the recurrence advances to the next hour instead of running again before due.
 - Failed model execution is quarantined and cannot automatically re-enter processing; absent user authorization and excessive budgets make no claims and no inference calls.

@@ -218,9 +218,11 @@ def process(db_path,out_dir,*,model,port,max_jobs=1,count=2,max_tokens=16,
             seed=(idx*65537+(due//3600))%(2**32)
             try:
                 evidence.run(port,model,seed,count,max_tokens,budget,timeout,deadline_seconds,path,authorize=True)
-                completed.append(complete(db,owner,idx,due,path,due_time))
+                settlement_time=int(time.time()) if clock is None else int(clock)
+                completed.append(complete(db,owner,idx,due,path,settlement_time))
             except Exception as exc:
-                try:quarantine(db,owner,idx,due,due_time,type(exc).__name__)
+                settlement_time=int(time.time()) if clock is None else int(clock)
+                try:quarantine(db,owner,idx,due,settlement_time,type(exc).__name__)
                 except ValueError:
                     # Expired/stolen lease must never be converted to an accepted result.
                     pass

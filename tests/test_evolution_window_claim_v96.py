@@ -57,4 +57,12 @@ class Tests(unittest.TestCase):
         with patch.object(m,'MAX_HISTORY',2),self.assertRaises(ValueError):self.claim(9)
         self.assertTrue(self.claim(9));p=self.root/m.CLAIMS/'9.claim';p.write_text('corrupt',encoding='utf-8')
         self.assertFalse(self.claim(9)) # even incomplete markers consume the window
+    def test_fixed_proof_namespace_is_separate(self):
+        self.assertTrue(self.claim(7))
+        self.assertTrue(m.reserve(self.root,7,KEY,verify,family='proof'))
+        self.assertFalse(m.reserve(self.root,7,KEY,verify,family='proof'))
+        self.put('proof-feedback-v97-a.json',signed(12))
+        self.assertFalse(m.reserve(self.root,12,KEY,verify,family='proof'))
+        self.assertTrue(self.claim(12))
+        with self.assertRaises(ValueError):m.reserve(self.root,13,KEY,verify,family='../unsafe')
 if __name__=='__main__':unittest.main()

@@ -18,6 +18,9 @@ on:
       - 'tests/test_evolution_proof_curriculum_v84.py'
       - 'scripts/evolution_proof_feedback_v90.py'
       - 'tests/test_evolution_proof_feedback_v90.py'
+      - 'scripts/evolution_proof_runtime_v97.py'
+      - 'tests/test_evolution_proof_runtime_v97.py'
+      - 'tests/test_evolution_proof_runtime_integration_v97.py'
       - 'scripts/evolution_receipt_audit_v91.py'
       - 'tests/test_evolution_receipt_audit_v91.py'
       - 'scripts/evolution_mcp_bridge_v92.py'
@@ -66,6 +69,8 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_evolution_group_robust_v83.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_proof_curriculum_v84.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_proof_feedback_v90.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_proof_runtime_v97.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_proof_runtime_integration_v97.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_receipt_audit_v91.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_mcp_bridge_v92.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_skill_catalog_v93.py' -v

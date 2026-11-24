@@ -23,13 +23,15 @@ def _unique(pairs):
         out[k]=v
     return out
 
-def reserve(root,seed,key,verify):
+def reserve(root,seed,key,verify,*,family='tool'):
+    if family not in ('tool','proof'):raise ValueError('unknown claim family')
+    pattern,claim_dir=('tool-research-v64-*.json',CLAIMS) if family=='tool' else ('proof-feedback-v97-*.json','proof-feedback-claims-v97')
     if type(seed) is not int or not 0<=seed<2**63:raise ValueError('invalid window seed')
     root=Path(root);_safe(root,True)
     hist=root/'teacher-v40';seen=False
     if hist.exists() or hist.is_symlink():
         _safe(hist,True)
-        for i,p in enumerate(hist.glob('tool-research-v64-*.json'),1):
+        for i,p in enumerate(hist.glob(pattern),1):
             if i>MAX_HISTORY:raise ValueError('receipt scan limit')
             _safe(p,False)
             with p.open('rb') as f:raw=f.read(MAX_RECEIPT+1)
@@ -38,7 +40,7 @@ def reserve(root,seed,key,verify):
             if not isinstance(r,dict) or verify(r,key) is not True or type(r.get('seed')) is not int or not 0<=r['seed']<2**63 or r.get('status') not in ('completed','failed'):raise ValueError('invalid receipt')
             seen|=r['seed']==seed
     if seen:return False
-    folder=root/CLAIMS;folder.mkdir(exist_ok=True);_safe(folder,True)
+    folder=root/claim_dir;folder.mkdir(exist_ok=True);_safe(folder,True)
     for i,p in enumerate(folder.glob('*.claim'),1):
         if i>MAX_HISTORY:raise ValueError('claim scan limit')
         _safe(p,False)

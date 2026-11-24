@@ -57,11 +57,31 @@ def train(root,start,n,steps):
         with (temp/name).open('xb') as f:f.write(b);f.flush();os.fsync(f.fileno())
     temp.rename(final);return r
 def verify(folder,replay=False):
-    folder=Path(folder);p=folder/'weights.fp16';r=json.loads((folder/'receipt.json').read_text());sig=r.pop('receipt_sha256')
-    bounds(r['start'],r['trained_rows'],r['gradient_steps_per_row'])
-    if folder.is_symlink() or p.is_symlink() or folder.name!=f"{r['start']:08d}" or sig!=sha(canonical(r)) or r['schema']!='myriad.synthetic_ability_shard.v47' or r['production_authority'] is not False or r['semantic_skills_certified']!=0:raise ValueError('invalid receipt')
+    folder=Path(folder);p=folder/'weights.fp16';receipt=folder/'receipt.json'
+    if folder.is_symlink() or not folder.is_dir() or p.is_symlink() or receipt.is_symlink() or not p.is_file() or not receipt.is_file() or receipt.stat().st_size>16384:
+        raise ValueError('invalid shard paths')
+    def unique(pairs):
+        out={}
+        for k,v in pairs:
+            if k in out:raise ValueError('duplicate receipt field')
+            out[k]=v
+        return out
+    r=json.loads(receipt.read_bytes(),object_pairs_hook=unique)
+    fields={'schema','start','trained_rows','parameters_per_row','weight_bytes','gradient_steps_per_row','gradient_row_updates','weight_sha256','heldout_projections_per_row','mean_mse','zero_mean_mse','improved_rows','semantic_skills_certified','production_authority','historical_bank_recovered','receipt_sha256'}
+    if not isinstance(r,dict) or set(r)!=fields:raise ValueError('invalid receipt fields')
+    sig=r.pop('receipt_sha256');bounds(r['start'],r['trained_rows'],r['gradient_steps_per_row'])
+    n=r['trained_rows'];size=n*WIDTH*2
+    counts={'parameters_per_row':WIDTH,'weight_bytes':size,'gradient_row_updates':n*r['gradient_steps_per_row'],'heldout_projections_per_row':12,'semantic_skills_certified':0}
+    if any(type(r[k]) is not int or r[k]!=v for k,v in counts.items()) or type(r['improved_rows']) is not int or not 0<=r['improved_rows']<=n:
+        raise ValueError('inconsistent training counters')
+    if any(type(r[k]) not in (int,float) or not math.isfinite(r[k]) or r[k]<0 for k in ('mean_mse','zero_mean_mse')):
+        raise ValueError('invalid score')
+    digest=lambda v:isinstance(v,str) and len(v)==64 and all(c in '0123456789abcdef' for c in v)
+    if not digest(sig) or not digest(r['weight_sha256']) or folder.name!=f"{r['start']:08d}" or sig!=sha(canonical(r)) or r['schema']!='myriad.synthetic_ability_shard.v47' or r['production_authority'] is not False or r['historical_bank_recovered'] is not False:
+        raise ValueError('invalid receipt')
+    if p.stat().st_size!=size:raise ValueError('weight geometry mismatch')
     raw=p.read_bytes()
-    if len(raw)!=r['trained_rows']*WIDTH*2 or sha(raw)!=r['weight_sha256']:raise ValueError('weight digest mismatch')
+    if len(raw)!=size or sha(raw)!=r['weight_sha256']:raise ValueError('weight digest mismatch')
     if replay:
         import torch
         torch.set_num_threads(1);v=torch.frombuffer(bytearray(raw),dtype=torch.float16).reshape(-1,WIDTH).float()

@@ -67,6 +67,14 @@ class LineageTests(unittest.TestCase):
   legacy['peer_used']=True;legacy.pop('receipt_sha256');legacy['receipt_sha256']=mesh.digest(legacy)
   self.assertEqual(validate_child(self.db,legacy)['status'],'legacy_unproven')
 
+ def test_parent_link_without_actual_assimilation_rejected(self):
+  forged=mesh.train(mesh.workflow(1),hour='2026-11-23T19',steps=4,peer=None)
+  forged['peer_used']=True;forged['peer_provenance_schema']=SCHEMA
+  forged['peer_parent']=self.child['peer_parent']
+  forged.pop('receipt_sha256');forged['receipt_sha256']=mesh.digest(forged)
+  with self.assertRaisesRegex(ValueError,'deterministic re-execution'):
+   validate_child(self.db,forged)
+
  def test_no_peer_is_verifiably_distinct(self):
   p=mesh.train(mesh.workflow(1),hour='2026-11-23T19',steps=3)
   p['peer_used']=False;p['peer_provenance_schema']=SCHEMA;p['peer_parent']=None

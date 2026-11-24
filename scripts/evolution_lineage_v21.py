@@ -29,7 +29,14 @@ def validate_child(db, obj, *, max_depth=1):
         return {'status':'legacy_no_peer','child':obj.get('workflow'),'parent':None}
     parent=obj.get('peer_parent')
     if obj.get('peer_used') is not bool(parent):raise ValueError('Child peer-use flag contradicts parent metadata')
-    if parent is None:return {'status':'no_prior_parent','child':obj['workflow'],'parent':None}
+    if parent is None:
+        # Explicitly recorded absence of peer assistance must be consistent with
+        # the exact deterministic training algorithm, not just the booleans.
+        identity=mesh.workflow(int(obj['workflow'][1:]))
+        replay=mesh.train(identity,hour=obj['hour'],steps=obj['steps'],peer=None)
+        if obj['parameters']!=replay['parameters']:
+            raise ValueError('No-peer child does not match deterministic training replay')
+        return {'status':'no_prior_parent','child':obj['workflow'],'parent':None}
     if not isinstance(parent,dict) or set(parent)!=PARENT_FIELDS:
         raise ValueError('Malformed parent link')
     ref=parent.get('parent_receipt_sha256')
@@ -56,10 +63,13 @@ def validate_child(db, obj, *, max_depth=1):
         raise ValueError('Unauthorized parent evidence')
     expected=mesh.workflow(int(source[1:]))
     if expected['domain']!=domain:raise ValueError('Parent workflow/domain mismatch')
-    if obj.get('peer_used'):
-        # Child weights are not expected to equal parent. The point is to prove
-        # source provenance and capture its independently checked receipt.
-        pass
+    # Re-run the actual deterministic synthetic trainer with the exact
+    # referenced parent input: a valid hash and a valid review flag alone do
+    # not establish that a child actually used that parent's parameters.
+    child_workflow=mesh.workflow(int(obj['workflow'][1:]))
+    expected=mesh.train(child_workflow,hour=obj['hour'],steps=obj['steps'],peer=original['parameters'])
+    if obj['parameters']!=expected['parameters'] or obj.get('algorithm')!=expected['algorithm']:
+        raise ValueError('Claimed peer influence fails deterministic re-execution')
     return {'status':'verified_prior_hour','child':obj['workflow'],'parent':source,'source_receipt_sha256':ref,
             'source_hour':prior_hour,'source_domain':domain}
 

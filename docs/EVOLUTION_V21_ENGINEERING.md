@@ -6,9 +6,9 @@
 
 1. `umbra_evolution_mesh.peer_evidence_for` now returns the verified prior-hour peer's worker identity, UTC logical hour, SHA-256 digest, source domain and bounded synthetic parameter vector. The old `peer_for()` accessor remains for compatibility.
 2. `run_batch` and the persistent `evolution_scheduler.process()` seal `peer_provenance_schema='umbra.evolution.parent_link.v21'` and a `peer_parent` object in every **new** record, or explicit `null` if no eligible parent exists. The child digest covers both.
-3. `evolution_lineage_v21.py` independently rechecks child synthetic scores, resolves the referenced parent from SQLite using primary keys, verifies that parent's original receipt and heldout/stress qualification, refuses same-hour/future/self/cross-domain dependencies, and distinguishes `verified_prior_hour`, `no_prior_parent`, `legacy_unproven`, and `legacy_no_peer` records.
+3. `evolution_lineage_v21.py` independently rechecks child synthetic scores, resolves the referenced parent from SQLite using primary keys, verifies that parent's original receipt and heldout/stress qualification, **re-executes the deterministic child trainer with precisely the referenced parent parameters** (or no parent), refuses same-hour/future/self/cross-domain dependencies, and distinguishes `verified_prior_hour`, `no_prior_parent`, `legacy_unproven`, and `legacy_no_peer` records.
 4. Future parent parameter assimilation uses evidence from a candidate that passed a replayed heldout/stress gate. A self-reported review flag plus a newly computed hash is **not sufficient**.
-5. Seven regression tests exercise actual `run_batch` write/read integration, legitimate parent linkage, missing parent, fake digest, same-hour dependency, old records with missing provenance, and explicit no-parent cases.
+5. Eight regression tests exercise actual `run_batch` write/read integration, legitimate parent linkage, missing parent, fake digest, same-hour dependency, old records with missing provenance, explicit no-parent cases, and forged parent links where the child did **not** actually use the claimed parent.
 
 ## Historical 390,000-record audit — important correction
 

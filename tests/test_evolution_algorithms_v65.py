@@ -30,4 +30,19 @@ class Tests(unittest.TestCase):
   with self.assertRaises(ValueError):m.gauss_jordan([[1,1],[1,1]],[1,2])
   with self.assertRaises(ValueError):m.entropy([0,0])
   with self.assertRaises(ValueError):m.dbscan([[0]],-1,1)
+class AdversarialTests(unittest.TestCase):
+ def test_nonfinite_clustering_controls(self):
+  for eps in (float('nan'),float('inf')):
+   with self.assertRaises(ValueError):m.dbscan([[0.],[1.]],eps,1)
+ def test_zero_likelihood_viterbi_rejected(self):
+  with self.assertRaises(ValueError):m.viterbi([1.,0.],[[1.,0.],[0.,1.]],[[1.,0.],[1.,0.]],[1])
+ def test_nonfinite_matrix_rejected(self):
+  for bad in (float('nan'),float('inf')):
+   with self.assertRaises(ValueError):m.gauss_jordan([[bad]],[1.])
+   with self.assertRaises(ValueError):m.gauss_jordan([[1.]],[bad])
+ def test_hmm_probability_rows(self):
+  with self.assertRaises(ValueError):m.forward([.8,.8],[[1.,0.],[0.,1.]],[[1.],[1.]],[0])
+  with self.assertRaises(ValueError):m.forward([.5,.5],[[.3,.3],[0.,1.]],[[1.],[1.]],[0])
+ def test_positive_iteration_budget(self):
+  with self.assertRaises(ValueError):m.kmeans([[1.]],[[0.]],steps=0)
 if __name__=='__main__':unittest.main()

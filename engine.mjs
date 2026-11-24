@@ -107,7 +107,8 @@ export function total(towns){return towns.reduce((a,t)=>a+t.p,0)}
 export function simulate(seed,policy,steps=240){return advanceWorld(createWorld(seed,policy),steps)}
 /** Paired replicate ensemble: identical exogenous seeds, only one policy differs. Synthetic model-internal treatment effect. */
 export function pairedExperiment({seed=49021,trials=16,steps=240,baseline=DEFAULT_POLICY,treatment={...DEFAULT_POLICY,trade:0}}={}){
- trials=CLAMP(Math.floor(trials),2,64);steps=CLAMP(Math.floor(steps),1,2000);const cfgA=policyOf(baseline),cfgB=policyOf(treatment);
+ if(!Number.isSafeInteger(trials)||!Number.isSafeInteger(steps))throw new RangeError('Paired experiment requires finite integer trials and steps');
+ trials=CLAMP(trials,2,64);steps=CLAMP(steps,1,2000);const cfgA=policyOf(baseline),cfgB=policyOf(treatment);
  const paths=[],differences=[];
  for(let k=0;k<trials;k++){const runSeed=hash32((seed>>>0)+Math.imul(k+1,0x9e3779b1));const a=createWorld(runSeed,cfgA),b=createWorld(runSeed,cfgB);
   for(let t=0;t<steps;t++){stepWorld(a);stepWorld(b)}

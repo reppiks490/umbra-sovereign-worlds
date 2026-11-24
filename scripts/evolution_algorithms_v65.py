@@ -198,4 +198,80 @@ def ljung_box(values,lag):
     mean=sum(a)/n;b=[v-mean for v in a];den=sum(v*v for v in b)
     if den==0:raise ValueError('constant sequence')
     return n*(n+2)*sum((sum(b[i]*b[i-k] for i in range(k,n))/den)**2/(n-k) for k in range(1,lag+1))
-REGISTRY={f.__name__:f for f in (bridges,pagerank,components,longest_palindromic_subsequence,edit_script,otsu,dbscan,kmeans,entropy,mutual_information,bayes,viterbi,forward,newton,trapezoid,gauss_jordan,poly_eval,ema,ljung_box)}
+def articulation_points(g):
+    """Cut vertices using iterative depth-first low-link propagation."""
+    adj={u:set(vs) for u,vs in g.items()}
+    if any(len(adj[u])!=len(vs) for u,vs in g.items()) or any(v not in adj or u not in adj[v] for u,vs in adj.items() for v in vs):raise ValueError('simple undirected graph required')
+    seen={};low={};children={};cuts=set()
+    for root in g:
+        if root in seen:continue
+        seen[root]=low[root]=len(seen);children[root]=0
+        stack=[(root,root,iter(adj[root]))]
+        while stack:
+            u,parent,it=stack[-1]
+            try:v=next(it)
+            except StopIteration:
+                stack.pop()
+                if u==root:
+                    if children[u]>1:cuts.add(u)
+                else:
+                    low[parent]=min(low[parent],low[u])
+                    if parent!=root and low[u]>=seen[parent]:cuts.add(parent)
+                continue
+            if v==parent:continue
+            if v in seen:low[u]=min(low[u],seen[v]);continue
+            children[u]+=1;children[v]=0;seen[v]=low[v]=len(seen)
+            stack.append((v,u,iter(adj[v])))
+    return sorted(cuts)
+def hmm_smooth(prior,t,e,obs):
+    """Scaled forward-backward posterior and sequence log-likelihood."""
+    _hmm(prior,t,e,obs)
+    n=len(prior);alpha=[];scales=[]
+    for k,o in enumerate(obs):
+        p=[prior[j]*e[j][o] if k==0 else math.fsum(alpha[-1][i]*t[i][j] for i in range(n))*e[j][o] for j in range(n)]
+        z=math.fsum(p)
+        if z<=0:raise ValueError('impossible observation sequence')
+        scales.append(z);alpha.append([v/z for v in p])
+    beta=[1.]*n;out=[None]*len(obs)
+    for k in range(len(obs)-1,-1,-1):
+        row=[alpha[k][i]*beta[i] for i in range(n)];z=math.fsum(row)
+        if z<=0 or not math.isfinite(z):raise ValueError('invalid posterior')
+        out[k]=[v/z for v in row]
+        if k:
+            q=[math.fsum(t[i][j]*e[j][obs[k]]*beta[j] for j in range(n)) for i in range(n)]
+            z=max(q)
+            if z<=0:raise ValueError('impossible backward sequence')
+            beta=[v/z for v in q]
+    return math.fsum(math.log(z) for z in scales),out
+def mann_whitney_u(a,b):
+    """Midrank U statistic for the first sample; ties receive half weight."""
+    a=list(a);b=list(b)
+    if not a or not b or any(not math.isfinite(x) for x in a+b):raise ValueError('finite nonempty samples')
+    from bisect import bisect_left,bisect_right
+    b.sort()
+    return math.fsum((bisect_left(b,x)+bisect_right(b,x))*.5 for x in a)
+def kendall_tau_b(x,y):
+    """Tie-adjusted rank correlation (quadratic reference implementation)."""
+    x=list(x);y=list(y)
+    if len(x)!=len(y) or not 2<=len(x)<=10000 or any(not math.isfinite(v) for v in x+y):raise ValueError('finite paired samples')
+    c=d=tx=ty=0
+    for i in range(len(x)):
+        for j in range(i):
+            a=(x[i]>x[j])-(x[i]<x[j]);b=(y[i]>y[j])-(y[i]<y[j])
+            c+=a*b>0;d+=a*b<0;tx+=a==0 and b!=0;ty+=b==0 and a!=0
+    den=(c+d+tx)*(c+d+ty)
+    if not den:raise ValueError('constant rank sample')
+    return (c-d)/math.sqrt(den)
+def suffix_array(s):
+    """Prefix-doubling suffix order, avoiding quadratic suffix allocation."""
+    if not isinstance(s,str):raise ValueError('text required')
+    n=len(s);order=list(range(n));rank=[ord(c) for c in s];k=1
+    while k<n:
+        key=lambda i:(rank[i],rank[i+k] if i+k<n else -1)
+        order.sort(key=key);next_rank=[0]*n
+        for a,b in zip(order,order[1:]):next_rank[b]=next_rank[a]+(key(a)!=key(b))
+        rank=next_rank
+        if rank[order[-1]]==n-1:break
+        k*=2
+    return order
+REGISTRY={f.__name__:f for f in (bridges,pagerank,components,longest_palindromic_subsequence,edit_script,otsu,dbscan,kmeans,entropy,mutual_information,bayes,viterbi,forward,newton,trapezoid,gauss_jordan,poly_eval,ema,ljung_box,articulation_points,hmm_smooth,mann_whitney_u,kendall_tau_b,suffix_array)}

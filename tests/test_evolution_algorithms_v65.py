@@ -25,7 +25,7 @@ class Tests(unittest.TestCase):
   self.assertEqual(m.poly_eval([1,2,3],2),11)
   self.assertAlmostEqual(m.ema([1,3],.5)[1],2)
   self.assertAlmostEqual(m.ljung_box([1,-1,1,-1],1),4.5)
-  self.assertEqual(len(m.REGISTRY),19)
+  self.assertEqual(len(m.REGISTRY),24)
  def test_invalid(self):
   with self.assertRaises(ValueError):m.gauss_jordan([[1,1],[1,1]],[1,2])
   with self.assertRaises(ValueError):m.entropy([0,0])
@@ -62,4 +62,54 @@ class ScaleAndPrecisionTests(unittest.TestCase):
   self.assertEqual(m.viterbi([.5-1e-15,.5+1e-15],[[1.,0.],[0.,1.]],[[1.],[1.]],[0]),[1])
  def test_viterbi_long_sequence(self):
   self.assertEqual(m.viterbi([1.],[[1.]],[[1.]],[0]*6000),[0]*6000)
+class IndependentAlgorithmTests(unittest.TestCase):
+ def test_articulation_matches_removal_oracle(self):
+  import random
+  rng=random.Random(7901)
+  for n in range(2,9):
+   for _ in range(12):
+    g={i:[] for i in range(n)}
+    for i in g:
+     for j in range(i+1,n):
+      if rng.random()<.3:g[i].append(j);g[j].append(i)
+    before=len(m.components(g));expected=[]
+    for u in g:
+     h={v:[w for w in g[v] if w!=u] for v in g if v!=u}
+     if len(m.components(h))>before:expected.append(u)
+    self.assertEqual(m.articulation_points(g),expected)
+ def test_hmm_smoothing_matches_path_enumeration(self):
+  import itertools
+  p=[.6,.4];t=[[.8,.2],[.3,.7]];e=[[.7,.3],[.2,.8]];obs=[0,1,0]
+  paths=[]
+  for q in itertools.product(range(2),repeat=len(obs)):
+   w=p[q[0]]*e[q[0]][obs[0]]
+   for i in range(1,len(obs)):w*=t[q[i-1]][q[i]]*e[q[i]][obs[i]]
+   paths.append((q,w))
+  z=sum(w for q,w in paths)
+  logp,posterior=m.hmm_smooth(p,t,e,obs)
+  self.assertAlmostEqual(logp,math.log(z))
+  for i,row in enumerate(posterior):
+   for j in range(2):self.assertAlmostEqual(row[j],sum(w for q,w in paths if q[i]==j)/z)
+  logp,post=m.hmm_smooth([1.],[[1.]],[[.5,.5]],[0]*2000)
+  self.assertAlmostEqual(logp,2000*math.log(.5),places=8);self.assertEqual(post[1999],[1.])
+  with self.assertRaises(ValueError):m.hmm_smooth([1.],[[1.]],[[1.,0.]],[1])
+ def test_mann_whitney_against_pairwise_oracle(self):
+  for a,b in [([1,2,2],[2,3]),([4],[0]),([1,1],[1,1]),([-2,0,2],[-1,0,1])]:
+   expected=sum((x>y)+.5*(x==y) for x in a for y in b)
+   self.assertEqual(m.mann_whitney_u(a,b),expected)
+  with self.assertRaises(ValueError):m.mann_whitney_u([], [1])
+ def test_kendall_ties_against_pairwise_oracle(self):
+  import itertools
+  x=[1,2,2,3,1];y=[3,1,1,2,2];c=d=tx=ty=0
+  for i,j in itertools.combinations(range(len(x)),2):
+   a=x[i]-x[j];b=y[i]-y[j]
+   c+=a*b>0;d+=a*b<0;tx+=a==0 and b!=0;ty+=b==0 and a!=0
+  self.assertAlmostEqual(m.kendall_tau_b(x,y),(c-d)/math.sqrt((c+d+tx)*(c+d+ty)))
+  self.assertEqual(m.kendall_tau_b([1,2,3],[3,2,1]),-1)
+  with self.assertRaises(ValueError):m.kendall_tau_b([1,1],[1,2])
+ def test_suffix_array_matches_naive_sort(self):
+  import random
+  rng=random.Random(7902)
+  for s in ['', 'banana','mississippi','aaaa']+[''.join(rng.choice('abc') for _ in range(n)) for n in range(1,50)]:
+   self.assertEqual(m.suffix_array(s),sorted(range(len(s)),key=lambda i:s[i:]))
 if __name__=='__main__':unittest.main()

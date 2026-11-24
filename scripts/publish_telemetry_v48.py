@@ -13,14 +13,30 @@ import evolution_algorithms_v56 as methods56
 import evolution_algorithms_v60 as methods60
 import evolution_algorithms_v65 as methods65
 import evolution_agent_bank_v51 as agents
+import evolution_fleet_integrity_v55 as fleet_integrity
 REPO='reppiks490/umbra-sovereign-worlds';BRANCH='telemetry/myriad-live';DEST='telemetry/live.json'
 def query(path,sql):
     with closing(sqlite3.connect(path.resolve().as_uri()+'?mode=ro',uri=True,timeout=10)) as c:return c.execute(sql).fetchone()
+def verified_fleet(path,key):
+    # One read transaction supplies a consistent view even if the live writer commits mid-audit.
+    if path.is_symlink() or not path.is_file():raise ValueError('invalid fleet ledger path')
+    with closing(sqlite3.connect(path.resolve().as_uri()+'?mode=ro',uri=True,timeout=10)) as db:
+        db.execute('BEGIN')
+        r=fleet_integrity.audit(db,key)
+        enrolled=db.execute('SELECT count(*) FROM workers').fetchone()[0]
+        peer=db.execute('SELECT count(peer_worker) FROM receipts').fetchone()[0]
+        return enrolled,r['verified_items'],r['distinct_workers'],peer,r['verified_batches']
+def registry_count(registries):
+    names=set()
+    for registry in registries:
+        if not isinstance(registry,dict) or any(not isinstance(k,str) or not callable(v) for k,v in registry.items()):raise ValueError('invalid algorithm registry')
+        if names.intersection(registry):raise ValueError('overlapping algorithm registry')
+        names.update(registry)
+    return len(names)
 def collect(root,key):
     legacy=root/'local-pilot.sqlite3';fleet=root/'fleet-v46.sqlite3'
     n=query(legacy,'SELECT count(*) FROM model_jobs')[0];runs=query(legacy,'SELECT count(*) FROM model_runs')[0]
-    en=query(fleet,'SELECT count(*) FROM workers')[0];items,dist,peer=query(fleet,'SELECT count(*),count(distinct worker),count(peer_worker) FROM receipts')
-    calls=query(fleet,'SELECT count(*) FROM batches')[0]
+    en,items,dist,peer,calls=verified_fleet(fleet,key)
     ab=bank.status(root/'ability-v47')
     labels={};updates=0
     for p in (root/'teacher-v40').glob('teacher-*.json'):
@@ -36,7 +52,7 @@ def collect(root,key):
         v=neural.latest(root/'fresh-v34',int(p.name[4:]))
         if v:checkpoints+=v['generation']
     new_agents=agents.status(root/'agent-v51')
-    counts={'legacy_enrolled':n,'legacy_completed':runs,'fleet_enrolled':en,'fleet_distinct_completed':dist,'fleet_completed_items':items,'fleet_model_calls':calls,'fleet_peer_linked':peer,'specialist_completed':query(root/'research-v37.sqlite3','SELECT count(*) FROM receipts WHERE error IS NULL')[0],'source_completed':query(root/'source-research-v38.sqlite3','SELECT count(*) FROM receipts WHERE error IS NULL')[0],'ability_rows':ab['trained_rows'],'ability_bytes':ab['trained_bytes'],'ability_updates':ab['row_updates'],'agent_checkpoints':checkpoints+new_agents['trained_agents'],'agent_bytes':checkpoints*neural.WIDTH+new_agents['trained_bytes'],'teacher_labels':len(labels),'student_updates':updates,'algorithm_implementations_added':len(methods.REGISTRY)+len(methods56.REGISTRY)+len(methods60.REGISTRY)+len(methods65.REGISTRY)}
+    counts={'legacy_enrolled':n,'legacy_completed':runs,'fleet_enrolled':en,'fleet_distinct_completed':dist,'fleet_completed_items':items,'fleet_model_calls':calls,'fleet_peer_linked':peer,'specialist_completed':query(root/'research-v37.sqlite3','SELECT count(*) FROM receipts WHERE error IS NULL')[0],'source_completed':query(root/'source-research-v38.sqlite3','SELECT count(*) FROM receipts WHERE error IS NULL')[0],'ability_rows':ab['trained_rows'],'ability_bytes':ab['trained_bytes'],'ability_updates':ab['row_updates'],'agent_checkpoints':checkpoints+new_agents['trained_agents'],'agent_bytes':checkpoints*neural.WIDTH+new_agents['trained_bytes'],'teacher_labels':len(labels),'student_updates':updates,'algorithm_implementations_added':registry_count((methods.REGISTRY,methods56.REGISTRY,methods60.REGISTRY,methods65.REGISTRY))}
     return contract.snapshot(int(time.time()),counts)
 def gh(*args,input=None):
     p=subprocess.run(['gh','api',*args],input=input,text=True,capture_output=True,timeout=35)

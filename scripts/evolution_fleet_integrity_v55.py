@@ -60,8 +60,13 @@ def audit(db,key):
             if json.loads(decode(cases,v['compact_output']))!=[x[1] for x in ordered]:raise ValueError('compact output replay mismatch')
         seen.add(bid)
     if seen!=set(batches):raise ValueError('orphan batch')
-    for worker,receipt,wins,attempts in db.execute('SELECT id,last_hmac,wins,attempts FROM workers WHERE attempts>0'):
-        if last.get(worker)!=(receipt,wins,attempts):raise ValueError('worker counters')
+    reconciled=set()
+    for worker,receipt,wins,attempts in db.execute('SELECT id,last_hmac,wins,attempts FROM workers'):
+        if type(worker) is not int or not 1<=worker<=f.TOTAL or type(wins) is not int or type(attempts) is not int or not 0<=wins<=attempts:
+            raise ValueError('invalid worker ledger')
+        if last.get(worker,(None,0,0))!=(receipt,wins,attempts):raise ValueError('worker counters')
+        if attempts:reconciled.add(worker)
+    if reconciled!=set(last):raise ValueError('orphan worker receipt')
     return {'verified_items':n,'verified_batches':len(seen),'distinct_workers':len(last),'correct':correct,'production_authority':False}
 def run(db,key,n=8):
     import evolution_fleet_v46 as f

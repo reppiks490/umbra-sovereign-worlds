@@ -175,13 +175,25 @@ def connect(path):
 
 def peer_for(db, wf, hour):
     # Only a *previously recorded* and explicitly unpromoted peer record can be used.
-    row = db.execute('SELECT record FROM runs WHERE domain=? AND workflow!=? AND hour<=? ORDER BY hour DESC, workflow LIMIT 1',
-                     (wf['domain'],wf['id'],hour)).fetchone()
-    if not row: return None
-    item = json.loads(row[0])
-    h=item.pop('receipt_sha256')
-    if digest(item) != h: raise ValueError('tampered peer evidence')
-    return item['parameters']
+    # Strict earlier-hour selection: same-hour worker completion order is not
+    # an independent validation signal. Never copy rejected peer candidates.
+    rows = db.execute('SELECT record FROM runs WHERE domain=? AND workflow!=? AND hour<? ORDER BY hour DESC, workflow LIMIT 32',
+                     (wf['domain'],wf['id'],hour)).fetchall()
+    for (raw,) in rows:
+        item=json.loads(raw)
+        h=item.get('receipt_sha256')
+        if not isinstance(h,str) or digest({k:v for k,v in item.items() if k!='receipt_sha256'})!=h:
+            raise ValueError('tampered peer evidence')
+        if item.get('domain')!=wf['domain'] or item.get('hour','')>=hour:
+            raise ValueError('forged peer provenance')
+        if item.get('deployment_authorized') or item.get('real_model_weight_training'):
+            raise ValueError('untrusted peer authority')
+        if item.get('review_status')!='candidate_for_manual_review':continue
+        params=item.get('parameters')
+        if not isinstance(params,list) or len(params)!=8 or any(type(v) not in (int,float) or not math.isfinite(v) or not 0<=v<=1 for v in params):
+            raise ValueError('invalid peer weights')
+        return params
+    return None
 
 
 def run_batch(args):

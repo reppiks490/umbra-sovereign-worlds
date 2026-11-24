@@ -5,7 +5,7 @@ Research proposals only. No claims of 195K hourly completion without measured
 capacity. Intended for a single persistent host; GitHub Actions CI is not one.
 """
 from __future__ import annotations
-import argparse, json, os, sqlite3, sys, time
+import argparse, json, os, sqlite3, sys, time, uuid
 from pathlib import Path
 from datetime import datetime, timezone
 sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -30,7 +30,7 @@ def open_db(path):
         hour TEXT NOT NULL, workflow TEXT NOT NULL, domain TEXT NOT NULL,
         receipt TEXT NOT NULL, record TEXT NOT NULL,
         PRIMARY KEY(hour,workflow))''')
-    db.execute('CREATE INDEX IF NOT EXISTS ix_runs_domain_hour_workflow ON runs(domain,hour DESC,workflow)')
+    db.execute('CREATE INDEX IF NOT EXISTS ix_runs_domain_hour ON runs(domain,hour)')
     db.execute('''CREATE TABLE IF NOT EXISTS proposals(
         workflow TEXT NOT NULL, hour TEXT NOT NULL, kind TEXT NOT NULL,
         record_hash TEXT NOT NULL, review_state TEXT NOT NULL CHECK(review_state IN ('quarantined','rejected')),
@@ -82,9 +82,9 @@ def finish(db,owner,idx,due,record,now):
     try:
         state=db.execute('SELECT lease_owner,next_due,lease_until FROM worker_state WHERE id=?',(idx,)).fetchone()
         if not state or state[0]!=owner or state[1]!=due or state[2]<now:raise ValueError('Expired or stolen worker lease')
-        db.execute('INSERT OR IGNORE INTO runs(hour,workflow,domain,receipt,record) VALUES(?,?,?,?,?)',
+        db.execute('INSERT INTO runs(hour,workflow,domain,receipt,record) VALUES(?,?,?,?,?)',
                    (logical_hour,record['workflow'],record['domain'],expected,json.dumps(record,sort_keys=True)))
-        db.execute('INSERT OR IGNORE INTO proposals(workflow,hour,kind,record_hash,review_state) VALUES(?,?,?,?,?)',
+        db.execute('INSERT INTO proposals(workflow,hour,kind,record_hash,review_state) VALUES(?,?,?,?,?)',
                    (record['workflow'],logical_hour,record['proposal_type'],expected,'quarantined' if record['review_status']=='candidate_for_manual_review' else 'rejected'))
         # Next scheduled occurrence exactly one hour after previous due; if overdue,
         # do not drop identities. Backlog remains observable and will drain only if capacity allows.
@@ -97,10 +97,15 @@ def finish(db,owner,idx,due,record,now):
 def process(db_path,*,max_jobs=12,steps=3,owner='local-worker',clock=None):
     if not 1<=max_jobs<=10000 or not 1<=steps<=64:raise ValueError('Unsupported run budget')
     now=int(time.time()) if clock is None else int(clock)
+    clock_tick=lambda: int(time.time()) if clock is None else int(clock)
+    # A fresh per-invocation fencing identity prevents same-label process restarts
+    # from completing a lease claimed by an older, stalled process.
+    if not owner or len(owner)>70:raise ValueError('Invalid worker owner')
+    fenced_owner=f'{owner[:36]}-{os.getpid()}-{uuid.uuid4().hex[:20]}'
     db=open_db(db_path);completed=0;errors=[];last=[]
     try:
         for _ in range(max_jobs):
-            item=claim(db,owner,now)
+            item=claim(db,fenced_owner,clock_tick())
             if not item:break
             idx,due=item;wf=mesh.workflow(idx)
             h=datetime.fromtimestamp(due,tz=timezone.utc).strftime('%Y-%m-%dT%H')
@@ -109,12 +114,12 @@ def process(db_path,*,max_jobs=12,steps=3,owner='local-worker',clock=None):
                 record=mesh.train(wf,hour=h,steps=steps,peer=peer)
                 record['peer_used']=peer is not None
                 record.pop('receipt_sha256');record['receipt_sha256']=mesh.digest(record)
-                finish(db,owner,idx,due,record,now)
+                finish(db,fenced_owner,idx,due,record,clock_tick())
                 completed+=1;last.append({'worker':wf['id'],'receipt':record['receipt_sha256']})
             except Exception as exc:
                 # Failed leases become retryable only after lease timeout, never
                 # promoted or falsely recorded as successful.
-                db.execute('UPDATE worker_state SET failures=failures+1 WHERE id=? AND lease_owner=?',(idx,owner))
+                db.execute('UPDATE worker_state SET failures=failures+1 WHERE id=? AND lease_owner=?',(idx,fenced_owner))
                 errors.append({'worker':wf['id'],'error':type(exc).__name__})
     finally:db.close()
     return {'schema':SCHEMA,'completed_this_invocation':completed,'failures':errors,'receipts':last,
@@ -126,9 +131,9 @@ def status(db_path,now=None):
     if now is None:now=int(time.time())
     db=open_db(db_path)
     try:
-        r=db.execute('SELECT COUNT(*),SUM(CASE WHEN next_due<=? THEN 1 ELSE 0 END),SUM(completed),SUM(failures),MIN(next_due) FROM worker_state',(now,)).fetchone()
+        r=db.execute('SELECT COUNT(*),SUM(CASE WHEN next_due<=? THEN 1 ELSE 0 END),SUM(completed),SUM(failures),MIN(next_due),SUM(CASE WHEN lease_until>? THEN 1 ELSE 0 END) FROM worker_state',(now,now)).fetchone()
         p=db.execute('SELECT COUNT(*),SUM(CASE WHEN review_state=\'quarantined\' THEN 1 ELSE 0 END) FROM proposals').fetchone()
-        return {'schema':SCHEMA,'registered_workers':r[0],'overdue':r[1] or 0,'completed_occurrences':r[2] or 0,'failures':r[3] or 0,'next_due_utc':r[4],
+        return {'schema':SCHEMA,'registered_workers':r[0],'overdue':r[1] or 0,'completed_occurrences':r[2] or 0,'failures':r[3] or 0,'next_due_utc':r[4],'actively_leased':r[5] or 0,
                 'evidence_proposals':p[0],'quarantined_proposals':p[1] or 0,'automated_production_integrations':0}
     finally:db.close()
 

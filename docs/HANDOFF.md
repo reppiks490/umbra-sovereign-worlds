@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-111 continuation — advanced laboratory
+
+Issue #23: placebo-falsification now performs two independent full simulations and validates both rather than comparing cached reads. New helper `scripts/umbra_independent_replay.mjs`, four passing isolated helper tests and actual registered-case CLI regression `tests/advanced-placebo-cli.test.mjs`. See Protocol E for execution counting and nonclaims. Old placebo receipts require requalification; exact-head full CI and all 200 placebo cases remain pending. Preserve existing branches; do not merge or deploy automatically.

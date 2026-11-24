@@ -1,4 +1,4 @@
-name: MYRIAD automatic research qualification v18-v54
+name: MYRIAD automatic research qualification v18-v59
 on:
   schedule:
     - cron: '53 6,18 * * *'
@@ -441,3 +441,41 @@ jobs:
       - run: python -m pip install torch==2.15.0+cpu --index-url https://download.pytorch.org/whl/cpu
       - run: python -m unittest discover -s tests -p 'test_evolution_bank_v47.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_agent_bank_v51.py' -v
+  quality-v59:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: ${{ github.workspace }}/scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 839e715b4fe825a29ce4dc075eefcad3d5fdc0d1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -p 'test_evolution_fleet_v46.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_collective_v54.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_fleet_integrity_v55.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_algorithms_v56.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_quality_supervisor_v59.py' -v
+  quality-training-v59:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONPATH: scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 839e715b4fe825a29ce4dc075eefcad3d5fdc0d1
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install torch==2.15.0+cpu --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m unittest discover -s tests -p 'test_evolution_algorithm_distill_v57.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_agent_evolution_v58.py' -v

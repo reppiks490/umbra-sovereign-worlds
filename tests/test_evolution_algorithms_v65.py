@@ -45,4 +45,21 @@ class AdversarialTests(unittest.TestCase):
   with self.assertRaises(ValueError):m.forward([.5,.5],[[.3,.3],[0.,1.]],[[1.],[1.]],[0])
  def test_positive_iteration_budget(self):
   with self.assertRaises(ValueError):m.kmeans([[1.]],[[0.]],steps=0)
+class ScaleAndPrecisionTests(unittest.TestCase):
+ def test_deep_graph_without_recursion(self):
+  n=2400
+  g={i:[j for j in (i-1,i+1) if 0<=j<n] for i in range(n)}
+  self.assertEqual(m.bridges(g),[(i,i+1) for i in range(n-1)])
+ def test_parallel_edges_are_not_simple_graph(self):
+  with self.assertRaises(ValueError):m.bridges({0:[1,1],1:[0,0]})
+ def test_scale_invariant_linear_system(self):
+  for k in (1e-120,1e-20,1.0,1e120):
+   with self.subTest(scale=k):
+    x=m.gauss_jordan([[2*k,k],[k,3*k]],[5*k,7*k])
+    self.assertAlmostEqual(x[0],1.6)
+    self.assertAlmostEqual(x[1],1.8)
+ def test_viterbi_does_not_round_away_real_advantage(self):
+  self.assertEqual(m.viterbi([.5-1e-15,.5+1e-15],[[1.,0.],[0.,1.]],[[1.],[1.]],[0]),[1])
+ def test_viterbi_long_sequence(self):
+  self.assertEqual(m.viterbi([1.],[[1.]],[[1.]],[0]*6000),[0]*6000)
 if __name__=='__main__':unittest.main()

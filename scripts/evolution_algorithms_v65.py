@@ -2,18 +2,28 @@
 import math
 from collections import deque
 def bridges(g):
-    if any(v not in g or u not in g[v] for u,adj in g.items() for v in adj):raise ValueError('undirected graph required')
+    """Iterative low-link traversal of a simple undirected graph."""
+    adj={u:set(vs) for u,vs in g.items()}
+    if any(len(adj[u])!=len(vs) for u,vs in g.items()) or any(v not in adj or u not in adj[v] for u,vs in adj.items() for v in vs):
+        raise ValueError('simple undirected graph required')
     seen={};low={};out=[]
-    def visit(u,parent):
-        seen[u]=low[u]=len(seen)
-        for v in g[u]:
+    for root in g:
+        if root in seen:continue
+        seen[root]=low[root]=len(seen)
+        stack=[(root,root,iter(adj[root]))]
+        while stack:
+            u,parent,it=stack[-1]
+            try:v=next(it)
+            except StopIteration:
+                stack.pop()
+                if u!=root:
+                    low[parent]=min(low[parent],low[u])
+                    if low[u]>seen[parent]:out.append(tuple(sorted((parent,u))))
+                continue
             if v==parent:continue
-            if v in seen:low[u]=min(low[u],seen[v])
-            else:
-                visit(v,u);low[u]=min(low[u],low[v])
-                if low[v]>seen[u]:out.append(tuple(sorted((u,v))))
-    for u in g:
-        if u not in seen:visit(u,None)
+            if v in seen:low[u]=min(low[u],seen[v]);continue
+            seen[v]=low[v]=len(seen)
+            stack.append((v,u,iter(adj[v])))
     return sorted(out)
 def pagerank(g,d=.85,tol=1e-10,steps=1000):
     n=len(g)
@@ -156,14 +166,22 @@ def gauss_jordan(a,b):
     n=len(b)
     if not n or len(a)!=n or any(len(r)!=n for r in a):raise ValueError('geometry')
     if any(not math.isfinite(v) for r in a for v in r) or any(not math.isfinite(v) for v in b):raise ValueError('nonfinite matrix')
-    m=[list(r)+[v] for r,v in zip(a,b)]
+    # Normalize each equation independently: pivot tolerances must not depend on physical units.
+    m=[]
+    for r,v in zip(a,b):
+        scale=max(abs(x) for x in r)
+        if scale==0:raise ValueError('singular matrix')
+        row=[x/scale for x in r]+[v/scale]
+        if any(not math.isfinite(x) for x in row):raise ValueError('nonfinite normalized system')
+        m.append(row)
     for j in range(n):
         i=max(range(j,n),key=lambda i:abs(m[i][j]))
-        if abs(m[i][j])<1e-14:raise ValueError('singular matrix')
+        if abs(m[i][j])<1e-14:raise ValueError('singular or ill-conditioned matrix')
         m[i],m[j]=m[j],m[i];p=m[j][j];m[j]=[v/p for v in m[j]]
         for i in range(n):
             if i!=j:
                 p=m[i][j];m[i]=[v-p*w for v,w in zip(m[i],m[j])]
+        if any(not math.isfinite(v) for row in m for v in row):raise ValueError('nonfinite elimination')
     return [r[-1] for r in m]
 def poly_eval(coefficients,x):
     y=0

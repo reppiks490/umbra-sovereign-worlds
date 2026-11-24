@@ -1,0 +1,93 @@
+name: UMBRA twice-daily 5300-case synthetic fleet (bounded, read-only)
+on:
+  schedule:
+    - cron: '23 3,15 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: umbra-daily-scenario-fleet
+  cancel-in-progress: false
+jobs:
+  catalog:
+    if: ${{ vars.UMBRA_DAILY_FLEET_DISABLED != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm all 5300 manual scenario definitions and exact daily schedule
+        run: |
+          python3 scripts/validate_daily_fleet.py catalog
+          python3 scripts/validate_daily_fleet.py schedule
+          python3 scripts/validate_umbra_workflows.py
+          python3 scripts/validate_umbra_advanced_workflows.py
+          node scripts/umbra_lab.mjs --validate
+          node scripts/umbra_advanced_lab.mjs --validate
+  base-300:
+    needs: catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Execute each of 300 baseline cases, bounded and synthetic
+        run: |
+          mkdir -p fleet-evidence
+          node scripts/umbra_lab.mjs --audit-all > fleet-evidence/base.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-fleet-base
+          path: fleet-evidence/base.json
+          if-no-files-found: error
+          retention-days: 7
+  advanced-5000:
+    needs: catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        shard: [0,1,2,3,4,5,6,7,8,9]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run exactly 500 non-trading synthetic cases per shard
+        run: |
+          node scripts/umbra_advanced_lab.mjs --audit-shard "${{ matrix.shard }}/10" --summary-file "fleet-evidence/shard-${{ matrix.shard }}.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-fleet-advanced-${{ matrix.shard }}
+          path: fleet-evidence/shard-${{ matrix.shard }}.json
+          if-no-files-found: error
+          retention-days: 7
+  verify-all-5300:
+    needs: [base-300, advanced-5000]
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: daily-fleet-*
+          path: fleet-evidence
+          merge-multiple: true
+      - name: Validate full 300+5000 case coverage with no dropped shard
+        run: |
+          python3 scripts/validate_daily_fleet.py evidence --evidence-dir fleet-evidence | tee fleet-coverage.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-fleet-coverage
+          path: fleet-coverage.log
+          if-no-files-found: error
+          retention-days: 7

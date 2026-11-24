@@ -1,0 +1,31 @@
+{
+  "agents": 10,
+  "blind_cross_composition_wins_vs_two_baselines": 10,
+  "candidate_cohort_source": "PRIVATE_LIBRARY_ONLY",
+  "changed_target_wins_vs_two_baselines": 10,
+  "gradient_steps_per_agent": 220,
+  "production_authority": false,
+  "schema": "myriad.multitask_transfer_summary.v32",
+  "source_archive_sha256": "dd0371f80e6762f80eab5140585ce2a218e6a95338d2b3bcc6e4707b8580df60",
+  "source_history_independently_attested": false,
+  "statistics": {
+    "cross": {
+      "candidate_mse": 2.9455076,
+      "linear_baseline_mse": 3.2728399,
+      "source_mse": 4.1374723,
+      "zero_baseline_mse": 3.7435409
+    },
+    "iid": {
+      "candidate_mse": 0.5767125,
+      "linear_baseline_mse": 1.532205,
+      "source_mse": 4.4061734,
+      "zero_baseline_mse": 4.0616823
+    },
+    "novel": {
+      "candidate_mse": 3.9673398,
+      "linear_baseline_mse": 4.6067892,
+      "source_mse": 11.8578386,
+      "zero_baseline_mse": 11.3974391
+    }
+  }
+}

@@ -1,0 +1,36 @@
+name: MYRIAD v3.2 ten-agent multi-task research source qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_multitask_v32.py'
+      - 'tests/test_evolution_multitask_v32.py'
+      - 'tests/test_evolution_multitask_v32_private.py'
+      - 'docs/EVOLUTION_V32_MULTITASK_SYNTHETIC_TRANSFER.md'
+      - 'research/EVOLUTION_V32_SOURCE_MANIFEST.json'
+      - '.github/workflows/myriad-multitask-v32-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Require exact source bytes before validation
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib
+          d=json.loads(pathlib.Path('research/EVOLUTION_V32_SOURCE_MANIFEST.json').read_text())
+          for p,v in d['files'].items():
+              b=pathlib.Path(p).read_bytes()
+              assert len(b)==v['size'] and hashlib.sha256(b).hexdigest()==v['sha256'],p
+          print('Source manifest verified; CI does NOT execute private FP16 training')
+          PY
+      - name: Compile and test safety gates (private training excluded)
+        run: |
+          python3 -m py_compile scripts/evolution_multitask_v32.py tests/test_evolution_multitask_v32.py
+          python3 -m unittest discover -s tests -p 'test_evolution_multitask_v32.py' -v

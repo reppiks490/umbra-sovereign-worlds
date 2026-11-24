@@ -55,14 +55,48 @@ def train(root,agent,steps):
         with (temp/name).open('xb') as f:f.write(b);f.flush();os.fsync(f.fileno())
     temp.rename(final);return r
 def verify(folder,replay=False):
-    folder=Path(folder);p=folder/'weights.fp16';r=json.loads((folder/'receipt.json').read_text());sig=r.pop('receipt_sha256')
-    if folder.is_symlink() or p.is_symlink() or sig!=sha(canonical(r)) or r['schema']!='myriad.fresh_agent_bank.v51' or folder.name!=f"{r['agent']:05d}" or r['parameters']!=PARAMETERS or r['production_authority'] is not False or r['auto_promote'] is not False:raise ValueError('invalid agent receipt')
+    folder=Path(folder);p=folder/'weights.fp16';receipt=folder/'receipt.json'
+    if folder.is_symlink() or not folder.is_dir() or p.is_symlink() or receipt.is_symlink() or not receipt.is_file() or not p.is_file() or receipt.stat().st_size>16384 or p.stat().st_size!=WIDTH:
+        raise ValueError('invalid checkpoint paths or sizes')
+    def unique(pairs):
+        out={}
+        for k,v in pairs:
+            if k in out:raise ValueError('duplicate receipt field')
+            out[k]=v
+        return out
+    r=json.loads(receipt.read_bytes(),object_pairs_hook=unique)
+    fields={'schema','agent','parameters','weight_bytes','source_sha256','weight_sha256','steps','before','after','review_eligible_synthetic','scope','production_authority','auto_promote','receipt_sha256'}
+    if not isinstance(r,dict) or set(r)!=fields:raise ValueError('invalid receipt fields')
+    sig=r.pop('receipt_sha256')
+    def digest(v):return isinstance(v,str) and len(v)==64 and all(c in '0123456789abcdef' for c in v)
+    if not digest(sig) or not digest(r['source_sha256']) or not digest(r['weight_sha256']) or sig!=sha(canonical(r)):
+        raise ValueError('receipt checksum')
+    if r['schema']!='myriad.fresh_agent_bank.v51' or type(r['agent']) is not int or not 1<=r['agent']<=TARGET or folder.name!=f"{r['agent']:05d}" or type(r['parameters']) is not int or r['parameters']!=PARAMETERS or type(r['weight_bytes']) is not int or r['weight_bytes']!=WIDTH or type(r['steps']) is not int or not 1<=r['steps']<=128:
+        raise ValueError('invalid checkpoint geometry or budget')
+    if r['production_authority'] is not False or r['auto_promote'] is not False or r['scope']!='synthetic regression only; no historical weights recovered' or type(r['review_eligible_synthetic']) is not bool:
+        raise ValueError('invalid qualification scope')
+    splits=('holdout','shift')
+    for group in ('before','after'):
+        v=r[group]
+        if not isinstance(v,dict) or set(v)!=set(splits):raise ValueError('invalid metric groups')
+        for row in v.values():
+            if not isinstance(row,dict) or set(row)!={'mse','zero_mse'} or any(type(x) not in (int,float) or not math.isfinite(x) or x<0 for x in row.values()):
+                raise ValueError('invalid metric values')
+    for split in splits:
+        if r['before'][split]['zero_mse']!=r['after'][split]['zero_mse']:raise ValueError('inconsistent baseline')
+    eligible=all(r['after'][s]['mse']<min(r['before'][s]['mse'],r['after'][s]['zero_mse']) for s in splits)
+    if r['review_eligible_synthetic'] is not eligible:raise ValueError('qualification mismatch')
     raw=p.read_bytes()
     if len(raw)!=WIDTH or sha(raw)!=r['weight_sha256']:raise ValueError('weight digest')
     if replay:
         import torch
-        torch.set_num_threads(1);m=model(torch,r['agent']);restore(torch,m,raw);after=metrics(torch,m,r['agent'])
-        if any(abs(after[s][k]-r['after'][s][k])>1e-6 for s in after for k in after[s]):raise ValueError('score replay mismatch')
+        torch.set_num_threads(1);m=model(torch,r['agent'])
+        initial=encode(torch,m)
+        if sha(initial)!=r['source_sha256']:raise ValueError('initial checkpoint digest mismatch')
+        restore(torch,m,initial);before=metrics(torch,m,r['agent'])
+        restore(torch,m,raw);after=metrics(torch,m,r['agent'])
+        for name,actual in [('before',before),('after',after)]:
+            if any(abs(actual[s][k]-r[name][s][k])>1e-6 for s in actual for k in actual[s]):raise ValueError('score replay mismatch')
     r['receipt_sha256']=sig;return r
 def status(root):
     n=steps=eligible=0

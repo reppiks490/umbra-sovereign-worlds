@@ -1,5 +1,11 @@
 name: UMBRA twice-daily 5300-case synthetic fleet (bounded, read-only)
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/umbra-daily-scenario-fleet.yml'
+      - 'scripts/validate_daily_fleet.py'
+      - 'tests/test_daily_fleet.py'
   schedule:
     - cron: '23 3,15 * * *'
   workflow_dispatch:

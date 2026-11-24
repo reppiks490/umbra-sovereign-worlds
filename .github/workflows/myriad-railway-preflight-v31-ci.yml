@@ -25,6 +25,7 @@ jobs:
         run: |
           python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V31_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] and pathlib.Path(p).stat().st_size==v['size'] for p,v in d['files'].items())"
           python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V18_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
+          python3 -c "import json,hashlib,pathlib;d=json.load(open('research/EVOLUTION_V23_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] for p,v in d['files'].items())"
           python3 -m py_compile scripts/evolution_railway_preflight_v31.py
           python3 -m unittest discover -s tests -p 'test_evolution_railway_preflight_v31.py' -v
       - name: Fail if production deployment is claimed by source audit

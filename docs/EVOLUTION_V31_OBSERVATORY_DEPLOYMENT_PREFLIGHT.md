@@ -32,3 +32,7 @@ python3 scripts/evolution_railway_preflight_v31.py \
 ```
 
 The JSON should contain only `builder`, `dockerfilePath`, and `healthcheckPath`; do not include environment variable values, credentials, tokens, hosted domains or user account details.
+
+## Transitive source-manifest repair
+
+The v3.1 Dockerfile modification necessarily updates `EVOLUTION_V18_SOURCE_MANIFEST.json`. That historical review file is itself pinned by `EVOLUTION_V23_SOURCE_MANIFEST.json`, so the older checkpoint CI detected the stale pinned digest. We reproduced the exact mismatch before changing it, then updated **only** v2.3’s manifest entry for v1.8 and included both historical manifests in the v3.1 CI chain. Neither v2.3 application code nor the original checkpoint weights were changed.

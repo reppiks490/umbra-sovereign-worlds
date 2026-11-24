@@ -20,6 +20,8 @@ on:
       - 'tests/test_evolution_temporal_evidence_v85.py'
       - 'scripts/evolution_capability_fabric_v86.py'
       - 'tests/test_evolution_capability_fabric_v86.py'
+      - 'scripts/evolution_skill_composition_v88.py'
+      - 'tests/test_evolution_skill_composition_v88.py'
       - 'scripts/windows/*v87.ps1'
       - 'scripts/windows/run-training-v35.ps1'
       - 'scripts/evolution_model_tournament_v62.py'
@@ -53,6 +55,7 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_evolution_proof_curriculum_v84.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_temporal_evidence_v85.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_capability_fabric_v86.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_skill_composition_v88.py' -v
       - name: Windows training launcher regression
         if: runner.os == 'Windows'
         shell: powershell

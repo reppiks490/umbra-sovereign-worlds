@@ -1,0 +1,30 @@
+name: MYRIAD v4.3-v4.4 reliability and paired qualification
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_reliability_v43.py'
+      - 'scripts/evolution_qualification_v44.py'
+      - 'tests/test_evolution_reliability_v43.py'
+      - 'tests/test_evolution_qualification_v44.py'
+      - '.github/workflows/myriad-reliability-v44-ci.yml'
+permissions:
+  contents: read
+jobs:
+  reliability:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    env:
+      PYTHONPATH: ${{ github.workspace }}/scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -p 'test_evolution_reliability_v43.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_qualification_v44.py' -v

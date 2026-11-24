@@ -1,5 +1,7 @@
 name: UMBRA Sovereign Worlds verification
 on:
+  schedule:
+    - cron: '17 5,17 * * *'
   push:
     branches: [main]
   pull_request:

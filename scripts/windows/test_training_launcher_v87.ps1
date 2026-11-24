@@ -16,3 +16,5 @@ try {
   if(!$caught){throw 'Invalid log destination must fail closed'}
   'PASS: streams, warning, native exit, preference, log failure'
 } finally {if(Test-Path $p){Remove-Item -LiteralPath $p}}
+# All assertions and cleanup completed; do not leak the intentional native exit 7.
+exit 0

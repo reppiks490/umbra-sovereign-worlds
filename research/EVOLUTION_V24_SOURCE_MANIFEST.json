@@ -1,0 +1,26 @@
+{
+  "files": {
+    ".github/workflows/myriad-model-evidence-v24-ci.yml": {
+      "sha256": "e4a284a755e996b35904c4969af44aa8b561057670b76b4b4eb83346021a50e3",
+      "size": 1287
+    },
+    "docs/EVOLUTION_V24_PRIVATE_EVIDENCE.md": {
+      "sha256": "069c2c91bf8cd453eaa94811d4df46eea1c2967f8b94f77f50de1c2635a62fc1",
+      "size": 4194
+    },
+    "scripts/evolution_model_evidence_v24.py": {
+      "sha256": "923ae53cfafc06c4f15cebb9ed3713ac00089ab5013190f3bf9b3c3d410c4686",
+      "size": 8703
+    },
+    "tests/test_evolution_model_evidence_v24.py": {
+      "sha256": "9a91d9f6695978241937894b9182ff584bc058d0c5c3b440b3c7a727915201d8",
+      "size": 6089
+    }
+  },
+  "model_identity_attested": false,
+  "private_evidence_required": true,
+  "schema": "myriad.evolution.v24.source.v1",
+  "status": "RESEARCH_ONLY",
+  "trained_weights_added": 0,
+  "true_model_inference_executed": false
+}

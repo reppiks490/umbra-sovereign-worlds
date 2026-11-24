@@ -9,6 +9,17 @@ import evolution_fleet_scale_v36 as scale
 import evolution_research_orchestrator_v39 as orch
 from evolution_reliability_v43 import PINS
 MODEL='qwen3:1.7b'
+LEGACY_SCHEMA='myriad.research_protocol.v67'
+SCHEMA='myriad.research_protocol.v73'
+FAILURE_STAGES=frozenset(('pin_before','request','envelope','pin_after','message','score','unknown'))
+
+class ProtocolFailure(ValueError):
+    def __init__(self,stage,error_class):
+        if stage not in FAILURE_STAGES or not isinstance(error_class,str) or not error_class.isidentifier():
+            raise ValueError('invalid diagnostic')
+        self.stage=stage;self.error_class=error_class
+        super().__init__(stage+':'+error_class)
+
 def cases(seed):
     start=1+(seed%4)*4
     return [research.task(i,seed) for i in range(start,start+4)]
@@ -36,23 +47,40 @@ def compare(a,b):
     if a['protocol']!='compact' or b['protocol']!='explicit' or a['case_sha256']!=b['case_sha256'] or a['total']!=b['total']:raise ValueError('unpaired comparison')
     return {'total':a['total'],'compact_correct':a['joint_correct'],'explicit_correct':b['joint_correct'],'joint_delta':b['joint_correct']-a['joint_correct'],'compact_seconds':a['seconds'],'explicit_seconds':b['seconds'],'routing_authorized':False}
 def infer(c,protocol):
-    digest=PINS[MODEL];native._pin(11434,MODEL,digest,10)
-    item={'type':'string','enum':[a+b for a in 'ABC' for b in '123']} if protocol=='compact' else {'type':'object','properties':{'n':{'type':'integer','minimum':1,'maximum':len(c)},'action':{'type':'string','enum':list('ABC')},'fact':{'type':'string','enum':['E1','E2','E3']}},'required':['n','action','fact'],'additionalProperties':False}
-    fmt={'type':'array','items':item,'minItems':len(c),'maxItems':len(c)}
-    start=time.monotonic();v,raw=teacher.request('/api/chat',{'model':MODEL,'messages':[{'role':'user','content':prompt(c,protocol)}],'format':fmt,'think':False,'stream':False,'keep_alive':0,'options':{'num_ctx':3072,'num_predict':192,'num_thread':2,'temperature':0}},65)
-    if v.get('model')!=MODEL or v.get('done') is not True or v.get('done_reason')!='stop':raise ValueError('incomplete response')
-    native._pin(11434,MODEL,digest,10)
-    output=v['message']['content'];return {'protocol':protocol,'case_sha256':hashlib.sha256(ev.canonical(c)).hexdigest(),'raw':output,'response_sha256':hashlib.sha256(raw).hexdigest(),'seconds':round(time.monotonic()-start,3),**score(c,output,protocol)}
+    digest=PINS[MODEL];stage='pin_before'
+    try:
+        native._pin(11434,MODEL,digest,10)
+        item={'type':'string','enum':[a+b for a in 'ABC' for b in '123']} if protocol=='compact' else {'type':'object','properties':{'n':{'type':'integer','minimum':1,'maximum':len(c)},'action':{'type':'string','enum':list('ABC')},'fact':{'type':'string','enum':['E1','E2','E3']}},'required':['n','action','fact'],'additionalProperties':False}
+        fmt={'type':'array','items':item,'minItems':len(c),'maxItems':len(c)}
+        stage='request'
+        start=time.monotonic();v,raw=teacher.request('/api/chat',{'model':MODEL,'messages':[{'role':'user','content':prompt(c,protocol)}],'format':fmt,'think':False,'stream':False,'keep_alive':0,'options':{'num_ctx':3072,'num_predict':192,'num_thread':2,'temperature':0}},65)
+        stage='envelope'
+        if not isinstance(v,dict) or v.get('model')!=MODEL or v.get('done') is not True or v.get('done_reason')!='stop':raise ValueError('incomplete response')
+        stage='pin_after';native._pin(11434,MODEL,digest,10)
+        stage='message';output=v['message']['content']
+        if not isinstance(output,str) or len(output)>16384:raise ValueError('invalid output size')
+        stage='score';return {'protocol':protocol,'case_sha256':hashlib.sha256(ev.canonical(c)).hexdigest(),'raw':output,'response_sha256':hashlib.sha256(raw).hexdigest(),'seconds':round(time.monotonic()-start,3),**score(c,output,protocol)}
+    except Exception as e:
+        raise ProtocolFailure(stage,type(e).__name__) from None
+
 def validate_receipt(r):
     """Validate structure and recompute scores independently of authentication."""
     if not isinstance(r,dict) or r.get('status') not in ('completed','failed'):
         raise ValueError('invalid receipt status')
     expected={'schema','seed','model','digest','results','production_authority','errors','status'}
+    versioned=r.get('schema')==SCHEMA
+    if versioned:expected.update(('design','attempt_order'))
     if r['status']=='completed': expected.add('comparison')
-    if set(r)!=expected or r['schema']!='myriad.research_protocol.v67' or r['production_authority'] is not False or r['model']!=MODEL or r['digest']!=PINS[MODEL]:
+    if set(r)!=expected or r['schema'] not in (LEGACY_SCHEMA,SCHEMA) or r['production_authority'] is not False or r['model']!=MODEL or r['digest']!=PINS[MODEL]:
         raise ValueError('invalid receipt metadata')
     if type(r['seed']) is not int or r['seed']<0:
         raise ValueError('invalid receipt seed')
+    if versioned:
+        from evolution_paired_audit_v71 import plan,WINDOW_SECONDS
+        design=plan(r['seed']*WINDOW_SECONDS)
+        order=[design['first'],'explicit' if design['first']=='compact' else 'compact']
+        if ev.canonical(r['design'])!=ev.canonical({'revision':'counterbalanced-v73',**design}) or r['attempt_order']!=order:
+            raise ValueError('invalid experiment design')
     if not isinstance(r['results'],list) or not isinstance(r['errors'],list) or len(r['results'])+len(r['errors'])!=2:
         raise ValueError('incomplete protocol coverage')
     c=cases(r['seed'])
@@ -78,9 +106,15 @@ def validate_receipt(r):
         if any(ev.canonical(v[k])!=ev.canonical(x) for k,x in replay.items()):
             raise ValueError('score replay')
     for error in r['errors']:
-        if not isinstance(error,dict) or set(error)!={'protocol','error_class'} or not isinstance(error['error_class'],str) or not error['error_class'].isidentifier():
+        error_fields={'protocol','error_class','stage'} if versioned else {'protocol','error_class'}
+        if not isinstance(error,dict) or set(error)!=error_fields or not isinstance(error['error_class'],str) or not error['error_class'].isidentifier():
             raise ValueError('invalid protocol error')
+        if versioned and (not isinstance(error['stage'],str) or error['stage'] not in FAILURE_STAGES):raise ValueError('invalid diagnostic stage')
         claim(error['protocol'])
+    if versioned:
+        for group in (r['results'],r['errors']):
+            actual=[v['protocol'] for v in group]
+            if actual!=[v for v in order if v in actual]:raise ValueError('outcome order mismatch')
     if protocols!={'compact','explicit'} or (r['status']=='completed')!=(len(r['results'])==2):
         raise ValueError('inconsistent protocol outcome')
     if r['status']=='completed':
@@ -131,11 +165,12 @@ def run(root,virtual):
     key=ev.secret();design=plan(int(time.time()));seed=design["seed"]
     if not reserve_window(root,seed,key):return {'status':'deferred_duplicate_window','seed':seed,'production_authority':False}
     c=cases(seed)
-    r={'schema':'myriad.research_protocol.v67','seed':seed,'model':MODEL,'digest':PINS[MODEL],'results':[],'production_authority':False,'errors':[]}
-    order=('compact','explicit') if design['first']=='compact' else ('explicit','compact')
+    order=['compact','explicit'] if design['first']=='compact' else ['explicit','compact']
+    r={'schema':SCHEMA,'seed':seed,'model':MODEL,'digest':PINS[MODEL],'results':[],'production_authority':False,'errors':[], 'design':{'revision':'counterbalanced-v73',**design},'attempt_order':order}
     for protocol in order:
         try:r['results'].append(infer(c,protocol))
-        except Exception as e:r['errors'].append({'protocol':protocol,'error_class':type(e).__name__})
+        except ProtocolFailure as e:r['errors'].append({'protocol':protocol,'error_class':e.error_class,'stage':e.stage})
+        except Exception as e:r['errors'].append({'protocol':protocol,'error_class':type(e).__name__,'stage':'unknown'})
     r['status']='completed' if len(r['results'])==2 else 'failed'
     if r['status']=='completed':r['comparison']=compare(*sorted(r['results'],key=lambda v:v['protocol']))
     validate_receipt(r)

@@ -23,17 +23,22 @@ def audit(records,key):
     import evolution_research_protocol_v67 as protocol
     if not isinstance(records,list) or len(records)>MAX_PAIRS:
         raise ValueError('bounded receipt list required')
+    cohort=None
     seen=set(); wins=losses=ties=explicit_only=compact_only=both=neither=failed=0
     families={str(i):{'attempts':0,'completed':0,'compact_first':0,'explicit_first':0} for i in range(4)}
     for r in records:
         if protocol.verify(r,key) is not True:
             raise ValueError('unverified receipt')
+        if cohort is None:cohort=r['schema']
+        if r['schema']!=cohort:raise ValueError('mixed experiment cohorts')
         seed=r['seed']
         if seed in seen:raise ValueError('duplicate experiment seed')
         seen.add(seed);f=families[str(seed%4)];f['attempts']+=1
+        if r['schema']==protocol.SCHEMA:f[r['attempt_order'][0]+'_first']+=1
         if r['status']!='completed':
             failed+=1;continue
-        f['completed']+=1;f[r['results'][0]['protocol']+'_first']+=1
+        f['completed']+=1
+        if r['schema']==protocol.LEGACY_SCHEMA:f[r['results'][0]['protocol']+'_first']+=1
         indexed={v['protocol']:{x['n']:x['joint_correct'] for x in v['rows']} for v in r['results']}
         delta=0
         for n,c in indexed['compact'].items():
@@ -51,3 +56,15 @@ def audit(records,key):
             'family_coverage':families,'two_sided_sign_p':_sign_p(wins,losses),
             'inference_limitation':'Descriptive seed-level sign test; independence and representativeness unproven.',
             'routing_authorized':False,'production_authority':False}
+
+
+def audit_cohorts(records,key):
+    """Keep unversioned historical evidence apart from counterbalanced trials."""
+    import evolution_research_protocol_v67 as protocol
+    if not isinstance(records,list) or len(records)>MAX_PAIRS:raise ValueError('bounded receipt list required')
+    groups={protocol.LEGACY_SCHEMA:[],protocol.SCHEMA:[]}
+    for r in records:
+        if not isinstance(r,dict) or r.get('schema') not in groups:raise ValueError('unknown experiment cohort')
+        groups[r['schema']].append(r)
+    return {'schema':'myriad.cohort_audit.v73','legacy_unversioned':audit(groups[protocol.LEGACY_SCHEMA],key),
+            'counterbalanced_v73':audit(groups[protocol.SCHEMA],key),'routing_authorized':False,'production_authority':False}

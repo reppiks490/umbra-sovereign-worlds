@@ -1,0 +1,28 @@
+{
+  "files": {
+    ".github/workflows/myriad-artifact-registry-v29-ci.yml": {
+      "sha256": "b966db8c47c90f316d352c45e561bd1154b246233a6abb3f6f8305e8698474c4",
+      "size": 1560
+    },
+    "docs/EVOLUTION_V29_ARTIFACT_PROVENANCE_AND_INFRA_AUDIT.md": {
+      "sha256": "281edcad424a19cfcd1d206239dc0fba98892d4ab42470bf44425d3ef6cf78a2",
+      "size": 6464
+    },
+    "research/EVOLUTION_V29_LOCAL_REGISTRY_AUDIT.json": {
+      "sha256": "5623d5fb02cf1462436c5003eec6224dd45ba803b6021f28b77fb12b659f5556",
+      "size": 701
+    },
+    "scripts/evolution_artifact_registry_v29.py": {
+      "sha256": "1a2bc55670fd7b9409653e3c78a47141776435850bd2b0c3ee5ff49825c309e8",
+      "size": 10661
+    },
+    "tests/test_evolution_artifact_registry_v29.py": {
+      "sha256": "fddc57d1d929f09403a027abd876524ddf29d193329ff4be111a7f3db041b8d0",
+      "size": 4642
+    }
+  },
+  "private_signing_key_published": false,
+  "production_authority": false,
+  "schema": "myriad.model_artifact_registry.v29.source",
+  "scope": "public safe code and aggregate audit; no private weights or secrets"
+}

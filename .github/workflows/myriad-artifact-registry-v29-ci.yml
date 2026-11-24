@@ -1,0 +1,30 @@
+name: MYRIAD v2.9 strict artifact registry source gate
+on:
+  pull_request:
+    paths:
+      - 'scripts/evolution_artifact_registry_v29.py'
+      - 'tests/test_evolution_artifact_registry_v29.py'
+      - 'docs/EVOLUTION_V29_*'
+      - 'research/EVOLUTION_V29_*'
+      - '.github/workflows/myriad-artifact-registry-v29-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify exact source and CI configuration
+        run: |
+          python3 -c "import json,hashlib,pathlib;m=json.load(open('research/EVOLUTION_V29_SOURCE_MANIFEST.json'));assert all(hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()==v['sha256'] and pathlib.Path(p).stat().st_size==v['size'] for p,v in m['files'].items())"
+          python3 -m py_compile scripts/evolution_artifact_registry_v29.py
+      - name: Execute adversarial file, signature and safetensors tests
+        run: python3 -m unittest discover -s tests -p 'test_evolution_artifact_registry_v29.py' -v
+      - name: Verify release and outside provenance claims are explicitly closed
+        run: |
+          python3 -c "import json;d=json.load(open('research/EVOLUTION_V29_LOCAL_REGISTRY_AUDIT.json'));assert d['registered_files']==13 and d['registered_bytes']==8868357 and d['model_origin_authenticated'] is False and d['production_authority'] is False and d['private_weights_published'] is False"

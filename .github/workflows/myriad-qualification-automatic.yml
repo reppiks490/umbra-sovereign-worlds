@@ -1,4 +1,4 @@
-name: MYRIAD automatic research qualification v18-v32
+name: MYRIAD automatic research qualification v18-v33
 on:
   schedule:
     - cron: '53 6,18 * * *'
@@ -290,3 +290,27 @@ jobs:
         run: |
           python3 -m py_compile scripts/evolution_multitask_v32.py tests/test_evolution_multitask_v32.py
           python3 -m unittest discover -s tests -p 'test_evolution_multitask_v32.py' -v
+  native-model-v33:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 8a27d0ff1f295447f01d935714c2bf2d6d5ba503
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 -m unittest discover -s tests -p test_evolution_native_ollama_v33.py -v
+  legacy-300:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 479ca2e1f3f7c8e5badbd767d355d2b0b579131e
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/umbra_lab.mjs --audit-all

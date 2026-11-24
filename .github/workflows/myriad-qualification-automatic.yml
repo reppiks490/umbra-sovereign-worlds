@@ -1,4 +1,4 @@
-name: MYRIAD automatic research qualification v18-v44
+name: MYRIAD automatic research qualification v18-v45
 on:
   schedule:
     - cron: '53 6,18 * * *'
@@ -381,7 +381,7 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_evolution_teacher_v40.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_teacher_supervisor_v41.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_retrieval_review_v42.py' -v
-  reliability-v44:
+  reliability-v45:
     strategy:
       fail-fast: false
       matrix:
@@ -393,10 +393,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 987b68bfca0dcf2c764dbdacda9a68b32d0ba5f2
+          ref: 08965ff14b8f6052eeb0626e77163336e52f825f
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - run: python -m unittest discover -s tests -p 'test_evolution_reliability_v43.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_qualification_v44.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_compact_teacher_v45.py' -v

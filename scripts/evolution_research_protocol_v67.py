@@ -1,5 +1,5 @@
 """Paired prompt experiment. No automatic admission or answer leakage."""
-import hashlib,hmac,json,time
+import hashlib,hmac,json,time,math
 import evolution_research_v37 as research
 import evolution_fleet_integrity_v55 as integrity
 import evolution_teacher_v40 as teacher
@@ -43,14 +43,58 @@ def infer(c,protocol):
     if v.get('model')!=MODEL or v.get('done') is not True or v.get('done_reason')!='stop':raise ValueError('incomplete response')
     native._pin(11434,MODEL,digest,10)
     output=v['message']['content'];return {'protocol':protocol,'case_sha256':hashlib.sha256(ev.canonical(c)).hexdigest(),'raw':output,'response_sha256':hashlib.sha256(raw).hexdigest(),'seconds':round(time.monotonic()-start,3),**score(c,output,protocol)}
-def verify(record,key):
-    r=dict(record);sig=r.pop('hmac_sha256',None)
-    if not isinstance(sig,str) or not hmac.compare_digest(ev.sign(r,key),sig) or r['schema']!='myriad.research_protocol.v67' or r['production_authority'] is not False or r['digest']!=PINS[MODEL]:raise ValueError('receipt authentication')
+def validate_receipt(r):
+    """Validate structure and recompute scores independently of authentication."""
+    if not isinstance(r,dict) or r.get('status') not in ('completed','failed'):
+        raise ValueError('invalid receipt status')
+    expected={'schema','seed','model','digest','results','production_authority','errors','status'}
+    if r['status']=='completed': expected.add('comparison')
+    if set(r)!=expected or r['schema']!='myriad.research_protocol.v67' or r['production_authority'] is not False or r['model']!=MODEL or r['digest']!=PINS[MODEL]:
+        raise ValueError('invalid receipt metadata')
+    if type(r['seed']) is not int or r['seed']<0:
+        raise ValueError('invalid receipt seed')
+    if not isinstance(r['results'],list) or not isinstance(r['errors'],list) or len(r['results'])+len(r['errors'])!=2:
+        raise ValueError('incomplete protocol coverage')
     c=cases(r['seed'])
+    case_digest=hashlib.sha256(ev.canonical(c)).hexdigest()
+    protocols=set()
+    def claim(protocol):
+        if protocol not in ('compact','explicit') or protocol in protocols:
+            raise ValueError('invalid or duplicate protocol')
+        protocols.add(protocol)
     for v in r['results']:
-        if v['case_sha256']!=hashlib.sha256(ev.canonical(c)).hexdigest() or any(v[k]!=x for k,x in score(c,v['raw'],v['protocol']).items()):raise ValueError('score replay')
-    if r['status']=='completed' and r['comparison']!=compare(*sorted(r['results'],key=lambda v:v['protocol'])):raise ValueError('comparison replay')
+        if not isinstance(v,dict) or set(v)!={'protocol','case_sha256','raw','response_sha256','seconds','total','decision_correct','evidence_correct','joint_correct','rows'}:
+            raise ValueError('invalid result fields')
+        claim(v['protocol'])
+        if v['case_sha256']!=case_digest or not isinstance(v['raw'],str):
+            raise ValueError('invalid case identity')
+        digest=v['response_sha256']
+        if not isinstance(digest,str) or len(digest)!=64 or any(ch not in '0123456789abcdef' for ch in digest):
+            raise ValueError('invalid response hash')
+        seconds=v['seconds']
+        if type(seconds) not in (int,float) or not math.isfinite(seconds) or seconds<0:
+            raise ValueError('invalid elapsed seconds')
+        replay=score(c,v['raw'],v['protocol'])
+        if any(ev.canonical(v[k])!=ev.canonical(x) for k,x in replay.items()):
+            raise ValueError('score replay')
+    for error in r['errors']:
+        if not isinstance(error,dict) or set(error)!={'protocol','error_class'} or not isinstance(error['error_class'],str) or not error['error_class'].isidentifier():
+            raise ValueError('invalid protocol error')
+        claim(error['protocol'])
+    if protocols!={'compact','explicit'} or (r['status']=='completed')!=(len(r['results'])==2):
+        raise ValueError('inconsistent protocol outcome')
+    if r['status']=='completed':
+        replay=compare(*sorted(r['results'],key=lambda v:v['protocol']))
+        if ev.canonical(r['comparison'])!=ev.canonical(replay):
+            raise ValueError('comparison replay')
     return True
+
+def verify(record,key):
+    if not isinstance(record,dict): raise ValueError('invalid receipt')
+    r=dict(record);sig=r.pop('hmac_sha256',None)
+    if not isinstance(sig,str) or not hmac.compare_digest(ev.sign(r,key),sig):
+        raise ValueError('receipt authentication')
+    return validate_receipt(r)
 def run(root,virtual):
     if scale.free_mb()<2500 or virtual<6000 or teacher.request('/api/ps')[0].get('models'):return {'status':'deferred_resource_guard','production_authority':False}
     key=ev.secret();seed=int(time.time())//300;c=cases(seed)
@@ -61,6 +105,7 @@ def run(root,virtual):
         except Exception as e:r['errors'].append({'protocol':protocol,'error_class':type(e).__name__})
     r['status']='completed' if len(r['results'])==2 else 'failed'
     if r['status']=='completed':r['comparison']=compare(*sorted(r['results'],key=lambda v:v['protocol']))
+    validate_receipt(r)
     teacher.save(root,'protocol-v67',r,key);verify(r,key)
     out={k:v for k,v in r.items() if k not in ('results','hmac_sha256')}
     orch.atomic(root/'aggregate-protocol-v67.json',out);return out

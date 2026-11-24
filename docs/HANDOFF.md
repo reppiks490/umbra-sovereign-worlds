@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## 2026-11-24 owner-local continuation
+
+Native compute PR #26 provides the actual engine-backed stdio tools. The stacked owner-local branch adds `mcp/owner_once.mjs`, a one-request local execution path for an independently authorized Desktop Commander connection; see `docs/UMBRA_OWNER_LOCAL_EXECUTION.md`. No public endpoint, model training, or production deployment is implied. Keep MYRIAD PR #21 separate and preserve existing schedules. Require exact-head tests and owner-machine receipts before claiming operational readiness.

@@ -24,7 +24,9 @@ def run(private,virtual,force=None):
     tags,_=teacher.request('/api/tags');available={v.get('name') for v in tags['models']}
     if mode=='worker':return orch.run(private,authorize=True)
     if mode=='retrieval':
-        try:report['retrieval']=teacher.retrieve(private,key) if 'all-minilm:22m' in available else {'status':'not_installed'}
+        try:
+            import evolution_retrieval_review_v42 as rag
+            report['retrieval']=rag.run(private,key,slot//12) if 'all-minilm:22m' in available else {'status':'not_installed'}
         except Exception as e:report['errors'].append(type(e).__name__)
     else:
         if mode=='teacher':

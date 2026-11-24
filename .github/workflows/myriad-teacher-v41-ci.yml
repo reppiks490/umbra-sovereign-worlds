@@ -1,10 +1,12 @@
-name: MYRIAD v4.0-v4.1 teacher and retrieval qualification
+name: MYRIAD v4.0-v4.2 teacher and retrieval qualification
 on:
   pull_request:
     paths:
       - 'scripts/evolution_teacher_v40.py'
       - 'scripts/evolution_teacher_supervisor_v41.py'
+      - 'scripts/evolution_retrieval_review_v42.py'
       - 'tests/test_evolution_teacher*v4*.py'
+      - 'tests/test_evolution_retrieval_review_v42.py'
       - '.github/workflows/myriad-teacher-v41-ci.yml'
 permissions:
   contents: read
@@ -27,3 +29,4 @@ jobs:
           python-version: '3.11'
       - run: python -m unittest discover -s tests -p 'test_evolution_teacher_v40.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_teacher_supervisor_v41.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_retrieval_review_v42.py' -v

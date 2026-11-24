@@ -124,12 +124,12 @@ def cosine(a,b):
     den=math.sqrt(sum(x*x for x in a)*sum(x*x for x in b))
     if not den:raise ValueError('zero vector')
     return sum(x*y for x,y in zip(a,b))/den
-def retrieve(private,key):
+def retrieve(private,key,query="fenced worker lease ownership and expiration, duplicate settlement"):
     model='all-minilm:22m';digest=pin(private,model)
     if scale.free_mb()<1500:return {'status':'deferred_memory'}
     docs=documents(Path(__file__).resolve().parent)
     if not docs:raise ValueError('no source corpus')
-    query='fenced worker lease ownership and expiration, duplicate settlement'
+    if not isinstance(query,str) or not 4<=len(query)<=160:raise ValueError('invalid retrieval query')
     inputs=[query]+[d['file']+' '+d['function']+' '+d['text'] for d in docs]
     embeddings=[]
     for i in range(0,len(inputs),16):

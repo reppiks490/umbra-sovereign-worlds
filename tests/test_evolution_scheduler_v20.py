@@ -55,6 +55,20 @@ class TestConductor(unittest.TestCase):
    self.assertIsNone(mesh.peer_for(db,wf,'2026-11-23T19') if record['review_status']!='candidate_for_manual_review' else None)
    db.close()
 
+ def test_forged_quarantine_status_rejected_even_with_new_hash(self):
+  with tempfile.TemporaryDirectory() as t:
+   db=s.open_db(Path(t)/'evidence.db')
+   record=mesh.train(mesh.workflow(14),hour='2026-11-23T18',steps=2)
+   self.assertEqual(record['review_status'],'rejected_synthetic')
+   record['review_status']='candidate_for_manual_review'
+   record.pop('receipt_sha256')
+   record['receipt_sha256']=mesh.digest(record)
+   db.execute('INSERT INTO runs VALUES(?,?,?,?,?)',
+              (record['hour'],record['workflow'],record['domain'],record['receipt_sha256'],json.dumps(record)))
+   with self.assertRaisesRegex(ValueError,'forged peer qualification'):
+    mesh.peer_for(db,mesh.workflow(1),'2026-11-23T19')
+   db.close()
+
  def test_duplicate_hour_rejected_not_counted_as_completion(self):
   with tempfile.TemporaryDirectory() as t:
    path=Path(t)/'ledger';base=1_795_460_000

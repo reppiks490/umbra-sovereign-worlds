@@ -192,6 +192,22 @@ def peer_for(db, wf, hour):
         params=item.get('parameters')
         if not isinstance(params,list) or len(params)!=8 or any(type(v) not in (int,float) or not math.isfinite(v) or not 0<=v<=1 for v in params):
             raise ValueError('invalid peer weights')
+        # Hashes alone are self-attested. Recompute the actual heldout/stress
+        # qualification before assimilating any candidate's parameters.
+        peer_workflow=item.get('workflow','')
+        if not isinstance(peer_workflow,str) or not peer_workflow.startswith('E') or not peer_workflow[1:].isdigit():
+            raise ValueError('forged peer identity')
+        try:expected_workflow=workflow(int(peer_workflow[1:]))
+        except ValueError:raise ValueError('unregistered peer identity') from None
+        expected_algorithm=recipe(expected_workflow['algorithm_id'])
+        if expected_workflow['domain']!=wf['domain'] or item.get('algorithm')!=expected_algorithm:
+            raise ValueError('forged peer method/domain')
+        for metric,folds in [('holdout',('heldout-a','heldout-b')),
+                             ('stress',('shift-scarcity','shift-perturbation'))]:
+            raw=round(utility(params,expected_algorithm,folds)-utility([.5]*8,expected_algorithm,folds),9)
+            recorded=item.get('delta',{}).get(metric)
+            if not isinstance(recorded,(int,float)) or not math.isfinite(recorded) or abs(raw-recorded)>2e-7 or raw<=.0001:
+                raise ValueError('forged peer qualification')
         return params
     return None
 

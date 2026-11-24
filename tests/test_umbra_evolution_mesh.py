@@ -53,14 +53,21 @@ class EvolutionMeshTests(unittest.TestCase):
             self.assertEqual(a['processed'],14)
             lines=[json.loads(x) for x in output.read_text().splitlines()]
             self.assertEqual(len(lines),14)
-            self.assertTrue(lines[13]['peer_used'])  # first repeated domain, bounded cross-agent sharing
+            self.assertFalse(lines[13]['peer_used'])  # same-hour records cannot be treated as prior evidence
             self.assertFalse(lines[0]['peer_used'])
             self.assertEqual(len({x['workflow'] for x in lines}),14)
             self.assertEqual(sqlite3.connect(db).execute('SELECT COUNT(*) FROM runs').fetchone()[0],14)
+            # A genuine previously evaluated candidate can participate next hour.
+            prev=m.train(m.workflow(14),hour='2026-11-23T18',steps=8)
+            self.assertEqual(prev['review_status'],'candidate_for_manual_review')
+            with m.connect(db) as handle:
+                handle.execute('INSERT INTO runs VALUES(?,?,?,?,?)',
+                               (prev['hour'],prev['workflow'],prev['domain'],prev['receipt_sha256'],json.dumps(prev)))
+                self.assertEqual(m.peer_for(handle,m.workflow(1),'2026-11-23T19'),prev['parameters'])
             b=m.run_batch(args)
             self.assertEqual(b['processed'],14)
             self.assertEqual(b['duplicate_ids_skipped'],14)
-            self.assertEqual(sqlite3.connect(db).execute('SELECT COUNT(*) FROM runs').fetchone()[0],28)
+            self.assertEqual(sqlite3.connect(db).execute('SELECT COUNT(*) FROM runs').fetchone()[0],29)
 
     def test_bad_peer_receipt_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

@@ -14,6 +14,8 @@ on:
       - 'tests/test_evolution_reasoning_runtime_v82.py'
       - 'scripts/evolution_group_robust_v83.py'
       - 'tests/test_evolution_group_robust_v83.py'
+      - 'scripts/evolution_proof_curriculum_v84.py'
+      - 'tests/test_evolution_proof_curriculum_v84.py'
       - 'scripts/evolution_model_tournament_v62.py'
       - 'scripts/evolution_quality_supervisor_v59.py'
       - 'tests/test_evolution_*v6[0-2].py'
@@ -42,6 +44,7 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_evolution_novel_reasoning_v81.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_reasoning_runtime_v82.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_group_robust_v83.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_proof_curriculum_v84.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_quality_supervisor_v59.py' -v
   training:
     runs-on: ubuntu-latest

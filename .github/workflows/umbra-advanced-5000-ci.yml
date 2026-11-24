@@ -1,5 +1,7 @@
 name: UMBRA advanced 5000 synthetic workflow qualification
 on:
+  schedule:
+    - cron: '37 5,17 * * *'
   pull_request:
   push:
     branches: [main]

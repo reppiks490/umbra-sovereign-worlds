@@ -27,6 +27,12 @@ class Tests(unittest.TestCase):
         self.assertEqual(rb['optimizer_steps'],4)
         self.assertNotEqual(before,m.weights(a));self.assertNotEqual(before,m.weights(b))
         self.assertEqual(ra['batch_fingerprints'],rb['batch_fingerprints'])
+    def test_fingerprint_without_numpy(self):
+        from unittest.mock import patch
+        w,s,y=m.batch(4,2,93)
+        expected=m.fingerprint(w,s)
+        with patch.object(torch.Tensor,'numpy',side_effect=RuntimeError('numpy unavailable')):
+            self.assertEqual(m.fingerprint(w,s),expected)
     def test_invalid_training_and_seed_separation(self):
         self.assertTrue(set(m.TRAIN_SEEDS).isdisjoint(m.EVAL_SEEDS))
         with self.assertRaises(ValueError):m.batch(3,1,1)

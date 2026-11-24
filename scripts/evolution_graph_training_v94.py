@@ -5,7 +5,7 @@ count; teacher-state versus closed-loop curriculum. Compute cost differs.
 Independent Dijkstra labels and held-out graph sizes/weight distributions.
 No model calls, user weights, semantic mastery, or production routing.
 """
-import argparse,hashlib,heapq,json,math,random,time
+import argparse,hashlib,heapq,json,math,random,time,struct
 from pathlib import Path
 import torch
 from torch import nn
@@ -97,7 +97,10 @@ def weights(net):
     return [float(v) for p in net.parameters() for v in p.detach().flatten().tolist()]
 
 
-def fingerprint(w,s):return hashlib.sha256(w.numpy().tobytes()+s.numpy().tobytes()).hexdigest()
+def fingerprint(w,s):
+    # Explicit little-endian encoding, independent of optional NumPy.
+    a=w.detach().cpu().reshape(-1).tolist();b=s.detach().cpu().reshape(-1).tolist()
+    return hashlib.sha256(struct.pack(f'<{len(a)}d',*a)+struct.pack(f'<{len(b)}q',*b)).hexdigest()
 
 
 def masked_loss(pred,target):

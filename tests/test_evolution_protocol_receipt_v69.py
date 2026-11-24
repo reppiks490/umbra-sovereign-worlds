@@ -2,6 +2,8 @@ import copy
 import hashlib
 import json
 import unittest
+import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 import evolution_research_protocol_v67 as m
@@ -74,9 +76,55 @@ class ReceiptIntegrityTests(unittest.TestCase):
 
     def test_invalid_candidate_not_persisted(self):
         items={v['protocol']:v for v in fixture()['results']}; items['compact']['response_sha256']='broken'
-        with patch.object(m.scale,'free_mb',return_value=4000), patch.object(m.teacher,'request',return_value=({'models':[]},b'')), patch.object(m.ev,'secret',return_value=KEY), patch.object(m,'infer',side_effect=lambda cases,protocol: {**items[protocol],'case_sha256':hashlib.sha256(m.ev.canonical(cases)).hexdigest(),'raw':json.dumps([c['expected']+c['evidence_id'][1] for c in cases] if protocol=='compact' else [{'n':i+1,'action':c['expected'],'fact':c['evidence_id']} for i,c in enumerate(cases)])}), patch.object(m.teacher,'save') as save, patch.object(m.orch,'atomic') as aggregate:
-            with self.assertRaises(ValueError): m.run(Path('unused'),7000)
+        with tempfile.TemporaryDirectory() as tmp, patch.object(m.scale,'free_mb',return_value=4000), patch.object(m.teacher,'request',return_value=({'models':[]},b'')), patch.object(m.ev,'secret',return_value=KEY), patch.object(m,'infer',side_effect=lambda cases,protocol: {**items[protocol],'case_sha256':hashlib.sha256(m.ev.canonical(cases)).hexdigest(),'raw':json.dumps([c['expected']+c['evidence_id'][1] for c in cases] if protocol=='compact' else [{'n':i+1,'action':c['expected'],'fact':c['evidence_id']} for i,c in enumerate(cases)])}), patch.object(m.teacher,'save') as save, patch.object(m.orch,'atomic') as aggregate:
+            with self.assertRaises(ValueError): m.run(Path(tmp),7000)
             save.assert_not_called()
             aggregate.assert_not_called()
+
+def correct_result(cases,protocol):
+    raw=json.dumps([c['expected']+c['evidence_id'][1] for c in cases] if protocol=='compact' else
+                   [{'n':i+1,'action':c['expected'],'fact':c['evidence_id']} for i,c in enumerate(cases)])
+    return {'protocol':protocol,'case_sha256':hashlib.sha256(m.ev.canonical(cases)).hexdigest(),
+            'raw':raw,'response_sha256':'a'*64,'seconds':1.0,**m.score(cases,raw,protocol)}
+
+class WindowReservationTests(unittest.TestCase):
+    def test_same_window_never_calls_model_twice(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(m.scale,'free_mb',return_value=4000), patch.object(m.teacher,'request',return_value=({'models':[]},b'')), patch.object(m.ev,'secret',return_value=KEY), patch.object(m.time,'time',return_value=992*14400+300), patch.object(m,'infer',side_effect=correct_result) as infer:
+            root=Path(tmp)
+            self.assertEqual(m.run(root,7000)['status'],'completed')
+            self.assertEqual(m.run(root,7000)['status'],'deferred_duplicate_window')
+            self.assertEqual(infer.call_count,2)
+            self.assertEqual(len(list((root/'teacher-v40').glob('protocol-v67-*.json'))),1)
+    def test_legacy_receipt_blocks_repeated_inference(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(m.scale,'free_mb',return_value=4000), patch.object(m.teacher,'request',return_value=({'models':[]},b'')), patch.object(m.ev,'secret',return_value=KEY), patch.object(m.time,'time',return_value=992*14400+300), patch.object(m,'infer') as infer:
+            root=Path(tmp); m.teacher.save(root,'protocol-v67',fixture(),KEY)
+            self.assertEqual(m.run(root,7000)['status'],'deferred_duplicate_window')
+            infer.assert_not_called()
+    def test_one_durable_claim_across_concurrent_callers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            with ThreadPoolExecutor(max_workers=8) as pool:
+                claims=list(pool.map(lambda _:m.reserve_window(root,992,KEY),range(32)))
+            self.assertEqual(sum(claims),1)
+            self.assertFalse(m.reserve_window(root,992,KEY))
+            self.assertTrue(m.reserve_window(root,993,KEY))
+    def test_interrupted_claim_is_not_automatically_replayed(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(m.scale,'free_mb',return_value=4000), patch.object(m.teacher,'request',return_value=({'models':[]},b'')), patch.object(m.ev,'secret',return_value=KEY), patch.object(m.time,'time',return_value=992*14400+300), patch.object(m,'infer') as infer:
+            root=Path(tmp)
+            self.assertTrue(m.reserve_window(root,992,KEY))
+            self.assertEqual(m.run(root,7000)['status'],'deferred_duplicate_window')
+            infer.assert_not_called()
+    def test_tampered_historical_receipt_fails_closed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp); r=signed(fixture());r['seed']=993
+            folder=root/'teacher-v40';folder.mkdir()
+            (folder/'protocol-v67-test.json').write_text(json.dumps(r))
+            with self.assertRaises(ValueError):m.reserve_window(root,992,KEY)
+    def test_resource_deferral_does_not_consume_window(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(m.scale,'free_mb',return_value=1000), patch.object(m,'infer') as infer:
+            root=Path(tmp)
+            self.assertEqual(m.run(root,7000)['status'],'deferred_resource_guard')
+            self.assertFalse((root/'protocol-claims-v72').exists())
+            infer.assert_not_called()
 
 if __name__=='__main__': unittest.main()

@@ -22,7 +22,7 @@ DRO beat pooled 12/12, balanced only 3/12 (9 losses). Do not promote. Mean loss 
 
 ## Recovered historical archive
 
-Read-only Library archive MYRIAD_OMEGA_v0.8_100_AGENT_WEIGHT_PILOT.zip, 75042904 compressed bytes, SHA256 6f9bfb80056f377fb4ce85bcf7089be140df74c222935a6ba214bc6e65e68cad. Independent archive inspection: SQLite integrity ok, contiguous IDs 1..100, 100 unique matching SHA256 blocks, all finite FP16, 82200000 bytes, no trailing bytes, 41100000 parameters, 500 recorded steps, all marked trained. Results JSONL 1 valid and 17 invalid lines. No original architecture/seed replay or optimizer trajectory certification from this evidence alone; no full 8.22GB or 640MB historical bank recovery. Do not add recovered agent IDs to distinct live agent counts. No weights exported to GitHub.
+Read-only Library archive MYRIAD_OMEGA_v0.8_100_AGENT_WEIGHT_PILOT.zip, 75042904 compressed bytes, SHA256 [private artifact digest retained locally]. Independent archive inspection: SQLite integrity ok, contiguous IDs 1..100, 100 unique matching SHA256 blocks, all finite FP16, 82200000 bytes, no trailing bytes, 41100000 parameters, 500 recorded steps, all marked trained. Results JSONL 1 valid and 17 invalid lines. No original architecture/seed replay or optimizer trajectory certification from this evidence alone; no full 8.22GB or 640MB historical bank recovery. Do not add recovered agent IDs to distinct live agent counts. No weights exported to GitHub.
 
 ## Runtime continuity
 

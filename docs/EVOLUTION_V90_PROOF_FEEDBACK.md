@@ -1,0 +1,9 @@
+# v9.0 — matched certificate-feedback research protocol
+
+The test is designed to distinguish feedback-mediated correction from simply trying again. Both revisions begin with the same initial proposal. Each receives one callback invocation; control receives no certificate diagnostics, guided receives only fixed constraint-failure labels, never a reference solution. Revision order counterbalanced by seed parity. Independent reference objective and certificate verification are reported separately. Actual prompt lengths differ; equal callback counts do not establish equal input-token costs. Live qualification must retain actual model, digest, options, token counts, latency, and failures. This version is deliberately callback-based, with no live inference or auto-promotion.
+
+RED PID 30788 missing module. GREEN PID 32404: 6/6 Windows tests passed, including malformed and duplicate outputs, tamper replay with recomputed checksum, counterbalance, preserved failures, no reference solution in feedback, and matched retry fixture. Synthetic callback success is not model-learning evidence. v84 graph certificate verifier remains independent of model output. No new trained semantic ability claimed.
+
+Acquisition structural audit PID 18064 completed exit 0: 21/21 repositories match pinned HEAD, normalized license digest, Git connectivity, and no checkout. Both original acquisition manifests preserved. This does not certify transitive licenses, all blob content, third-party security, installed dependencies or operational capability. No downloaded code executed.
+
+v89 24/24 CI, exact local deployment verified; six of seven public read adapters now live-qualified. Historical receipt audit pending. Training resource guard remains active. Existing research automation expanded in place to include native tool independence and source qualification, with no schedule changes. All existing draft-only and private-data constraints remain binding.

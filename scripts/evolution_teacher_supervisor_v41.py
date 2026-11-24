@@ -26,7 +26,7 @@ def run(private,virtual,force=None):
     if mode=='retrieval':
         try:
             import evolution_retrieval_review_v42 as rag
-            report['retrieval']=rag.run(private,key,slot//12) if 'all-minilm:22m' in available else {'status':'not_installed'}
+            report['retrieval']=rag.run(private,key,slot//24) if 'all-minilm:22m' in available else {'status':'not_installed'}
         except Exception as e:report['errors'].append(type(e).__name__)
     else:
         if mode=='teacher':

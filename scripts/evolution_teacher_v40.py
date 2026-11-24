@@ -89,6 +89,9 @@ def train(private,key):
         if f.is_symlink() or f.stat().st_size>128*1024:raise ValueError('invalid teacher receipt')
         v=json.loads(f.read_text());sig=v.pop('hmac_sha256',None)
         if not isinstance(sig,str) or not hmac.compare_digest(ev.sign(v,key),sig) or v.get('schema')!='myriad.teacher.v40' or v.get('production_authority') is not False:raise ValueError('teacher receipt authentication')
+        if v.get('encoding')=='compact-int-array-v45':
+            import evolution_compact_teacher_v45 as compact
+            if compact.decode(cases(v['seed'],0),v['raw_model_output'])!=v['raw']:raise ValueError('compact teacher replay mismatch')
         rows=accept(cases(v['seed'],0),v['raw'])
         if rows!=v['accepted_rows']:raise ValueError('teacher labels changed')
         for row in rows:data[row['id']]=row

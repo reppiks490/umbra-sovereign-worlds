@@ -34,7 +34,10 @@ def run(private,virtual,force=None):
     now=datetime.datetime.now(datetime.timezone.utc);epoch=int(now.timestamp());mode=force or phase(now.hour,now.minute)
     recovered=reliability.recover(private/'local-pilot.sqlite3',epoch,lambda i,d:reliability.verify_failure(private/'receipts',i,d),key)
     if mode!='benchmark':
-        report=base.run(private,virtual,mode)
+        if mode in ('teacher','small_teacher'):
+            import evolution_compact_teacher_v45 as compact
+            report=compact.run(private,virtual,mode)
+        else:report=base.run(private,virtual,mode)
         if recovered:report={'schema':'myriad.qualified_run.v44','phase':mode,'recovered':[r['worker'] for r in recovered],'underlying':report,'production_authority':False}
         return report
     seed=seed_for(epoch);rows=prior(private,key,seed)

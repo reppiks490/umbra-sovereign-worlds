@@ -51,10 +51,13 @@ def grade(cases,raw):
         if not isinstance(r,dict) or set(r)!= {'id','decision','evidence'} or type(r['id']) is not int or r['id'] not in index or r['id'] in seen or r['decision'] not in ('A','B','C') or r['evidence'] not in ('E1','E2','E3'):raise ValueError('invalid answer')
         seen.add(r['id']);c=index[r['id']];out.append({'case':c,'answer':r,'correct':r['decision']==c['expected'] and r['evidence']==c['evidence_id']})
     return out
-def settle(db,owner,slot,now,rows,digest,response_hash,key):
+def settle(db,owner,slot,now,rows,digest,response_hash,key,compact_output=None):
     if not rows or not re.fullmatch('[a-f0-9]{64}',digest) or not re.fullmatch('[a-f0-9]{64}',response_hash):raise ValueError('invalid batch')
     batch=uuid.uuid4().hex;db.execute('BEGIN IMMEDIATE')
     try:
+        import evolution_fleet_integrity_v55 as integrity
+        integrity.check_cases(db,rows,slot,key)
+        if compact_output is not None and grade([r["case"] for r in rows],integrity.decode([r["case"] for r in rows],compact_output))!=rows:raise ValueError("compact response binding")
         for row in rows:
             c=row['case'];i=c['id'];state=db.execute('SELECT owner,lease,last_hmac,wins,attempts FROM workers WHERE id=?',(i,)).fetchone()
             if c['slot']!=slot or not state or state[0]!=owner or state[1]<=now or state[2]!=c['prior_hmac'] or state[3:]!=(c['prior_correct'],c['prior_attempts']):raise ValueError('lease or history mismatch')
@@ -71,6 +74,9 @@ def settle(db,owner,slot,now,rows,digest,response_hash,key):
             db.execute('INSERT INTO receipts VALUES(?,?,?,?,?,?,?)',(i,slot,int(row['correct']),p['worker'] if p else None,p['slot'] if p else None,ev.canonical(record).decode(),sig))
             db.execute('UPDATE workers SET owner=NULL,lease=0,next_slot=?,last_hmac=?,wins=wins+?,attempts=attempts+1 WHERE id=?',(slot+1,sig,int(row['correct']),i))
         report={'batch':batch,'slot':slot,'model':MODEL,'item_count':len(rows),'correct':sum(r['correct'] for r in rows),'response_sha256':response_hash,'inference_requests':1,'production_authority':False}
+        if compact_output is not None:
+            report['compact_output']=compact_output
+            report['compact_worker_order']=[r['case']['id'] for r in rows]
         report['hmac_sha256']=ev.sign(report,key);db.execute('INSERT INTO batches VALUES(?,?,?,?,?,?,?)',(batch,slot,MODEL,len(rows),report['correct'],response_hash,ev.canonical(report).decode()))
         db.execute('COMMIT');return report
     except BaseException:db.execute('ROLLBACK');raise

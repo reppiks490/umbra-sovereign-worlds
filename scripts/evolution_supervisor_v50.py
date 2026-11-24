@@ -3,6 +3,7 @@ import argparse,datetime,json,time
 from pathlib import Path
 import evolution_qualification_v44 as previous
 import evolution_fleet_v46 as fleet
+import evolution_fleet_integrity_v55 as integrity
 import evolution_model_evidence_v24 as evidence
 import evolution_research_orchestrator_v39 as orch
 def phase(hour,minute):
@@ -16,7 +17,7 @@ def run(root,virtual,force=None):
         # First coverage before repeated identities. At most two serial requests per window.
         for _ in range(2):
             if time.monotonic()-start>65:break
-            r=fleet.run(db,key,4);reports.append(r)
+            r=integrity.run(db,key,8);reports.append(r)
             if r.get('status')!='completed':break
         report={'schema':'myriad.full_fleet_window.v50','epoch':int(time.time()),'phase':mode,'batches':reports,'fleet':fleet.status(db),'elapsed_seconds':round(time.monotonic()-start,3),'production_authority':False,'errors':[r['error_class'] for r in reports if r.get('status')=='failed']}
         report['hmac_sha256']=evidence.sign(report,key);orch.atomic(root/'aggregate-fleet-v50.json',report);return report

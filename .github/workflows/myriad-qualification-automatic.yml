@@ -1,4 +1,4 @@
-name: MYRIAD automatic research qualification v18-v39
+name: MYRIAD automatic research qualification v18-v41
 on:
   schedule:
     - cron: '53 6,18 * * *'
@@ -361,3 +361,22 @@ jobs:
       - run: python -m unittest discover -s tests -p 'test_evolution_research_v37.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_live_research_v38.py' -v
       - run: python -m unittest discover -s tests -p 'test_evolution_research_orchestrator_v39.py' -v
+  teacher-research-v41:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 8
+    env:
+      PYTHONPATH: ${{ github.workspace }}/scripts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 290251eae7214d251bde8c7b277ef4643a247412
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s tests -p 'test_evolution_teacher_v40.py' -v
+      - run: python -m unittest discover -s tests -p 'test_evolution_teacher_supervisor_v41.py' -v

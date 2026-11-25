@@ -6,6 +6,7 @@ from acquisition_recovery import recover
 from neural_priority import resume_priority
 from intelligence_resources import resume as resume_resources
 from campaign_baselines import benchmark as benchmark_baselines
+from chronos_tournament import campaign as chronos_campaign
 from learning_workspace import refresh as refresh_learning_workspace
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
@@ -134,6 +135,12 @@ def main(root):
     evidence=benchmark_baselines()
     result['campaign_baselines']={'scope':evidence['scope'],'case_sha256':evidence['case_sha256'],'lanes':{k:{'passed':v['passed'],'cases':v['cases']} for k,v in evidence['lanes'].items()},'neural_inference_verified':False}
    except Exception as e:result['campaign_baselines_error']=type(e).__name__
+   try:
+    seed=int(time.time())//1800
+    report=chronos_campaign(seed)
+    out=root/'infinity'/'chronos-tournament.json';tmp=out.with_suffix('.tmp');tmp.write_text(json.dumps(report,indent=2),encoding='utf8');os.replace(tmp,out)
+    result['chronos_tournament']={k:v for k,v in report.items() if k!='rows'}
+   except Exception as e:result['chronos_tournament_error']=type(e).__name__
    try:result['discovered']=len(refresh_catalog(root)['models'])
    except Exception as e:result['discovery_error']=type(e).__name__
    if result['status']=='ready':

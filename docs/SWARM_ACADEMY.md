@@ -30,3 +30,7 @@ Independent benchmark diversity beyond templates, cross-domain agent graduation,
 
 ### Market Academy Ω
 See [MARKET_ACADEMY](MARKET_ACADEMY.md) for 24 market lanes, ten tiers, source-reviewed mechanism questions, verified teaching/evaluation separation, native corpus expansion and empirical market-data roadmap. No trading authority or demonstrated market prediction ability.
+
+
+### OMNISCIENCE knowledge and session recovery
+See [OMNISCIENCE](OMNISCIENCE.md) for the six-division curriculum and pinned, disabled external capability registry, and [session recovery ledger](SESSION_RECOVERY_LEDGER_20261125.md) for the recoverable requests, verified work, constraints and outstanding tasks.

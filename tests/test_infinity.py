@@ -82,3 +82,13 @@ class MarketScheduleTest(unittest.TestCase):
    self.assertEqual(market_command(root,training,'ready')[-1],'cycle')
    (training/'bootstrap.lock').write_text('active')
    self.assertEqual(market_command(root,training,'ready')[-1],'audit')
+
+class OmniScheduleTest(unittest.TestCase):
+ def test_omni_audits_until_acquisition_ready(self):
+  from infinity_service import omni_command
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);training=root/'training';training.mkdir()
+   self.assertEqual(omni_command(root,training,'deferred_acquisition')[-1],'audit')
+   self.assertEqual(omni_command(root,training,'ready')[-1],'cycle')
+   (training/'bootstrap.lock').write_text('active')
+   self.assertEqual(omni_command(root,training,'ready')[-1],'audit')

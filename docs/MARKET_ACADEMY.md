@@ -23,3 +23,7 @@ scripts/market_cycle.mjs is integrated into the existing 30-minute INFINITY sche
 - Historical regime library: monetary tightening/easing, inflation shocks, liquidity crises, earnings shocks, credit stress, commodity supply shocks, volatility and leverage feedback. Compare competing causal hypotheses, event-study controls, alternate explanations, uncertainty, out-of-sample periods and realistic execution. No hindsight narratives labeled as fact.
 - Build diverse independent externally validated questions, open-ended reasoning with evidence citations and blind grading, counterexamples, probabilistic forecasts, calibration and actual time-series evaluation. Compare 7B and small-model students on identical tasks and stable versions; later 27B only if runtime/hardware verified. Add neural teacher outputs only after reference parity and adapter validation.
 - Expand actual native model training and per-agent adapter routing, continual learning and forgetting controls; preserve original weights, learned checkpoints and separate assessment sets. Use bounded compute and explicitly measured progress. Do not claim all market knowledge can be exhausted or that training assures profits.
+
+
+### OMNISCIENCE knowledge and session recovery
+See [OMNISCIENCE](OMNISCIENCE.md) for the six-division curriculum and pinned, disabled external capability registry, and [session recovery ledger](SESSION_RECOVERY_LEDGER_20261125.md) for the recoverable requests, verified work, constraints and outstanding tasks.

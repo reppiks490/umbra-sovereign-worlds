@@ -25,3 +25,7 @@ Private records: local-source-inventory.json, wsl-source-inventory.json, local-s
 5. Resume the broader filesystem inventory incrementally; preserve exclusion boundaries and distinguish read failures from absent source.
 
 Tests: 182 Node tests and 13 INFINITY Python tests passed in this phase (195 tests actually rerun). Live initialization and combined index verified. Existing full suite was not rerun across unrelated Python modules in this phase.
+
+
+### Verified repository execution and learning
+See [REPOSITORY_EXECUTION_LEARNING](REPOSITORY_EXECUTION_LEARNING.md) for five real pinned numerical adapters, source browsing, six replayed repository lessons, complete corpus audit, scheduler readiness gate, download recovery and remaining qualification work. This does not certify whole-package execution or trained LLM weights.

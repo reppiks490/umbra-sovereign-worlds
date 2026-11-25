@@ -104,3 +104,13 @@ class RepositoryScheduleTest(unittest.TestCase):
    self.assertEqual(repository_command(root,training,'ready')[-1],'ready')
    (training/'bootstrap.lock').write_text('active')
    self.assertEqual(repository_command(root,training,'ready')[-1],'audit')
+
+class CurriculumReadinessTest(unittest.TestCase):
+ def test_partial_pipeline_cannot_start_optimizer(self):
+  from infinity_service import curriculum_ready
+  complete={'megaswarm':{'status':'completed'},'market_academy':{'status':'completed','corpora':[{'model':'qwen3:0.6b'},{'model':'granite4:350m'}]},'omni_academy':{'status':'completed','corpora':[{'model':'qwen3:0.6b'},{'model':'granite4:350m'}]},'repository_fabric':{'status':'indexed','repository_learning':{'corpora':[{'model':'qwen3-0.6b','training':126,'retention':28,'transfer':28,'repository_examples':6},{'model':'granite4-350m','training':126,'retention':28,'transfer':28,'repository_examples':6}]}}}
+  self.assertTrue(curriculum_ready(complete))
+  self.assertFalse(curriculum_ready({**complete,'omni_academy_error':'RuntimeError'}))
+  self.assertFalse(curriculum_ready({**complete,'repository_fabric':{'status':'indexed'}}))
+  self.assertFalse(curriculum_ready({**complete,'market_academy':{'status':'busy'}}))
+  self.assertFalse(curriculum_ready({**complete,'repository_fabric':{'status':'indexed','repository_learning':{'corpora':[]}}}))

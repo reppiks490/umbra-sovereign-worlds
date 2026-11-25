@@ -47,3 +47,7 @@ MASTER_HANDOFF_20261124.md, AUTOGENESIS.md, AGENTIC_NEXUS.md, HF_WEIGHT_CACHE.md
 
 ### Local repository fabric
 See [LOCAL_REPOSITORY_FABRIC](LOCAL_REPOSITORY_FABRIC.md) for the mounted-drive and WSL discovery, existing MYRIAD manifest reconciliation, shared source registry, verified agent inheritance and post-acquisition qualification gates. Local source availability is not executable integration.
+
+
+### Verified repository execution and learning
+See [REPOSITORY_EXECUTION_LEARNING](REPOSITORY_EXECUTION_LEARNING.md) for five real pinned numerical adapters, source browsing, six replayed repository lessons, complete corpus audit, scheduler readiness gate, download recovery and remaining qualification work. This does not certify whole-package execution or trained LLM weights.

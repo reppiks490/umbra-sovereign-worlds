@@ -64,6 +64,16 @@ def repository_command(root,training,status):
    ready=marker.get('runtime_verified') is True and marker.get('native_sources_verified') is True
   except (OSError,ValueError):pass
  return [shutil.which('node') or 'node',str(Path(__file__).resolve().with_name('repository_cycle.mjs')),str(root),'ready' if ready else 'audit']
+def curriculum_ready(result):
+ expected={'qwen3:0.6b','granite4:350m'}
+ for stage in ('megaswarm','market_academy','omni_academy','repository_fabric'):
+  if stage+'_error' in result:return False
+  if result.get(stage,{}).get('status')!=('indexed' if stage=='repository_fabric' else 'completed'):return False
+ for stage in ('market_academy','omni_academy'):
+  if {x.get('model') for x in result[stage].get('corpora',[])}!=expected:return False
+ rows=result['repository_fabric'].get('repository_learning',{}).get('corpora',[])
+ if len(rows)!=2 or {r.get('model') for r in rows}!={'qwen3-0.6b','granite4-350m'}:return False
+ return all(type(r.get('training')) is int and 120<=r['training']<=128 and type(r.get('retention')) is int and 28<=r['retention']<=32 and type(r.get('transfer')) is int and 28<=r['transfer']<=32 and type(r.get('repository_examples')) is int and r['repository_examples']>0 for r in rows)
 def native_training_plan(root,training,status,free):
  if (training/'bootstrap.lock').exists():return {'status':'deferred_bootstrap'}
  if status!='ready':return {'status':status}
@@ -129,7 +139,7 @@ def main(root):
     p=subprocess.run(repository_command(root,training,ready),capture_output=True,text=True,timeout=120,check=True)
     result['repository_fabric']=json.loads(p.stdout.splitlines()[-1])
    except Exception as e:result['repository_fabric_error']=type(e).__name__
-   try:result['native_training']=run_native_training(root,training,ready)
+   try:result['native_training']=run_native_training(root,training,ready) if curriculum_ready(result) else {'status':'deferred_incomplete_curriculum'}
    except Exception as e:result['native_training_error']=type(e).__name__
    write_status(root,result)
    print(json.dumps(result),flush=True)

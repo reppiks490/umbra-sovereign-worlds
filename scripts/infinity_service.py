@@ -4,6 +4,7 @@ from pathlib import Path
 from infinity import refresh_catalog,run_cycle,rotate
 from acquisition_recovery import recover
 from neural_priority import resume_priority
+from intelligence_resources import resume as resume_resources
 from learning_workspace import refresh as refresh_learning_workspace
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
@@ -135,6 +136,11 @@ def main(root):
    except Exception as e:result['gap_audit_error']=type(e).__name__
    try:result['training_bootstrap']=resume_bootstrap(root,training,ready)
    except Exception as e:result['training_bootstrap_error']=type(e).__name__
+   try:
+    result['intelligence_resources']=resume_resources(root,training,ready)
+    if result['intelligence_resources']['status'] in ('started','running'):
+     ready='deferred_acquisition';result['status']=ready
+   except Exception as e:result['intelligence_resources_error']=type(e).__name__
    try:
     p=subprocess.run(swarm_command(root,training),capture_output=True,text=True,timeout=300,check=True)
     result['megaswarm']=json.loads(p.stdout.splitlines()[-1])

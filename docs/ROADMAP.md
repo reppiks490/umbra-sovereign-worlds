@@ -150,3 +150,7 @@ See [NEURAL_PRIORITY_EXPANSION](NEURAL_PRIORITY_EXPANSION.md) for the 15 GB nati
 
 ### Continual learning workspace
 See [CONTINUAL_LEARNING_WORKSPACE](CONTINUAL_LEARNING_WORKSPACE.md) for transactional replay memory, persistent split protection, fixed assessment anchors, exposure-aware native optimizer replay and durable learning evidence. Actual weight updates remain pending runtime and memory admission.
+
+
+### EXASOVEREIGN pre-December 18 campaign (2026-11-25)
+See docs/EXASOVEREIGN_PRE_DEC18_CAMPAIGN.md for the owner-approved 28 GB neural-first + 15 GB resource queue, storage and license gates, proposed milestone criteria and explicit unverified status. Resource acquisition is data-only, not training or deployment.

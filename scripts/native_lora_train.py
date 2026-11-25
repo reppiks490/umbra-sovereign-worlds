@@ -22,6 +22,17 @@ def validate_corpus(x,model):
  return x
 def promotion_gate(before,after):
  return all(math.isfinite(x) and x>=0 for x in [before['retention'],before['transfer'],after['retention'],after['transfer']]) and after['retention']<=before['retention']+.02 and after['transfer']<before['transfer']-.01
+def adaptive_budget(last,rank):
+ if rank not in (4,8,16):raise ValueError('unsupported incumbent rank')
+ try:
+  ok=last['status']=='evaluated' and last['accepted'] is True and last['adapter_weight_training'] is True and last['rank']==rank and last['steps'] in (4,8,16) and promotion_gate(last['before'],last['after'])
+ except (TypeError,KeyError,ValueError):ok=False
+ return {'steps':min(16,last['steps']*2) if ok else 4,'rank':min(16,rank*2) if ok else rank}
+def growth_slices(old,new,kind):
+ if len(old)!=2 or len(new)!=2:raise ValueError('rank tensor dimensions')
+ if kind=='lora_A' and old[1]==new[1] and 0<old[0]<=new[0]:return (slice(0,old[0]),slice(None))
+ if kind=='lora_B' and old[0]==new[0] and 0<old[1]<=new[1]:return (slice(None),slice(0,old[1]))
+ raise ValueError('invalid rank growth')
 def available_ram():
  if os.name=='nt':
   from ctypes import wintypes
@@ -68,12 +79,13 @@ def run(root,workspace,model,corpus,steps=4):
  try:
   import torch
   from transformers import AutoModelForCausalLM,AutoTokenizer
-  from peft import LoraConfig,get_peft_model,PeftModel
+  from peft import LoraConfig,get_peft_model,PeftModel,get_peft_model_state_dict,set_peft_model_state_dict
+  from safetensors.torch import load_file
   torch.set_num_threads(1);torch.manual_seed(int(data.get('seed',1)))
   tok=AutoTokenizer.from_pretrained(str(source),local_files_only=True,trust_remote_code=False)
   base=AutoModelForCausalLM.from_pretrained(str(source),local_files_only=True,trust_remote_code=False,use_safetensors=True,torch_dtype=torch.float32)
   base.config.use_cache=False
-  active=bank/'active.json';prior=None
+  active=bank/'active.json';prior=None;rank=4;old_rank=4
   if active.exists():
    prior=read_json(active)
    name=prior.get('name','')
@@ -81,9 +93,29 @@ def run(root,workspace,model,corpus,steps=4):
    folder=bank/name
    for k in ('adapter_model.safetensors','adapter_config.json'):
     if (folder/k).is_symlink() or filehash(folder/k)!=prior['files'][k]:raise ValueError('incumbent corruption')
-   net=PeftModel.from_pretrained(base,str(folder),is_trainable=True,local_files_only=True)
+   config=read_json(folder/'adapter_config.json');old_rank=config.get('r')
+   if old_rank not in (4,8,16) or config.get('lora_alpha')!=2*old_rank or config.get('use_rslora') or config.get('rank_pattern') or config.get('alpha_pattern') or set(config.get('target_modules',[]))!={'q_proj','v_proj'}:raise ValueError('unsupported incumbent adapter')
+   last=read_json(bank/'last-result.json') if (bank/'last-result.json').exists() else None
+   if last and (last.get('model')!=model or last.get('base_sha256')!=MODELS[model][2] or last.get('accepted_adapter')!=name):last=None
+   budget=adaptive_budget(last,old_rank);rank=budget['rank'];steps=budget['steps']
+   if rank==old_rank:net=PeftModel.from_pretrained(base,str(folder),is_trainable=True,local_files_only=True)
+   else:
+    net=get_peft_model(base,LoraConfig(r=rank,lora_alpha=2*rank,lora_dropout=0.0,target_modules=['q_proj','v_proj'],task_type='CAUSAL_LM'))
+    prior_weights=load_file(str(folder/'adapter_model.safetensors'),device='cpu');fresh=get_peft_model_state_dict(net)
+    if set(fresh)!=set(prior_weights):raise ValueError('rank growth state identity')
+    expanded={}
+    for key,old in prior_weights.items():
+     kind='lora_A' if '.lora_A.' in key else 'lora_B' if '.lora_B.' in key else None
+     if kind is None or not torch.isfinite(old).all():raise ValueError('unsupported rank growth tensor')
+     target=fresh[key].detach().clone()
+     if kind=='lora_B':target.zero_()
+     target[growth_slices(tuple(old.shape),tuple(target.shape),kind)].copy_(old.to(target.dtype))
+     expanded[key]=target
+    set_peft_model_state_dict(net,expanded)
+    actual=get_peft_model_state_dict(net)
+    if any(not torch.equal(actual[k],v) for k,v in expanded.items()):raise ValueError('rank growth load mismatch')
   else:
-   net=get_peft_model(base,LoraConfig(r=4,lora_alpha=8,lora_dropout=0.0,target_modules=['q_proj','v_proj'],task_type='CAUSAL_LM'))
+   net=get_peft_model(base,LoraConfig(r=rank,lora_alpha=2*rank,lora_dropout=0.0,target_modules=['q_proj','v_proj'],task_type='CAUSAL_LM'))
   params=[p for p in net.parameters() if p.requires_grad]
   if not params or sum(p.numel() for p in params)>20000000:raise ValueError('adapter budget')
   def batch(row):
@@ -112,12 +144,13 @@ def run(root,workspace,model,corpus,steps=4):
    loss.backward();torch.nn.utils.clip_grad_norm_(params,1.0);opt.step();losses.append(float(loss.detach()))
   after={k:evaluate(data[k]) for k in ('retention','transfer')}
   accepted=promotion_gate(before,after)
-  result={'status':'evaluated','model':model,'base_sha256':MODELS[model][2],'before':before,'after':after,'steps':steps,'losses':losses,'trainable_parameters':sum(p.numel() for p in params),'accepted':accepted,'teacher_examples':len(teach),'scope':'synthetic answer-only NLL pilot; not general reasoning qualification','external_base_weights_modified':False,'adapter_weight_training':True,'production_authority':False}
+  result={'status':'evaluated','model':model,'base_sha256':MODELS[model][2],'before':before,'after':after,'steps':steps,'rank':rank,'previous_rank':old_rank,'losses':losses,'trainable_parameters':sum(p.numel() for p in params),'accepted':accepted,'teacher_examples':len(teach),'scope':'synthetic answer-only NLL pilot; not general reasoning qualification','external_base_weights_modified':False,'adapter_weight_training':True,'production_authority':False}
   if accepted:
    name='adapter-'+hashlib.sha256((filehash(corpus)+str(time.time_ns())).encode()).hexdigest()[:16];stage=bank/(name+'.stage');stage.mkdir()
    net.save_pretrained(str(stage),safe_serialization=True)
    files={k:filehash(stage/k) for k in ('adapter_model.safetensors','adapter_config.json')}
    if sum(p.stat().st_size for p in stage.rglob('*') if p.is_file())>50000000:raise ValueError('adapter size')
+   result['accepted_adapter']=name
    atomic(stage/'receipt.json',result);stage.rename(bank/name)
    atomic(active,{'name':name,'base_sha256':MODELS[model][2],'files':files,'corpus_sha256':filehash(corpus)})
   atomic(bank/'last-result.json',result);return result

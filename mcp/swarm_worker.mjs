@@ -1,9 +1,11 @@
+import {solveAdvanced} from './swarm_verifier.mjs';
 /** Small-model worker; one admitted inference at a time, independently graded. */
 import {createHash} from 'node:crypto';
 import {freemem} from 'node:os';
 import {availableAdapters,ollamaBusy} from './local_model_adapters.mjs';
 import {requiredBytes} from './polymind_admission.mjs';
-import {battery,publicQuestions} from './intelligence_gaps.mjs';
+import {publicQuestions} from './intelligence_gaps.mjs';
+import {swarmBattery as battery} from './swarm_difficulty.mjs';
 import {buildProbeRequest,parseProbeBatch} from './gap_probe.mjs';
 import {verifyLesson,lessonContext} from './swarm_teachers.mjs';
 import {recordOutcome} from './megaswarm.mjs';
@@ -16,7 +18,7 @@ function receiptFor(agent,model,seed,answers,lessonIds=[]){
  if(!agent||!/^F[01]-\d{4}$/.test(agent.id)||!Object.hasOwn(tactics,agent.strategy)||!['qwen3:0.6b','granite4:350m'].includes(agent.model)||model.model!==agent.model||!hex(model.manifest_digest))throw Error('invalid worker identity');
  const questions=taskQuestions(seed,agent.domain);
  if(!Array.isArray(answers)||answers.length!==questions.length||new Set(answers.map(x=>x.id)).size!==questions.length)throw Error('invalid answers');
- const rows=questions.map(q=>{const a=answers.find(x=>x.id===q.id);if(!a||!q.options.includes(a.answer)||![50,75,95].includes(a.confidence))throw Error('invalid answer');return {id:q.id,answer:a.answer,confidence:a.confidence,correct:a.answer===q.correct};});
+ const rows=questions.map(q=>{if(solveAdvanced({id:q.id,prompt:q.prompt,options:q.options})!==q.correct)throw Error('independent verifier disagreement');const a=answers.find(x=>x.id===q.id);if(!a||!q.options.includes(a.answer)||![50,75,95].includes(a.confidence))throw Error('invalid answer');return {id:q.id,answer:a.answer,confidence:a.confidence,correct:a.answer===q.correct};});
  if(!Array.isArray(lessonIds)||lessonIds.length>2||new Set(lessonIds).size!==lessonIds.length||!lessonIds.every(hex))throw Error('invalid lesson references');
  const r={schema:'umbra.swarm.task.v1',agent:{id:agent.id,model:agent.model,domain:agent.domain,strategy:agent.strategy},model_digest:model.manifest_digest,seed,rows,success:rows.every(x=>x.correct),correct:rows.filter(x=>x.correct).length,questions:rows.length,...(lessonIds.length?{lesson_evidence:lessonIds}:{}),production_authority:false,synthetic:true};return {...r,evidence:hash(r)};
 }

@@ -33,3 +33,7 @@ Existing UMBRA-Infinity-Local-20261124 local task runs every 30 minutes. infinit
 5. Improve recovery: bounded retries, verified stale-lock detection, evidence archives, checkpoint retention quotas, system telemetry and CI for Python. Add safe owner-local adapter inference, model-to-model soft-target distillation when teacher runtime supports logits, and prevent repeated benchmark leakage. No scientific validity or production authority claims.
 
 Verification: Node 151/151; Python tests 23/23 (INFINITY 10, HF cache 5, native inference 3, LoRA data/gate 2, bootstrap/resume 3); 174 total. Real training runtime/bootstrap and pretrained-model optimizer execution not covered by these unit tests.
+
+
+### Progressive swarm academy
+See [SWARM_ACADEMY](SWARM_ACADEMY.md) for ten-tier verified task generation, student-to-teacher lineage, the fixed 7B reference target, native adaptive LoRA growth, resource limits, and remaining qualification work.

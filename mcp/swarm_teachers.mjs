@@ -1,7 +1,9 @@
+import {solveAdvanced} from './swarm_verifier.mjs';
 /** Cross-model lessons with independently verified generated-task answers. */
 import {createHash} from 'node:crypto';
 import {freemem} from 'node:os';
-import {battery,publicQuestions} from './intelligence_gaps.mjs';
+import {publicQuestions} from './intelligence_gaps.mjs';
+import {swarmBattery as battery} from './swarm_difficulty.mjs';
 import {availableAdapters,ollamaBusy} from './local_model_adapters.mjs';
 import {requiredBytes} from './polymind_admission.mjs';
 import {buildProbeRequest,parseProbeBatch} from './gap_probe.mjs';
@@ -12,7 +14,7 @@ export function makeLesson(teacher,domain,seed,answers){
  if(!validModel(teacher?.model)||!hex(teacher.manifest_digest))throw Error('teacher identity');
  const qs=battery(seed).filter(x=>x.domain===domain);
  if(!qs.length||!Array.isArray(answers)||answers.length!==qs.length||new Set(answers.map(x=>x.id)).size!==qs.length)throw Error('lesson answers');
- const rows=qs.map(q=>{const a=answers.find(x=>x.id===q.id);if(!a||!q.options.includes(a.answer)||![50,75,95].includes(a.confidence))throw Error('invalid teacher answer');return {id:q.id,answer:a.answer,confidence:a.confidence,correct:a.answer===q.correct};});
+ const rows=qs.map(q=>{if(solveAdvanced({id:q.id,prompt:q.prompt,options:q.options})!==q.correct)throw Error('independent verifier disagreement');const a=answers.find(x=>x.id===q.id);if(!a||!q.options.includes(a.answer)||![50,75,95].includes(a.confidence))throw Error('invalid teacher answer');return {id:q.id,answer:a.answer,confidence:a.confidence,correct:a.answer===q.correct};});
  const examples=qs.filter(q=>rows.find(a=>a.id===q.id).correct).map(q=>({prompt:q.prompt,answer:q.correct}));
  const r={schema:'umbra.swarm.lesson.v1',teacher:teacher.model,teacher_digest:teacher.manifest_digest,domain,seed,rows,examples,synthetic:true,production_authority:false};
  return {...r,evidence:hash(r)};
@@ -31,10 +33,12 @@ async function liveInvoke(model,qs){
  const out=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(out.model!==model.model||out.done!==true||!Number.isSafeInteger(out.eval_count)||out.eval_count<1||out.eval_count>240)throw Error('unverified generation');
  return parseProbeBatch(out.response,qs);
 }
-export async function teach(domain,seed,{catalog=availableAdapters,free=freemem,busy=ollamaBusy,invoke=liveInvoke,student=null}={}){
+export async function teach(domain,seed,{catalog=availableAdapters,free=freemem,busy=ollamaBusy,invoke=liveInvoke,student=null,reference=null}={}){
  if(await busy())return {status:'deferred_busy'};
  const qs=battery(seed).filter(q=>q.domain===domain);if(!qs.length)throw Error('unsupported domain');
- const eligible=(await catalog()).adapters.filter(m=>m.model!==student&&m.roles.some(r=>['reasoning','research','critique','triage','coding'].includes(r))&&requiredBytes('ollama',m.size_bytes)+256*1024**2<=free()).sort((a,b)=>Number(['qwen3:0.6b','granite4:350m'].includes(a.model))-Number(['qwen3:0.6b','granite4:350m'].includes(b.model))||b.size_bytes-a.size_bytes);
+ const adapters=(await catalog()).adapters;
+ if(reference!==null&&!adapters.some(m=>m.model===reference))return {status:'deferred_reference_inventory'};
+ const eligible=adapters.filter(m=>(reference===null||m.model===reference)&&m.model!==student&&m.roles.some(r=>['reasoning','research','critique','triage','coding'].includes(r))&&requiredBytes('ollama',m.size_bytes)+256*1024**2<=free()).sort((a,b)=>Number(['qwen3:0.6b','granite4:350m'].includes(a.model))-Number(['qwen3:0.6b','granite4:350m'].includes(b.model))||b.size_bytes-a.size_bytes);
  const model=eligible[0];if(!model)return {status:'deferred_memory'};
  try{const answers=await invoke(model,publicQuestions(qs));if(!(await catalog()).adapters.some(x=>x.model===model.model&&x.manifest_digest===model.manifest_digest))return {status:'deferred_identity'};return {status:'completed',lesson:makeLesson(model,domain,seed,answers)};}catch(e){return {status:'teacher_failed',reason:e.name};}
 }

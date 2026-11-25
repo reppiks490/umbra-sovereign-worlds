@@ -15,3 +15,18 @@ class Test(unittest.TestCase):
   self.assertTrue(promotion_gate({'retention':1,'transfer':2},{'retention':1.01,'transfer':1.8}))
   self.assertGreater(required_memory('qwen3:0.6b'),required_memory('granite4:350m'))
 if __name__=='__main__':unittest.main()
+
+class GrowthTest(unittest.TestCase):
+ def test_growth_requires_accepted_retention_and_transfer(self):
+  from native_lora_train import adaptive_budget
+  self.assertEqual(adaptive_budget(None,4),{'steps':4,'rank':4})
+  r={'status':'evaluated','accepted':True,'adapter_weight_training':True,'steps':4,'rank':4,'before':{'retention':1,'transfer':2},'after':{'retention':1,'transfer':1.8}}
+  self.assertEqual(adaptive_budget(r,4),{'steps':8,'rank':8})
+  self.assertEqual(adaptive_budget({**r,'after':{'retention':1.2,'transfer':1}},4),{'steps':4,'rank':4})
+  self.assertEqual(adaptive_budget({**r,'rank':16,'steps':16},16),{'steps':16,'rank':16})
+  self.assertEqual(adaptive_budget({**r,'accepted':False},8),{'steps':4,'rank':8})
+ def test_rank_expansion_preserves_matrix_product(self):
+  from native_lora_train import growth_slices
+  self.assertEqual(growth_slices((4,12),(8,12),'lora_A'),(slice(0,4),slice(None)))
+  self.assertEqual(growth_slices((12,4),(12,8),'lora_B'),(slice(None),slice(0,4)))
+  self.assertRaises(ValueError,growth_slices,(4,12),(8,13),'lora_A')

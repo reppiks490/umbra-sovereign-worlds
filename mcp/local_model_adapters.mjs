@@ -7,7 +7,7 @@ const registry=Object.freeze({
  'qwen3:8b':['reasoning','research'], 'hf.co/bartowski/Qwen_Qwen3-8B-GGUF:IQ2_M':['reasoning','research'],
  'qwen3:4b':['reasoning','research'], 'qwen3:1.7b':['reasoning','triage'], 'qwen3:0.6b':['triage'],
  'deepseek-r1:1.5b':['reasoning','critique'], 'qwen2.5-coder:1.5b':['coding'], 'qwen2.5-coder:3b':['coding'], 'qwen2.5-coder:7b':['coding'],
- 'granite4:350m':['triage'], 'gemma3:1b':['critique','triage'], 'gemma3:4b':['critique','research'],
+ 'granite4:350m':['triage'], 'gemma3:1b':['critique','triage'], 'gemma3:4b':['critique','research'], 'gemma3:12b':['reasoning','research','critique'],
  'phi4-mini:3.8b':['reasoning','critique'], 'qwen2.5:3b':['research','triage'], 'smollm2:1.7b':['triage'],
  'llama3.2:1b':['triage'], 'granite3.2:2b':['research','critique'],
  'all-minilm:22m':['retrieval'], 'nomic-embed-text:latest':['retrieval'], 'bge-m3:latest':['retrieval'], 'qwen3-embedding:0.6b':['retrieval']

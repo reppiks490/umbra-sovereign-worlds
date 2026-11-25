@@ -4,6 +4,7 @@ import {readFileSync,writeFileSync,renameSync,unlinkSync,statSync} from 'node:fs
 import {simulate,DEFAULT_POLICY,ENGINE_VERSION} from '../engine.mjs';
 import {civicAudit} from '../society.mjs';
 import {planAdmission} from './polymind_admission.mjs';
+import {trainCommittee,committeePredict,distillCommittee,inferNetwork} from './autogenesis_neural.mjs';
 const keys=Object.keys(DEFAULT_POLICY), clip=x=>Math.max(0,Math.min(1,x)), mean=a=>a.reduce((s,x)=>s+x,0)/a.length;
 const digest=x=>createHash('sha256').update(JSON.stringify(x)).digest('hex');
 const divisions=['planning','reinforcement','continual','collective','memory','evolution','world-model','meta-learning','distillation','optimization'];
@@ -62,16 +63,30 @@ export function runEvolution(q={}){
   memory.push({seed:trainSeed(index),role,policy:{...policy},reward,audit:true});
   const s=stats.get(role)||{n:0,sum:0};s.n++;s.sum+=reward;stats.set(role,s);
  }
- const predictor=trainPredictor(memory.map(r=>({features:features(r.policy),reward:r.reward})));
- // Select candidate exclusively from training observations, never holdout feedback.
- const candidates=[...memory].sort((a,b)=>(b.reward+predict(predictor,features(b.policy)))-(a.reward+predict(predictor,features(a.policy))));
+ const rows=memory.map(r=>({features:features(r.policy),reward:r.reward}));
+ const predictor=trainPredictor(rows);
+ let neural=null,rankPrediction=x=>predict(predictor,x);
+ if(rows.length>=8){
+  const cut=Math.floor(rows.length*.75),training=rows.slice(0,cut),validation=rows.slice(cut);
+  const linear=trainPredictor(training);
+  const committee=trainCommittee(training,{seed:seed+offset,epochs:80,width:8,members:3});
+  const student=distillCommittee(committee,training.map(r=>r.features),{seed:seed+offset+1,epochs:80,width:4});
+  const linear_mse=mean(validation.map(r=>(predict(linear,r.features)-r.reward)**2));
+  const validation_mse=mean(validation.map(r=>(committeePredict(committee,r.features).mean-r.reward)**2));
+  const student_teacher_mse=mean(validation.map(r=>(inferNetwork(student,r.features)-committeePredict(committee,r.features).mean)**2));
+  const selected=validation_mse<linear_mse?'committee':'linear';
+  rankPrediction=selected==='committee'?x=>{const p=committeePredict(committee,x);return p.mean-p.sd;}:x=>predict(linear,x);
+  neural={training_count:training.length,validation_count:validation.length,committee,student,linear_mse,validation_mse,student_teacher_mse,selected};
+ }
+ // Ranking uses only training/validation observations, never promotion holdout.
+ const candidates=[...memory].sort((a,b)=>(b.reward+rankPrediction(features(b.policy)))-(a.reward+rankPrediction(features(a.policy))));
  const candidate=candidates[0].policy;
  const holdSeeds=Array.from({length:8},(_,i)=>3000000000+seed*1024+offset*8+i);
  const paired=holdSeeds.map(s=>{const a=evaluate(incumbent,s,steps),b=evaluate(candidate,s,steps);return {seed:s,incumbent:a,candidate:b,delta:b-a};});
  const delta=mean(paired.map(x=>x.delta)),positive=paired.filter(x=>x.delta>0).length;
  const promoted=delta>1e-6&&positive>=6;
  const champion={policy:promoted?{...candidate}:incumbent,source:promoted?'heldout-challenger':'incumbent'};
- return {schema:'umbra.autogenesis.v1',engine:ENGINE_VERSION,seed,steps,synthetic:true,production_authority:false,research_qualified:false,weight_training:false,memory,predictor,champion,holdout:{seeds:holdSeeds,paired,delta,positive,promoted},metrics:{observations:memory.length,roles_observed:stats.size,train_mean:mean(memory.map(x=>x.reward))}};
+ return {schema:'umbra.autogenesis.v1',engine:ENGINE_VERSION,seed,steps,synthetic:true,production_authority:false,research_qualified:false,external_model_weight_training:false,neural_weight_training:neural!==null,memory,predictor,neural,champion,holdout:{seeds:holdSeeds,paired,delta,positive,promoted},metrics:{observations:memory.length,roles_observed:new Set(memory.filter(x=>!x.role.startsWith('mutation:')).map(x=>x.role)).size,mutations_observed:memory.filter(x=>x.role.startsWith('mutation:')).length,train_mean:mean(memory.map(x=>x.reward))}};
 }
 export function saveCheckpoint(path,state){
  validateState(state);

@@ -5,6 +5,7 @@ on:
       - 'mcp/**'
       - 'tests/mcp-*.test.mjs'
       - 'tests/owner_once.test.mjs'
+      - 'tests/local-model-adapters.test.mjs'
       - 'tests/ci-contract.test.mjs'
       - '.github/workflows/umbra-mcp-ci.yml'
   workflow_dispatch:
@@ -19,4 +20,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/mcp-protocol.test.mjs tests/mcp-runtime.test.mjs tests/owner_once.test.mjs tests/ci-contract.test.mjs
+      - run: node --test tests/mcp-protocol.test.mjs tests/mcp-runtime.test.mjs tests/owner_once.test.mjs tests/ci-contract.test.mjs tests/local-model-adapters.test.mjs

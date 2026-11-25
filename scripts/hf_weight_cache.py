@@ -2,7 +2,7 @@
 import argparse,contextlib,hashlib,json,os,re,shutil,urllib.request,urllib.parse
 from pathlib import Path
 from agentic_native import read_receipt,digest,SafeWeights,LICENSES,REPO,HEX
-MIN_FREE=8*10**9 # 5 GB Windows + 3 GB learning workspace
+MIN_FREE=3*10**9 # owner-approved minimum free disk; learning workspace budget is separate
 MAX_WEIGHT=5*10**9
 WEIGHT='model.safetensors'
 def request(url):

@@ -5,7 +5,8 @@ from urllib.request import urlopen
 TAG='qwen3.8:27b-q8_0'
 BLOB='sha256-2bb22714289826d7b9e0ba376c3ce47d08bce39abe598745857c44d88c09bdbf'
 TOTAL=29047084384
-RESERVE=25000000000
+RESERVE=25000000000 # original Q8 admission; completed Q8 is not re-downloaded
+QUEUE_MIN_FREE=3000000000
 def remaining_bytes(blobs,blob=BLOB,total=TOTAL):
  try:
   paths=list(blobs.glob(blob+'-partial-*'))
@@ -23,7 +24,7 @@ def plan_recovery(installed,pull_alive,queue_locked,queue_done,free,remaining):
  if installed:
   if queue_locked:return {'status':'queue_running'}
   if queue_done:return {'status':'complete'}
-  return {'status':'resume_queue' if free>=RESERVE else 'deferred_queue_storage'}
+  return {'status':'resume_queue' if free>=QUEUE_MIN_FREE else 'deferred_queue_storage'}
  if pull_alive:return {'status':'pull_running'}
  if remaining is None:return {'status':'deferred_partial_identity'}
  return {'status':'resume_q8' if free>=RESERVE+remaining else 'deferred_storage'}

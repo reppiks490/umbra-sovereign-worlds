@@ -2,7 +2,7 @@
 import hashlib,json,os,sqlite3,shutil,time,math
 from pathlib import Path
 CAP=1000000000
-FLOOR=8000000000
+FLOOR=3000000000
 MODELS=('qwen3:0.6b','granite4:350m')
 SPLITS=('training','retention','transfer')
 def digest(x):return hashlib.sha256(json.dumps(x,sort_keys=True,ensure_ascii=False,separators=(',',':'),allow_nan=False).encode()).hexdigest()

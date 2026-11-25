@@ -6,7 +6,7 @@ class Test(unittest.TestCase):
   self.assertEqual(CAP,15000000000)
   self.assertTrue(can_admit(12000000000,1000000000,12000000000,2000000000))
   self.assertFalse(can_admit(14900000000,200000000,20000000000,0))
-  self.assertFalse(can_admit(12000000000,1000000000,10000000000,2000000000))
+  self.assertFalse(can_admit(12000000000,1000000000,5999999999,2000000000))
  def test_rank_new_capabilities_and_skip_duplicates(self):
   rows=[{'repo':'old','digest':'a','total':100,'domain':'vision','value':10},{'repo':'audio','digest':'b','total':200,'domain':'audio','value':9},{'repo':'vision','digest':'c','total':100,'domain':'vision','value':9}]
   self.assertEqual([x['repo'] for x in rank_candidates(rows,{'a'},{'vision'})],['audio','vision'])

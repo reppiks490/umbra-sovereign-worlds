@@ -69,7 +69,7 @@ def run(root,workspace,model,corpus,steps=4):
  if type(steps) is not int or not 1<=steps<=16:raise ValueError('step budget')
  if not (root/'ready.json').is_file():return {'status':'deferred_bootstrap'}
  if available_ram()<required_memory(model):return {'status':'deferred_memory','required_bytes':required_memory(model),'free_bytes':available_ram()}
- if shutil.disk_usage(workspace).free<8000000000:return {'status':'deferred_storage'}
+ if shutil.disk_usage(workspace).free<3000000000:return {'status':'deferred_storage'}
  data=validate_corpus(read_json(corpus),model);source=verified_source(root,model)
  bank=workspace/'llm_adapters'/model.replace(':','-');bank.mkdir(parents=True,exist_ok=True)
  if sum(p.stat().st_size for p in (workspace/'llm_adapters').rglob('*') if p.is_file())>500000000:return {'status':'deferred_adapter_budget'}

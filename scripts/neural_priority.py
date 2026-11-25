@@ -4,7 +4,7 @@ from pathlib import Path
 from urllib.request import urlopen
 from native_training_bootstrap import download_verified,used as training_used
 CAP=15000000000
-FLOOR=8000000000
+FLOOR=3000000000
 TRAINING_CAP=4500000000
 ROOT=Path.home()/'projects'/'umbra-agentic-native-20261124'
 # Complementary tasks, not claims of measured capability or universal superiority.

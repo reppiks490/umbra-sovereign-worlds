@@ -35,7 +35,7 @@ def bootstrap_plan(training,status,free,last,now,used_bytes=0):
  if (training/'ready.json').exists():return {'status':'ready_marker'}
  if now-last<(1800 if status=='ready' else 21600):return {'status':'deferred_cooldown'}
  after=status=='ready'
- if free<(8000000000+max(0,4500000000-used_bytes) if after else 51000000000):return {'status':'deferred_storage'}
+ if free<(3000000000+max(0,4500000000-used_bytes) if after else 51000000000):return {'status':'deferred_storage'}
  return {'status':'eligible','after_queue':after}
 def resume_bootstrap(root,training,status):
  training.mkdir(exist_ok=True)

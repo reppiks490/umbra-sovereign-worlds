@@ -12,7 +12,7 @@ class RecoveryTest(unittest.TestCase):
   self.assertEqual(plan_recovery(True,False,False,False,28000000000,0)['status'],'resume_queue')
   self.assertEqual(plan_recovery(True,False,True,False,28000000000,0)['status'],'queue_running')
   self.assertEqual(plan_recovery(True,False,False,True,28000000000,0)['status'],'complete')
-  self.assertEqual(plan_recovery(True,False,False,False,24000000000,0)['status'],'deferred_queue_storage')
+  self.assertEqual(plan_recovery(True,False,False,False,2999999999,0)['status'],'deferred_queue_storage')
  def test_validate_partial_segments(self):
   with tempfile.TemporaryDirectory() as d:
    p=pathlib.Path(d)

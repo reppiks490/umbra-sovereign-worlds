@@ -1,0 +1,7 @@
+# Owner-approved storage reserve — 2026-11-25
+
+The owner explicitly requested changing the 8 GB free-disk reserve to 3 GB (decimal bytes). Neural pretrained capacity remains 15 GB, learning allocation 3 GB, miniature allocation 5 GB. The 3 GB minimum free space is distinct from the learning allocation; it is not a separate physical reservation.
+
+Updated native supplemental acquisition, replay-bank ingestion, native optimizer admission, cache restoration, and post-queue training bootstrap to 3,000,000,000 bytes. Bootstrap and supplemental acquisition still protect the remaining 4.5 GB training-runtime budget, and bucket/model caps and checksum verification remain intact. The original Q8 initial admission threshold remains unchanged; Q8 is already installed. Initial queue recovery no longer requires 25 GB of empty-bucket headroom; the original owner-local downloader on disk now uses 8 GB during neural stage (5 GB tiny + 3 GB reserve), 3 GB during tiny stage, and 3 GB initial admission. Its currently executing process retains earlier limits in memory; it was not interrupted or duplicated. No files deleted. No OS-wide free-space guarantee: unrelated Windows processes may consume storage. Three GB is a tighter Windows margin, potentially insufficient for updates or paging.
+
+Regression tests cover exact 3 GB boundaries, remaining bootstrap headroom, cache restoration and existing acquisition/learning behavior.

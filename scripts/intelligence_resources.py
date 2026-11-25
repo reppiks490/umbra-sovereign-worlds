@@ -2,9 +2,9 @@
 import argparse,json,os,re,shutil,sys,time,urllib.parse,urllib.request
 from pathlib import Path,PurePosixPath
 from native_training_bootstrap import download_verified,used as training_used
-from neural_priority import size,write,ROOT,CAP as NEURAL_CAP
+from neural_priority import size,write,ROOT,CAP as NEURAL_CAP, RESOURCE_CAP
 BUDGETS=dict(science=2000000000,finance=2000000000,reasoning=2000000000,graphs=1000000000,symbolic=500000000,algorithms=500000000,experience=1000000000,simulation=1000000000,causal=500000000,benchmarks=1000000000,synthetic=500000000,cognition=500000000,reinforcement=500000000,semantic=1500000000,evolution=500000000)
-CAP=sum(BUDGETS.values())
+CAP=RESOURCE_CAP
 FLOOR=3000000000
 LICENSES={'apache-2.0','mit','bsd-2-clause','bsd-3-clause','cc-by-4.0','cc0-1.0','isc','odc-by','odc-pddl','unlicense'}
 DATASETS=[
@@ -34,7 +34,7 @@ PACKAGES=[
  ('ortools','9.12.4544','algorithms'),('sortedcontainers','2.4.0','algorithms'),('more-itertools','10.7.0','algorithms'),
  ('rustworkx','0.16.0','graphs'),('polars','1.27.1','experience'),('pymc','5.22.0','causal')]
 def admit(used,category_used,additional,free,training_remaining,learning_remaining,category_cap):
- return (0<additional and used+additional<=CAP and category_used+additional<=category_cap and free-additional>=FLOOR+max(0,training_remaining)+max(0,learning_remaining))
+ return (0<additional and used+additional<=RESOURCE_CAP and category_used+additional<=category_cap and free-additional>=FLOOR+max(0,training_remaining)+max(0,learning_remaining))
 def neural_complete(status):
  return status.get('status')=='pass_finished' and status.get('cap_bytes',0)>=NEURAL_CAP and not any(x.get('status')=='retry_needed' for x in status.get('results',[]))
 def get(url):
@@ -116,7 +116,7 @@ def balanced_order(rows):
    k,q=groups.popleft();yield q.popleft()
    if q:groups.append((k,q))
 from human_corpus import ORIGINAL_ROWS
-SOURCE_POLICY_VERSION=2
+SOURCE_POLICY_VERSION=3
 def source_disposition(row):
  if row.get('kind')=='wheel':return 'tool_artifact'
  if row.get('kind')!='dataset':return 'deferred_source_review'
@@ -133,7 +133,7 @@ def preview(rows):
  out={k:{'cap_bytes':v,'eligible_bytes':0,'admitted_bytes':0,'admitted_files':0} for k,v in BUDGETS.items()}
  for row in balanced_order(rows):
   c=out[row['category']];n=row['size'];c['eligible_bytes']+=n
-  if c['admitted_bytes']+n+4096*(c['admitted_files']+1)<=c['cap_bytes']:
+  if c['admitted_bytes']+n+4096*(c['admitted_files']+1)<=c['cap_bytes'] and sum(v['admitted_bytes']+4096*v['admitted_files'] for v in out.values())+n+4096<=CAP:
    c['admitted_bytes']+=n;c['admitted_files']+=1
  return out
 def run(plan_only=False,refresh=False):
@@ -142,6 +142,8 @@ def run(plan_only=False,refresh=False):
  if not m or refresh:
   if refresh and not plan_only:raise ValueError('refresh requires plan-only mode')
   m=merge_plan(m,plan());write(manifest,m)
+ if m.get('cap_bytes')!=CAP:
+  m={**m,'cap_bytes':CAP};write(manifest,m)
  if any(r not in m['rows'] for r in ORIGINAL_ROWS):
   m=merge_plan(m,{**m,'rows':ORIGINAL_ROWS});write(manifest,m)
  print('PLAN_READY',len(m['rows']),sum(x['size'] for x in m['rows']),flush=True)

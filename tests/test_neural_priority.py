@@ -3,9 +3,9 @@ sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/'scripts'))
 from neural_priority import can_admit,rank_candidates,CAP
 class Test(unittest.TestCase):
  def test_expanded_cap_and_storage_protection(self):
-  self.assertEqual(CAP,28000000000)
+  self.assertEqual(CAP,42000000000)
   self.assertTrue(can_admit(12000000000,1000000000,12000000000,2000000000))
-  self.assertFalse(can_admit(27900000000,200000000,20000000000,0))
+  self.assertFalse(can_admit(41900000000,200000000,20000000000,0))
   self.assertFalse(can_admit(12000000000,1000000000,5999999999,2000000000))
  def test_rank_new_capabilities_and_skip_duplicates(self):
   rows=[{'repo':'old','digest':'a','total':100,'domain':'vision','value':10},{'repo':'audio','digest':'b','total':200,'domain':'audio','value':9},{'repo':'vision','digest':'c','total':100,'domain':'vision','value':9}]
@@ -28,7 +28,7 @@ class Test(unittest.TestCase):
  def test_expanded_allocation_reopens_prior_cap_deferral(self):
   from neural_priority import priority_plan
   old={'cap_bytes':15000000000,'status':'pass_finished','timestamp':9999,'results':[{'status':'deferred_storage'}]}
-  self.assertEqual(CAP,28000000000)
+  self.assertEqual(CAP,42000000000)
   self.assertEqual(priority_plan('ready',False,False,9999,10000,old),'eligible')
   self.assertEqual(priority_plan('ready',True,False,9999,10000,old),'deferred_bootstrap')
   self.assertTrue(can_admit(14736604255,3137246852,6700000000,0))
@@ -36,10 +36,19 @@ class Test(unittest.TestCase):
 
  def test_new_cap_and_manifest_extension(self):
   from neural_priority import pending_candidates,CANDIDATES
-  self.assertEqual(CAP,28000000000)
+  self.assertEqual(CAP,42000000000)
   self.assertTrue(can_admit(14736604255,13200000000,21800000000,2850000000))
   self.assertFalse(can_admit(14736604255,13200000000,18000000000,2850000000))
   previous=[{'repo':'openai/whisper-base'},{'repo':'google/siglip2-base-patch16-224'}]
   pending=pending_candidates(CANDIDATES,previous,[])
   self.assertNotIn('openai/whisper-base',[r[0] for r in pending])
   self.assertIn('microsoft/trocr-base-printed',[r[0] for r in pending])
+
+ def test_owner_neural_reallocation_keeps_other_budgets(self):
+  from neural_priority import CAP,RESOURCE_CAP,LEARNING_CAP,protected_remaining
+  self.assertEqual(CAP,42000000000)
+  self.assertEqual(RESOURCE_CAP,1500000000)
+  self.assertEqual(LEARNING_CAP,3000000000)
+  self.assertEqual(protected_remaining(1700000000,500000000),6800000000)
+  self.assertTrue(can_admit(28000000000,14000000000,24000000000,6800000000))
+  self.assertFalse(can_admit(28000000000,14000000000,23799999999,6800000000))

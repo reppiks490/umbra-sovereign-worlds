@@ -7,3 +7,12 @@ class SourceAssistTest(unittest.TestCase):
   self.assertTrue(validate_quote({'source':1,'quote':'uses a held-out test set'},sources)['verified_quote'])
   for bad in [{'source':2,'quote':'uses a held-out test set'},{'source':1,'quote':'guaranteed accuracy'},{'source':True,'quote':'uses a held-out test set'}]:
    self.assertFalse(validate_quote(bad,sources)['verified_quote'])
+
+ def test_ranked_sources_only_reorder_retrieved_evidence(self):
+  from source_assist import apply_ranked
+  a={'repo':'a/b','text':'original first','sha256':'a'*64}
+  b={'repo':'a/b','text':'original second','sha256':'b'*64}
+  ranked=[{**b,'specialist_scores':{'encoder':.8},'fused_score':.8},{**a,'specialist_scores':{'encoder':.2},'fused_score':.2}]
+  self.assertEqual([r['text'] for r in apply_ranked([a,b],ranked)],['original second','original first'])
+  with self.assertRaises(ValueError):apply_ranked([a,b],[{**ranked[0],'text':'changed'},ranked[1]])
+  with self.assertRaises(ValueError):apply_ranked([a,b],[ranked[0],ranked[0]])

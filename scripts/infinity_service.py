@@ -9,7 +9,7 @@ from campaign_baselines import benchmark as benchmark_baselines
 from chronos_tournament import campaign as chronos_campaign
 from learning_workspace import refresh as refresh_learning_workspace
 from source_knowledge import refresh as refresh_source_knowledge, learning_policy
-from source_assist import cycle as source_assist_cycle
+from specialist_feed import cycle as source_assist_cycle
 from human_corpus import audit as audit_human_corpus
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory

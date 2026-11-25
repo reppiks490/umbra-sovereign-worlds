@@ -10,8 +10,8 @@ class ResourcesTest(unittest.TestCase):
   self.assertFalse(admit(0,1900000000,200000000,30000000000,0,0,2000000000))
  def test_neural_first(self):
   self.assertFalse(neural_complete({'cap_bytes':15000000000,'status':'pass_finished','results':[]}))
-  self.assertFalse(neural_complete({'cap_bytes':28000000000,'status':'pass_finished','results':[{'status':'retry_needed'}]}))
-  self.assertTrue(neural_complete({'cap_bytes':28000000000,'status':'pass_finished','results':[{'status':'deferred_storage'}]}))
+  self.assertFalse(neural_complete({'cap_bytes':42000000000,'status':'pass_finished','results':[{'status':'retry_needed'}]}))
+  self.assertTrue(neural_complete({'cap_bytes':42000000000,'status':'pass_finished','results':[{'status':'deferred_storage'}]}))
  def test_dataset_metadata_requires_license_pinned_hash_safe_path(self):
   m={'id':'openai/gsm8k','sha':'a'*40,'private':False,'gated':False,'cardData':{'license':'mit'},'siblings':[{'rfilename':'main/train.parquet','size':100,'lfs':{'sha256':'b'*64}},{'rfilename':'../evil.parquet','size':100,'lfs':{'sha256':'b'*64}},{'rfilename':'data/script.py','size':100,'lfs':{'sha256':'b'*64}},{'rfilename':'main/test.parquet','size':101,'lfs':{'sha256':'c'*64}}]}
   r=dataset_rows('openai/gsm8k','reasoning',m)
@@ -51,8 +51,8 @@ class ResourcesTest(unittest.TestCase):
   rows=[{'repo':'a','category':'science','kind':'dataset','split':'candidate_training','size':900000000,'path':str(i)} for i in range(3)]
   result=preview(rows)
   self.assertEqual(result['science']['eligible_bytes'],2700000000)
-  self.assertEqual(result['science']['admitted_bytes'],1800000000)
-  self.assertEqual(result['science']['admitted_files'],2)
+  self.assertEqual(result['science']['admitted_bytes'],900000000)
+  self.assertEqual(result['science']['admitted_files'],1)
   self.assertEqual(result['symbolic']['admitted_bytes'],0)
 
  def test_source_only_acquisition_preserves_review_boundary(self):

@@ -10,3 +10,7 @@ Set `UMBRA_POLYMIND_PYTHON` and `UMBRA_POLYMIND_ROOT` to the reviewed operator-o
 ## Resource admission planner
 
 The owner CLI accepts `{"operation":"polymind_plan","arguments":{"role":"reasoning"}}`. Read-only discovery returns resource-eligible and blocked candidates ordered by estimated RAM, not quality. Ollama requires weight size plus 1 GiB, or 2 GiB for weights at least 6 GiB; ONNX requires four times bundle size plus 1 GiB. Busy Ollama candidates are blocked. This is not a reservation, guarantee, benchmark or model training; recheck resources at dispatch. Mistral NeMo 12B, its q3_K_M variant and Mistral latest are registered as reasoning/research/critique candidates; installation is not implied.
+
+## Explicit owner storage policy
+
+Default acquisition remains 3072 MiB free plus 256 MiB headroom. An explicit owner override is `--minimum-free-mib 1024 --headroom-mib 756` (combined 1780 MiB), applied at bundle admission and each streamed write. This low reserve is unsuitable as a general Windows recommendation; system paging or concurrent writers can still consume disk. Do not infer permission to use it for other devices or jobs. The owner-local priority large-model queue remains separate.

@@ -1,5 +1,5 @@
 """One bounded scheduled invocation; owner-local, no paid services or external code."""
-import argparse,json,os,time
+import argparse,json,os,time,subprocess,shutil
 from pathlib import Path
 from infinity import refresh_catalog,run_cycle,rotate
 from hf_weight_cache import lock
@@ -20,16 +20,25 @@ def queue_ready(root):
   if not any(x.get('name')=='qwen3.8:27b-q8_0' for x in tags['models']):return 'q8_not_installed'
  except Exception:return 'ollama_unavailable'
  return 'ready'
+def gap_command(root,status):
+ return [shutil.which('node') or 'node',str(Path(__file__).resolve().with_name('gap_audit.mjs')),str(root),'probe' if status=='ready' else 'audit']
+def run_gap_audit(root,status):
+ p=subprocess.run(gap_command(root,status),capture_output=True,text=True,timeout=300,check=True)
+ r=json.loads(p.stdout)
+ return {k:r.get(k) for k in ('status','probe_status','total_probes','high_confidence_errors','discovered_candidates')}
 def main(root):
  root=root.resolve();d=root/'infinity';d.mkdir(exist_ok=True)
  try:
   with lock(d/'service.lock'):
    result={'status':queue_ready(root)}
+   ready=result['status']
    try:result['discovered']=len(refresh_catalog(root)['models'])
    except Exception as e:result['discovery_error']=type(e).__name__
    if result['status']=='ready':
     state=run_cycle(root);result.update({'status':state['status'],'cycles':state.get('cycles',0),'champion':state.get('champion')})
     if state['status']=='completed':result['rotated']=rotate(root)
+   try:result['intelligence_gap_audit']=run_gap_audit(root,ready)
+   except Exception as e:result['gap_audit_error']=type(e).__name__
    write_status(root,result)
    print(json.dumps(result),flush=True)
  except FileExistsError:print(json.dumps({'status':'service_busy'}),flush=True)

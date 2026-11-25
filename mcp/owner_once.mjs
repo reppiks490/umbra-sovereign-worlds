@@ -7,6 +7,10 @@ import {polymindList,polymindRun,polymindPlan} from './polymind_router.mjs';
 import {runEvolution,ROLES} from './autogenesis.mjs';
 import {createMission,runCouncil} from './agentic_swarm.mjs';
 import {nexusCatalog,nativeMissionEmbedding,infinityInvoke} from './agentic_nexus.mjs';
+import {solveStructured} from './gap_tools.mjs';
+import {routeCapability} from './gap_strategy.mjs';
+import {freemem} from 'node:os';
+import {ollamaBusy} from './local_model_adapters.mjs';
 const plain=x=>x!==null&&typeof x==='object'&&!Array.isArray(x)&&Object.getPrototypeOf(x)===Object.prototype;
 const ownKeys=(x,allowed)=>plain(x)&&Object.keys(x).every(k=>allowed.includes(k));
 async function readRequest(){
@@ -21,10 +25,18 @@ function request(bridge,id,method,params){
 }
 try{
  const q=await readRequest();
- if(!ownKeys(q,['operation','name','arguments'])||!['list','call','model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed','infinity_status','infinity_embed'].includes(q.operation))throw Error('invalid request');
- if(['list','model_list','polymind_list','autogenesis_roles','agentic_native_catalog','infinity_status'].includes(q.operation)&&Object.keys(q).length!==1)throw Error('invalid list');
+ if(!ownKeys(q,['operation','name','arguments'])||!['list','call','model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed','infinity_status','infinity_embed','gap_status','gap_solve','gap_route'].includes(q.operation))throw Error('invalid request');
+ if(['list','model_list','polymind_list','autogenesis_roles','agentic_native_catalog','infinity_status','gap_status'].includes(q.operation)&&Object.keys(q).length!==1)throw Error('invalid list');
  if(q.operation==='call'&&(typeof q.name!=='string'||!plain(q.arguments)))throw Error('invalid call');
- if(q.operation==='infinity_status'){
+ if(q.operation==='gap_status'){
+ process.stdout.write(JSON.stringify(infinityInvoke('gaps'))+'\n');
+ }else if(q.operation==='gap_solve'){
+ if(Object.keys(q).length!==2||!plain(q.arguments))throw Error('invalid deterministic task');
+ process.stdout.write(JSON.stringify({schema:'umbra.gap.tool.v1',result:solveStructured(q.arguments),production_authority:false})+'\n');
+ }else if(q.operation==='gap_route'){
+ if(Object.keys(q).length!==2||!ownKeys(q.arguments,['domain'])||typeof q.arguments.domain!=='string')throw Error('invalid capability routing');
+ process.stdout.write(JSON.stringify(routeCapability(infinityInvoke('gaps'),q.arguments.domain,(await availableAdapters()).adapters,freemem(),await ollamaBusy()))+'\n');
+ }else if(q.operation==='infinity_status'){
  process.stdout.write(JSON.stringify(infinityInvoke('status'))+'\n');
  }else if(q.operation==='infinity_embed'){
  if(Object.keys(q).length!==2||!plain(q.arguments))throw Error('invalid infinity request');
@@ -62,7 +74,7 @@ try{
  request(bridge,1,'initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'umbra-owner-once',version:'1.0.0'}});
  bridge.handle({jsonrpc:'2.0',method:'notifications/initialized',params:{}});
  const listed=request(bridge,2,'tools/list',{});
- let output={...listed,owner_local_model_operations:['model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed','infinity_status','infinity_embed']};
+ let output={...listed,owner_local_model_operations:['model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed','infinity_status','infinity_embed','gap_status','gap_solve','gap_route']};
  if(q.operation==='call'){
   if(!listed.tools.some(t=>t.name===q.name))throw Error('tool unavailable');
   const r=request(bridge,3,'tools/call',{name:q.name,arguments:q.arguments});

@@ -54,3 +54,7 @@ See [HF weight cache](HF_WEIGHT_CACHE.md): owner-only eviction and checksum-pinn
 
 ### UMBRA INFINITY Ω
 See [INFINITY](INFINITY.md) for the autonomous public model discovery, bounded retrieval qualification, managed-cache rotation, local scheduling and current limitations.
+
+
+### Intelligence gap detection and consolidated handoff
+See [Gap detection](GAP_DETECTION.md) and [Master handoff](MASTER_HANDOFF_20261124.md) for evidence-driven capability assessment, benchmarked local models, deterministic fallbacks, discovery prioritization, automatic audit scheduling, and remaining qualification work. No broad intelligence or production qualification is asserted.

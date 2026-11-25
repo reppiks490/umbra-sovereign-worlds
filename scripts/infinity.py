@@ -3,6 +3,7 @@ import argparse,hashlib,json,math,os,re,shutil,time,urllib.parse
 from pathlib import Path
 from agentic_native import SUPPORTED,LICENSES,REPO,HEX,read_receipt,SafeWeights,embed,available_ram
 from hf_weight_cache import Cache,MIN_FREE,lock,request,metadata
+DISCOVERY_TASKS=('feature-extraction','sentence-similarity','text-classification','time-series-forecasting','image-classification','automatic-speech-recognition','text-generation','text2text-generation','question-answering','token-classification','text-ranking','object-detection','image-feature-extraction','audio-classification')
 CAP=10**9
 MAX_MODEL=400*10**6
 FILES=('model.safetensors','config.json','tokenizer.json','tokenizer_config.json','special_tokens_map.json','vocab.txt','modules.json','1_Pooling/config.json','README.md','LICENSE','LICENSE.txt')
@@ -39,7 +40,7 @@ def discover_candidates():
  return rows
 def scan_catalog():
  rows=[]
- for task in ('feature-extraction','sentence-similarity','text-classification','time-series-forecasting','image-classification','automatic-speech-recognition'):
+ for task in DISCOVERY_TASKS:
   try:
    url='https://huggingface.co/api/models?'+urllib.parse.urlencode({'pipeline_tag':task,'filter':'safetensors','sort':'downloads','direction':-1,'limit':30})
    with request(url) as r:data=json.loads(r.read(4*1024**2))
@@ -54,8 +55,8 @@ def refresh_catalog(root):
  with lock(d/'discovery.lock'):
   if p.exists():
    prior=json.loads(p.read_text(encoding='utf8'))
-   if int(time.time())-prior.get('updated',0)<86400:return prior
-  result={'updated':int(time.time()),'models':scan_catalog(),'status':'discovery_only'}
+   if prior.get('discovery_version')==2 and int(time.time())-prior.get('updated',0)<86400:return prior
+  result={'updated':int(time.time()),'models':scan_catalog(),'status':'discovery_only','discovery_version':2}
   if not result['models'] and p.exists():return prior
   tmp=d/('discovery.'+str(os.getpid())+'.tmp')
   with tmp.open('x',encoding='utf8') as f:json.dump(result,f);f.flush();os.fsync(f.fileno())
@@ -172,12 +173,17 @@ def rotate(root):
    except (ValueError,OSError):continue
  return out
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--root',required=True,type=Path);p.add_argument('action',choices=['scan','cycle','status','embed']);a=p.parse_args();root=a.root.resolve()
+ p=argparse.ArgumentParser();p.add_argument('--root',required=True,type=Path);p.add_argument('action',choices=['scan','cycle','status','embed','gaps']);a=p.parse_args();root=a.root.resolve()
  if a.action=='scan':print(json.dumps(refresh_catalog(root)))
  elif a.action=='embed':
   import sys
   print(json.dumps(auto_embed(root,sys.stdin.read(2049))))
  elif a.action=='status':print(json.dumps(load_state(root)))
+ elif a.action=='gaps':
+  f=root/'infinity'/'gaps'/'report.json'
+  if not f.exists():print(json.dumps({'status':'unmeasured','production_authority':False}))
+  elif f.is_symlink() or f.stat().st_size>8*1024**2:raise ValueError('audit report budget')
+  else:print(f.read_text(encoding='utf8'))
  else:
   result=run_cycle(root)
   if result['status']=='completed':

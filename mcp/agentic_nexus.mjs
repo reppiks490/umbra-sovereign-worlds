@@ -76,8 +76,8 @@ export function semanticRecall(model,mission,records,{embed=nativeMissionEmbeddi
 
 export function infinityInvoke(action,mission){
  const c=config();
- if(!c){if(action==='status')return {status:'unconfigured',production_authority:false};throw Error('infinity not configured');}
- if(!['status','embed'].includes(action))throw Error('invalid infinity operation');
+ if(!c){if(['status','gaps'].includes(action))return {status:'unconfigured',production_authority:false};throw Error('infinity not configured');}
+ if(!['status','embed','gaps'].includes(action))throw Error('invalid infinity operation');
  const env={};for(const k of ['SystemRoot','SYSTEMROOT','WINDIR','TEMP','TMP','TMPDIR','LANG','PATH','Path'])if(process.env[k]!==undefined)env[k]=process.env[k];
  Object.assign(env,{OPENBLAS_NUM_THREADS:'1',OMP_NUM_THREADS:'1',MKL_NUM_THREADS:'1',TOKENIZERS_PARALLELISM:'false',PYTHONNOUSERSITE:'1'});
  const p=spawnSync(c.python,[join(ROOT,'scripts','infinity.py'),'--root',c.root,action],{input:action==='embed'?missionText(mission):undefined,encoding:'utf8',cwd:ROOT,env,timeout:120000,maxBuffer:2097152,windowsHide:true});

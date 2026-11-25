@@ -33,3 +33,12 @@ class ServiceTest(unittest.TestCase):
   with tempfile.TemporaryDirectory() as d:
    p=pathlib.Path(d);self.assertEqual(queue_ready(p),'initial_queue_not_verified')
    (p/'active.lock').write_text('owner');self.assertEqual(queue_ready(p),'deferred_acquisition')
+class GapScheduleTest(unittest.TestCase):
+ def test_audit_mode_never_probes_during_initial_download(self):
+  from infinity_service import gap_command
+  p=pathlib.Path('C:/private')
+  self.assertEqual(gap_command(p,'deferred_acquisition')[-1],'audit')
+  self.assertEqual(gap_command(p,'ready')[-1],'probe')
+ def test_discovery_covers_reasoning_and_multimodal_tasks(self):
+  from infinity import DISCOVERY_TASKS
+  self.assertTrue({'text-generation','question-answering','time-series-forecasting','image-classification','automatic-speech-recognition'}<=set(DISCOVERY_TASKS))

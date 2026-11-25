@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createMission} from '../mcp/agentic_swarm.mjs';
+import {semanticRank,missionText,validateEmbedding,nexusCatalog} from '../mcp/agentic_nexus.mjs';
+const h='a'.repeat(64), rev='b'.repeat(40);
+const model={repo:'sentence-transformers/all-MiniLM-L6-v2',revision:rev,digest:h,runtime:'numpy-bert',weights_verified:true,inference_verified:false,size_bytes:90e6};
+const embed=(v)=>({schema:'umbra.native.embedding.v1',model:model.repo,revision:rev,weight_sha256:h,dimensions:v.length,embedding:v,inference_verified:true,synthetic:true,research_qualified:false,production_authority:false});
+test('mission embedding text excludes promotion outcomes',()=>{const m=createMission({seed:9,steps:4});assert.equal(missionText(m),missionText(m));assert.ok(!missionText(m).includes('holdout'));assert.throws(()=>missionText({...m,candidates:[]}));});
+test('native embedding identity and finite normalized outputs are required',()=>{assert.deepEqual(validateEmbedding(embed([1,0]),model),[1,0]);assert.throws(()=>validateEmbedding(embed([3,0]),model));assert.throws(()=>validateEmbedding({...embed([1,0]),weight_sha256:'c'.repeat(64)},model));});
+test('semantic memory ranks cosine similarity rather than textual labels',()=>{const x=semanticRank([1,0],[{id:'a',embedding:[0,1]},{id:'b',embedding:[.8,.6]}]);assert.equal(x[0].id,'b');assert.ok(Math.abs(x[0].similarity-.8)<1e-8);assert.throws(()=>semanticRank([1,0],[{id:'a',embedding:[1]}]));});
+test('unconfigured native catalog does not invent downloaded models',async()=>{const c=await nexusCatalog({ollama:async()=>({adapters:[]}),native:()=>({models:[]})});assert.deepEqual(c.models,[]);assert.equal(c.production_authority,false);});

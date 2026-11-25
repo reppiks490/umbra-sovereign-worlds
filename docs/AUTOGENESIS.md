@@ -16,3 +16,7 @@ The separate owner-local acquisition process is queued behind Q8 and is not part
 
 ## Neural ensemble and numerical distillation
 A dependency-free two-layer tanh regression network trains actual floating-point weights by batch gradient descent. Three members have distinct deterministic initializations and bootstrap samples. Training and validation are split 75/25 within the experience bank, before a separate eight-world promotion holdout. Validation MSE selects linear or neural prediction; committee uncertainty penalizes the ranking score when selected. A smaller student is fit to teacher predictions and measured on the validation slice. These are synthetic numerical models, not fine-tuning or distillation of Qwen or the downloaded language models. The 220-observation local experiment exercised all 100 policy roles plus 44 mutations, selected the linear predictor (MSE 0.001971 vs committee 0.002042), and promoted a candidate on 6/8 holdout seeds with mean delta 0.004557. Full Node suite: 103 passing. No empirical qualification.
+
+
+### Agentic Nexus Ω
+See [Agentic Nexus](AGENTIC_NEXUS.md) for the owner-local council, native BERT inference, experience bank, replay-verified training and adaptive model routing. Synthetic evaluation only; native pretrained inference and broad agentic capability remain unqualified.

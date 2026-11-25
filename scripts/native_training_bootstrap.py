@@ -108,6 +108,11 @@ def cmd(args,env):
    while p.poll() is None:time.sleep(3);gate()
   except Exception:p.terminate();p.wait();raise
   if p.returncode:raise RuntimeError('dependency stage failed: '+str(p.returncode))
+def torch_ready(py):
+ try:
+  r=subprocess.run([str(py),'-c','import torch; assert torch.__version__.split("+")[0]=="2.8.0"; assert torch.version.cuda is None; assert torch.ones(2).sum().item()==2'],capture_output=True,timeout=90)
+  return r.returncode==0
+ except (OSError,subprocess.TimeoutExpired):return False
 def after_queue_ready():
  root=Path.home()/'projects'/'umbra-agentic-native-20261124'
  if (root/'active.lock').exists():return False
@@ -134,16 +139,24 @@ def main(after_queue=False):
   env={**os.environ,'TMP':str(temp),'TEMP':str(temp),'PIP_NO_CACHE_DIR':'1','PIP_DISABLE_PIP_VERSION_CHECK':'1','HF_HUB_DISABLE_TELEMETRY':'1','OMP_NUM_THREADS':'1','MKL_NUM_THREADS':'1'}
   venv=ROOT/'venv';py=venv/'Scripts'/'python.exe'
   if not py.exists():cmd([sys.executable,'-m','venv',str(venv)],env)
-  log('PULL_OFFICIAL_WINDOWS_TORCH',TORCH_SIZE)
-  wheel_dir=ROOT/'wheels';wheel_dir.mkdir(exist_ok=True);wheel=wheel_dir/TORCH_WHEEL
-  download_verified(TORCH_URL,wheel,TORCH_SIZE,TORCH_SHA)
-  log('INSTALL_CPU_TORCH')
-  cmd([str(py),'-m','pip','install','--no-cache-dir','--timeout','120','--retries','5','--index-url','https://pypi.org/simple',str(wheel)],env)
-  cmd([str(py),'-c','import torch; assert torch.version.cuda is None; assert torch.ones(2).sum().item()==2; print(torch.__version__,torch.version.cuda)'],env)
-  if digest(wheel,'sha256')!=TORCH_SHA:raise ValueError('wheel changed')
-  wheel.unlink()
+  if torch_ready(py):log('REUSE_VERIFIED_CPU_TORCH')
+  else:
+   log('PULL_OFFICIAL_WINDOWS_TORCH',TORCH_SIZE)
+   wheel_dir=ROOT/'wheels';wheel_dir.mkdir(exist_ok=True);wheel=wheel_dir/TORCH_WHEEL
+   download_verified(TORCH_URL,wheel,TORCH_SIZE,TORCH_SHA)
+   log('INSTALL_CPU_TORCH')
+   cmd([str(py),'-m','pip','install','--no-cache-dir','--timeout','120','--retries','5','--index-url','https://pypi.org/simple',str(wheel)],env)
+   cmd([str(py),'-c','import torch; assert torch.version.cuda is None; assert torch.ones(2).sum().item()==2; print(torch.__version__,torch.version.cuda)'],env)
+   if digest(wheel,'sha256')!=TORCH_SHA:raise ValueError('wheel changed')
+   wheel.unlink()
   log('INSTALL_TRAINING_STACK')
-  cmd([str(py),'-m','pip','install','--no-cache-dir','--timeout','120','--retries','5','--index-url','https://pypi.org/simple','transformers==4.57.3','peft==0.18.0','accelerate==1.12.0','safetensors==0.6.2'],env)
+  for package in ('safetensors==0.6.2','transformers==4.57.3','accelerate==1.12.0','peft==0.18.0'):
+   for attempt in range(3):
+    try:
+     cmd([str(py),'-m','pip','install','--no-cache-dir','--timeout','120','--retries','5','--index-url','https://pypi.org/simple',package],env);break
+    except RuntimeError:
+     if attempt==2:raise
+     log('DEPENDENCY_RETRY',package,attempt+1);time.sleep(30*(attempt+1))
   cmd([str(py),'-c','import torch,transformers,peft,accelerate,safetensors; print(torch.__version__,transformers.__version__,peft.__version__,accelerate.__version__,safetensors.__version__); assert torch.version.cuda is None; assert torch.ones(2).sum().item()==2'],env)
   log('RUNTIME_VERIFIED',used())
   for row in SOURCES:fetch_source(*row)

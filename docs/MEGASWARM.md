@@ -49,3 +49,7 @@ See [OMNISCIENCE](OMNISCIENCE.md) for the six-division curriculum and pinned, di
 
 ### Local repository fabric
 See [LOCAL_REPOSITORY_FABRIC](LOCAL_REPOSITORY_FABRIC.md) for the mounted-drive and WSL discovery, existing MYRIAD manifest reconciliation, shared source registry, verified agent inheritance and post-acquisition qualification gates. Local source availability is not executable integration.
+
+
+### Acquisition recovery
+See [ACQUISITION_RECOVERY](ACQUISITION_RECOVERY.md) for the resumed Q8 and neural/tiny queue, automated retries, reuse of installed CPU PyTorch, storage admission and actual outstanding downloads.

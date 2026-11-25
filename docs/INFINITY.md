@@ -16,3 +16,7 @@ See [Gap detection](GAP_DETECTION.md) and [Master handoff](MASTER_HANDOFF_202611
 
 ### MEGASWARM Ω and native training
 See [MEGASWARM](MEGASWARM.md) for the 4,096 shared-weight agent population, verified cross-model teaching, numerical learning and research, native training bootstrap, autonomous scheduling, pilot LoRA gates, evidence and unresolved limitations. Logical agents are not independent trained weight copies; native fine-tuning remains unverified pending download and RAM admission.
+
+
+### Acquisition recovery
+See [ACQUISITION_RECOVERY](ACQUISITION_RECOVERY.md) for the resumed Q8 and neural/tiny queue, automated retries, reuse of installed CPU PyTorch, storage admission and actual outstanding downloads.

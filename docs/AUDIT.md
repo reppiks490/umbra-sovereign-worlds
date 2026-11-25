@@ -71,3 +71,7 @@ See [LOCAL_REPOSITORY_FABRIC](LOCAL_REPOSITORY_FABRIC.md) for the mounted-drive 
 
 ### Verified repository execution and learning
 See [REPOSITORY_EXECUTION_LEARNING](REPOSITORY_EXECUTION_LEARNING.md) for five real pinned numerical adapters, source browsing, six replayed repository lessons, complete corpus audit, scheduler readiness gate, download recovery and remaining qualification work. This does not certify whole-package execution or trained LLM weights.
+
+
+### Acquisition recovery
+See [ACQUISITION_RECOVERY](ACQUISITION_RECOVERY.md) for the resumed Q8 and neural/tiny queue, automated retries, reuse of installed CPU PyTorch, storage admission and actual outstanding downloads.

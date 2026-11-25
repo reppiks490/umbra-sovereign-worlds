@@ -2,6 +2,7 @@
 import argparse,json,os,time,subprocess,shutil,sys
 from pathlib import Path
 from infinity import refresh_catalog,run_cycle,rotate
+from acquisition_recovery import recover
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
 from urllib.request import urlopen
@@ -27,19 +28,20 @@ def run_gap_audit(root,status):
  p=subprocess.run(gap_command(root,status),capture_output=True,text=True,timeout=300,check=True)
  r=json.loads(p.stdout)
  return {k:r.get(k) for k in ('status','probe_status','total_probes','high_confidence_errors','discovered_candidates')}
-def bootstrap_plan(training,status,free,last,now):
+def bootstrap_plan(training,status,free,last,now,used_bytes=0):
  if (training/'bootstrap.lock').exists():return {'status':'running'}
  if (training/'ready.json').exists():return {'status':'ready_marker'}
- if now-last<21600:return {'status':'deferred_cooldown'}
+ if now-last<(1800 if status=='ready' else 21600):return {'status':'deferred_cooldown'}
  after=status=='ready'
- if free<(12500000000 if after else 51000000000):return {'status':'deferred_storage'}
+ if free<(8000000000+max(0,4500000000-used_bytes) if after else 51000000000):return {'status':'deferred_storage'}
  return {'status':'eligible','after_queue':after}
 def resume_bootstrap(root,training,status):
  training.mkdir(exist_ok=True)
  stamp=training/'service-attempt.json';now=int(time.time())
  try:last=int(json.loads(stamp.read_text(encoding='utf8'))['timestamp'])
  except (OSError,ValueError,KeyError,TypeError):last=0
- plan=bootstrap_plan(training,status,shutil.disk_usage(training).free,last,now)
+ from native_training_bootstrap import used
+ plan=bootstrap_plan(training,status,shutil.disk_usage(training).free,last,now,used() if status=='ready' else 0)
  if plan['status']!='eligible':return plan
  # The isolated native training venv is not used to create itself.
  python=Path(sys.base_prefix)/'python.exe'
@@ -112,6 +114,9 @@ def main(root):
  try:
   with lock(d/'service.lock'):
    result={'status':queue_ready(root)}
+   try:result['download_recovery']=recover(root)
+   except Exception as e:result['download_recovery_error']=type(e).__name__
+   result['status']=queue_ready(root)
    ready=result['status']
    training=Path.home()/'projects'/'umbra-train-native-20261124'
    try:result['discovered']=len(refresh_catalog(root)['models'])

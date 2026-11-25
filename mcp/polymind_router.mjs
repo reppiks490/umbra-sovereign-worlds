@@ -6,7 +6,9 @@ import {isAbsolute,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {simulate,DEFAULT_POLICY,ENGINE_VERSION} from '../engine.mjs';
 import {civicAudit} from '../society.mjs';
-import {availableAdapters,runModelAdapter} from './local_model_adapters.mjs';
+import {freemem} from 'node:os';
+import {planAdmission} from './polymind_admission.mjs';
+import {availableAdapters,runModelAdapter,ollamaBusy} from './local_model_adapters.mjs';
 const ROOT=fileURLToPath(new URL('../',import.meta.url));
 const hex=/^[a-f0-9]{64}$/, rev=/^[a-f0-9]{40}$/, repo=/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const tasks={'feature-extraction':'retrieval','sentence-similarity':'retrieval','text-classification':'classification','token-classification':'classification','text-ranking':'ranking','question-answering':'research','zero-shot-classification':'classification'};
@@ -53,4 +55,9 @@ export async function polymindRun(a,{ollama=availableAdapters,external:ext=exter
  if(a.runtime==='onnxruntime'&&(r.schema!=='umbra.polymind.inference.v1'||r.revision!==chosen.revision||r.weight_sha256!==chosen.weight_sha256||!Array.isArray(r.outputs)||!r.outputs.length||r.outputs.length>16||r.outputs.some(x=>!hex.test(x.sha256)||!Array.isArray(x.shape)||x.shape.length>8||x.shape.some(n=>!Number.isSafeInteger(n)||n<0))))throw Error('invalid external receipt');
  if(a.runtime==='ollama'&&(r.schema!=='umbra.local_adapter_receipt.v1'||r.world?.seed!==a.seed||r.world?.tick!==a.steps))throw Error('invalid Ollama receipt');
  return {schema:'umbra.polymind.dispatch.v1',engine:ENGINE_VERSION,synthetic:true,production_authority:false,research_qualified:false,runtime:a.runtime,role:a.role,world,world_sha256:hash(world),result:r};
+}
+
+export async function polymindPlan(a,{list=polymindList,free=freemem,busy=ollamaBusy}={}){
+ if(!plain(a)||Object.keys(a).length!==1||typeof a.role!=='string')throw Error('invalid plan request');
+ const catalog=await list();const occupied=await busy();return planAdmission(catalog,a.role,free(),occupied);
 }

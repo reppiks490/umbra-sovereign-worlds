@@ -16,3 +16,7 @@ The owner-configured native catalog exposes archived entries with availability=r
 Tests: npm test; Python unittest discovery for test_hf_weight_cache.py and test_agentic_native.py. Cache tests cover exact round-trip, preserved receipts, changed weights/source, acquisition lock, failed restore and reserve; Node tests cover truthful remote inventory. Tests use isolated fixtures. Live public-weight proof is separate from the production queue.
 
 Verified live round trip: ibm-granite/granite-timeseries-ttm-r2 revision d6a79570cac0f33d526601cd3a0fc7c80a8f9a2f, 3,240,592 bytes, SHA-256 a706726a7eb01bbcb42994b7dcb3c06ea9557898dbae8d480eb04fe8ccb89710. Initial restoration, explicit eviction, remote-only registry status and identical restoration succeeded in an isolated disposable test directory. No production weights removed. Full Node suite 120/120; HF cache Python tests 5/5; native inference Python tests 3/3. This verifies weight transport, not model inference.
+
+
+### UMBRA INFINITY Ω
+See [INFINITY](INFINITY.md) for the autonomous public model discovery, bounded retrieval qualification, managed-cache rotation, local scheduling and current limitations.

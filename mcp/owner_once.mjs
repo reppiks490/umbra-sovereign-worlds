@@ -6,7 +6,7 @@ import {availableAdapters,runModelAdapter} from './local_model_adapters.mjs';
 import {polymindList,polymindRun,polymindPlan} from './polymind_router.mjs';
 import {runEvolution,ROLES} from './autogenesis.mjs';
 import {createMission,runCouncil} from './agentic_swarm.mjs';
-import {nexusCatalog,nativeMissionEmbedding} from './agentic_nexus.mjs';
+import {nexusCatalog,nativeMissionEmbedding,infinityInvoke} from './agentic_nexus.mjs';
 const plain=x=>x!==null&&typeof x==='object'&&!Array.isArray(x)&&Object.getPrototypeOf(x)===Object.prototype;
 const ownKeys=(x,allowed)=>plain(x)&&Object.keys(x).every(k=>allowed.includes(k));
 async function readRequest(){
@@ -21,10 +21,15 @@ function request(bridge,id,method,params){
 }
 try{
  const q=await readRequest();
- if(!ownKeys(q,['operation','name','arguments'])||!['list','call','model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed'].includes(q.operation))throw Error('invalid request');
- if(['list','model_list','polymind_list','autogenesis_roles','agentic_native_catalog'].includes(q.operation)&&Object.keys(q).length!==1)throw Error('invalid list');
+ if(!ownKeys(q,['operation','name','arguments'])||!['list','call','model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed','infinity_status','infinity_embed'].includes(q.operation))throw Error('invalid request');
+ if(['list','model_list','polymind_list','autogenesis_roles','agentic_native_catalog','infinity_status'].includes(q.operation)&&Object.keys(q).length!==1)throw Error('invalid list');
  if(q.operation==='call'&&(typeof q.name!=='string'||!plain(q.arguments)))throw Error('invalid call');
- if(q.operation==='agentic_native_catalog'){
+ if(q.operation==='infinity_status'){
+ process.stdout.write(JSON.stringify(infinityInvoke('status'))+'\n');
+ }else if(q.operation==='infinity_embed'){
+ if(Object.keys(q).length!==2||!plain(q.arguments))throw Error('invalid infinity request');
+ process.stdout.write(JSON.stringify(infinityInvoke('embed',createMission(q.arguments)))+'\n');
+ }else if(q.operation==='agentic_native_catalog'){
  process.stdout.write(JSON.stringify(await nexusCatalog())+'\n');
  }else if(['agentic_plan','agentic_council','agentic_native_embed'].includes(q.operation)){
  if(Object.keys(q).length!==2||!plain(q.arguments))throw Error('invalid agentic request');
@@ -57,7 +62,7 @@ try{
  request(bridge,1,'initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'umbra-owner-once',version:'1.0.0'}});
  bridge.handle({jsonrpc:'2.0',method:'notifications/initialized',params:{}});
  const listed=request(bridge,2,'tools/list',{});
- let output={...listed,owner_local_model_operations:['model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed']};
+ let output={...listed,owner_local_model_operations:['model_list','model','polymind_list','polymind','polymind_plan','autogenesis_run','autogenesis_roles','agentic_plan','agentic_council','agentic_native_catalog','agentic_native_embed','infinity_status','infinity_embed']};
  if(q.operation==='call'){
   if(!listed.tools.some(t=>t.name===q.name))throw Error('tool unavailable');
   const r=request(bridge,3,'tools/call',{name:q.name,arguments:q.arguments});

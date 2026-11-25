@@ -73,3 +73,20 @@ export function semanticRecall(model,mission,records,{embed=nativeMissionEmbeddi
  const rows=records.map(r=>{const e=embed(model,r.mission);if(e.weight_sha256!==q.weight_sha256||e.revision!==q.revision)throw Error('embedding revision mismatch');return {id:r.mission_id,embedding:e.embedding};});
  return semanticRank(q.embedding,rows);
 }
+
+export function infinityInvoke(action,mission){
+ const c=config();
+ if(!c){if(action==='status')return {status:'unconfigured',production_authority:false};throw Error('infinity not configured');}
+ if(!['status','embed'].includes(action))throw Error('invalid infinity operation');
+ const env={};for(const k of ['SystemRoot','SYSTEMROOT','WINDIR','TEMP','TMP','TMPDIR','LANG','PATH','Path'])if(process.env[k]!==undefined)env[k]=process.env[k];
+ Object.assign(env,{OPENBLAS_NUM_THREADS:'1',OMP_NUM_THREADS:'1',MKL_NUM_THREADS:'1',TOKENIZERS_PARALLELISM:'false',PYTHONNOUSERSITE:'1'});
+ const p=spawnSync(c.python,[join(ROOT,'scripts','infinity.py'),'--root',c.root,action],{input:action==='embed'?missionText(mission):undefined,encoding:'utf8',cwd:ROOT,env,timeout:120000,maxBuffer:2097152,windowsHide:true});
+ if(p.error||p.status!==0)throw Error('infinity operation unavailable');
+ const r=JSON.parse(p.stdout);
+ if(action==='embed'){
+  const s=infinityInvoke('status'),m=s.champion;
+  if(!m||m.status!=='qualified')throw Error('no qualified champion');
+  validateEmbedding(r,{repo:m.repo,revision:m.revision,digest:m.digest});
+ }
+ return {...r,production_authority:false};
+}

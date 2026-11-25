@@ -39,3 +39,7 @@ See [Agentic Nexus](AGENTIC_NEXUS.md) for the owner-local council, native BERT i
 
 ### Hugging Face-backed weight cache
 See [HF weight cache](HF_WEIGHT_CACHE.md): owner-only eviction and checksum-pinned restoration of original public single-file native weights, remote registry and opt-in supported-model retrieval. No automatic deletion, private uploads or Ollama weight eviction.
+
+
+### UMBRA INFINITY Ω
+See [INFINITY](INFINITY.md) for the autonomous public model discovery, bounded retrieval qualification, managed-cache rotation, local scheduling and current limitations.

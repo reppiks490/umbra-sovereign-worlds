@@ -42,3 +42,33 @@ class GapScheduleTest(unittest.TestCase):
  def test_discovery_covers_reasoning_and_multimodal_tasks(self):
   from infinity import DISCOVERY_TASKS
   self.assertTrue({'text-generation','question-answering','time-series-forecasting','image-classification','automatic-speech-recognition'}<=set(DISCOVERY_TASKS))
+
+class SwarmScheduleTest(unittest.TestCase):
+ def test_bootstrap_protects_live_inference_and_training(self):
+  from infinity_service import swarm_command, native_training_plan
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);training=root/'training';training.mkdir()
+   (training/'bootstrap.lock').write_text('active')
+   self.assertEqual(swarm_command(root,training)[-1],'init')
+   self.assertEqual(native_training_plan(root,training,'ready',10**10)['status'],'deferred_bootstrap')
+   (training/'bootstrap.lock').unlink()
+   self.assertEqual(swarm_command(root,training)[-1],'cycle')
+   self.assertEqual(native_training_plan(root,training,'deferred_acquisition',10**10)['status'],'deferred_acquisition')
+ def test_native_training_fails_closed_without_memory(self):
+  from infinity_service import native_training_plan
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);training=root/'training';training.mkdir()
+   (training/'ready.json').write_text('{"runtime_verified":true,"native_sources_verified":true}')
+   self.assertEqual(native_training_plan(root,training,'ready',1)['status'],'deferred_memory')
+
+class BootstrapRecoveryTest(unittest.TestCase):
+ def test_retry_plan_preserves_active_jobs_and_reserves(self):
+  from infinity_service import bootstrap_plan
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);training=root/'training';training.mkdir()
+   (training/'bootstrap.lock').write_text('active')
+   self.assertEqual(bootstrap_plan(training,'ready',60*10**9,0,100000)['status'],'running')
+   (training/'bootstrap.lock').unlink()
+   self.assertEqual(bootstrap_plan(training,'deferred_acquisition',50*10**9,0,100000)['status'],'deferred_storage')
+   self.assertEqual(bootstrap_plan(training,'ready',20*10**9,0,100000)['status'],'eligible')
+   self.assertEqual(bootstrap_plan(training,'ready',20*10**9,99999,100000)['status'],'deferred_cooldown')

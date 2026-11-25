@@ -1,0 +1,127 @@
+"""Bounded CPU LoRA pilot on verified native checkpoints; never overwrite originals."""
+import argparse,ctypes,hashlib,json,math,os,re,shutil,time
+from pathlib import Path
+from native_training_bootstrap import SOURCES
+MODELS={'qwen3:0.6b':SOURCES[0],'granite4:350m':SOURCES[1]}
+def required_memory(model):
+ if model not in MODELS:raise ValueError('unsupported model')
+ return 7500000000 if model=='qwen3:0.6b' else 4500000000
+def validate_corpus(x,model):
+ if x.get('schema')!='umbra.swarm.corpus.v1' or x.get('model')!=model or model not in MODELS:raise ValueError('corpus identity')
+ seen=set()
+ for key,lo,hi in [('training',32,128),('retention',8,32),('transfer',8,32)]:
+  rows=x.get(key)
+  if not isinstance(rows,list) or not lo<=len(rows)<=hi:raise ValueError('corpus bounds')
+  for r in rows:
+   p=r.get('prompt');a=r.get('answer');opts=r.get('options')
+   if not isinstance(p,str) or not 1<=len(p)<=512 or not isinstance(a,str) or not isinstance(opts,list) or len(opts)!=4 or not all(isinstance(o,str) and 1<=len(o)<=256 for o in opts) or len(set(opts))!=4 or a not in opts:raise ValueError('corpus example')
+   h=hashlib.sha256(p.encode()).hexdigest()
+   if h!=r.get('prompt_sha256') or h in seen:raise ValueError('duplicate or corrupted prompt')
+   seen.add(h)
+   if r.get('source')=='teacher' and (r.get('teacher')==model or not re.fullmatch('[a-f0-9]{64}',r.get('teacher_digest','')) or not re.fullmatch('[a-f0-9]{64}',r.get('lesson_evidence',''))):raise ValueError('teacher provenance')
+ return x
+def promotion_gate(before,after):
+ return all(math.isfinite(x) and x>=0 for x in [before['retention'],before['transfer'],after['retention'],after['transfer']]) and after['retention']<=before['retention']+.02 and after['transfer']<before['transfer']-.01
+def available_ram():
+ if os.name=='nt':
+  from ctypes import wintypes
+  class M(ctypes.Structure):_fields_=[('length',wintypes.DWORD),('load',wintypes.DWORD)]+[(k,ctypes.c_ulonglong) for k in ('total','avail','page','pageavail','virtual','virtualavail','extended')]
+  m=M();m.length=ctypes.sizeof(m)
+  if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)):raise ValueError('memory unavailable')
+  return m.avail
+ return os.sysconf('SC_AVPHYS_PAGES')*os.sysconf('SC_PAGE_SIZE')
+def filehash(p):
+ h=hashlib.sha256()
+ with p.open('rb') as f:
+  for b in iter(lambda:f.read(1024**2),b''):h.update(b)
+ return h.hexdigest()
+def read_json(p,limit=2*1024**2):
+ if p.is_symlink() or not p.is_file() or p.stat().st_size>limit:raise ValueError('invalid JSON file')
+ return json.loads(p.read_text(encoding='utf8'))
+def verified_source(root,model):
+ repo,rev,sha,size=MODELS[model];p=root/'sources'/(repo.replace('/','--')+'--'+rev[:12]);r=read_json(p/'receipt.json')
+ if r.get('repo')!=repo or r.get('revision')!=rev or r.get('weights_sha256')!=sha or r.get('native_verified') is not True:raise ValueError('source identity')
+ files=r.get('files')
+ if not isinstance(files,list) or len(files)>20 or len({x['name'] for x in files})!=len(files):raise ValueError('source inventory')
+ for x in files:
+  name=x['name'];f=p/name
+  if not re.fullmatch('[A-Za-z0-9_.-]+',name) or name in ('.','..') or f.is_symlink() or not f.is_file() or f.stat().st_size!=x['size'] or filehash(f)!=x['sha256']:raise ValueError('source corruption')
+ w=p/'model.safetensors'
+ if w.stat().st_size!=size or filehash(w)!=sha:raise ValueError('source weight mismatch')
+ return p
+def atomic(p,x):
+ t=p.with_name(p.name+'.'+str(os.getpid())+'.tmp')
+ with t.open('x',encoding='utf8') as f:json.dump(x,f,indent=2);f.flush();os.fsync(f.fileno())
+ os.replace(t,p)
+def run(root,workspace,model,corpus,steps=4):
+ if type(steps) is not int or not 1<=steps<=16:raise ValueError('step budget')
+ if not (root/'ready.json').is_file():return {'status':'deferred_bootstrap'}
+ if available_ram()<required_memory(model):return {'status':'deferred_memory','required_bytes':required_memory(model),'free_bytes':available_ram()}
+ if shutil.disk_usage(workspace).free<8000000000:return {'status':'deferred_storage'}
+ data=validate_corpus(read_json(corpus),model);source=verified_source(root,model)
+ bank=workspace/'llm_adapters'/model.replace(':','-');bank.mkdir(parents=True,exist_ok=True)
+ if sum(p.stat().st_size for p in (workspace/'llm_adapters').rglob('*') if p.is_file())>500000000:return {'status':'deferred_adapter_budget'}
+ lock=bank/'train.lock'
+ try:
+  with lock.open('x') as f:f.write(str(os.getpid()))
+ except FileExistsError:return {'status':'deferred_lock'}
+ try:
+  import torch
+  from transformers import AutoModelForCausalLM,AutoTokenizer
+  from peft import LoraConfig,get_peft_model,PeftModel
+  torch.set_num_threads(1);torch.manual_seed(int(data.get('seed',1)))
+  tok=AutoTokenizer.from_pretrained(str(source),local_files_only=True,trust_remote_code=False)
+  base=AutoModelForCausalLM.from_pretrained(str(source),local_files_only=True,trust_remote_code=False,use_safetensors=True,torch_dtype=torch.float32)
+  base.config.use_cache=False
+  active=bank/'active.json';prior=None
+  if active.exists():
+   prior=read_json(active)
+   name=prior.get('name','')
+   if not re.fullmatch('adapter-[a-f0-9]{16}',name) or prior.get('base_sha256')!=MODELS[model][2]:raise ValueError('incumbent identity')
+   folder=bank/name
+   for k in ('adapter_model.safetensors','adapter_config.json'):
+    if (folder/k).is_symlink() or filehash(folder/k)!=prior['files'][k]:raise ValueError('incumbent corruption')
+   net=PeftModel.from_pretrained(base,str(folder),is_trainable=True,local_files_only=True)
+  else:
+   net=get_peft_model(base,LoraConfig(r=4,lora_alpha=8,lora_dropout=0.0,target_modules=['q_proj','v_proj'],task_type='CAUSAL_LM'))
+  params=[p for p in net.parameters() if p.requires_grad]
+  if not params or sum(p.numel() for p in params)>20000000:raise ValueError('adapter budget')
+  def batch(row):
+   prefix='Question: '+row['prompt']+'\nOptions: '+ ' | '.join(row['options'])+'\nAnswer:'
+   a=tok.encode(prefix,add_special_tokens=False);b=tok.encode(' '+row['answer'],add_special_tokens=False)
+   if not a or not b or len(a+b)>256:raise ValueError('sequence budget')
+   return {'input_ids':torch.tensor([a+b]),'labels':torch.tensor([[-100]*len(a)+b]),'attention_mask':torch.ones((1,len(a+b)),dtype=torch.long)}
+  begin=time.monotonic()
+  def guard():
+   if time.monotonic()-begin>900 or available_ram()<1000000000:raise ValueError('training runtime budget')
+  def evaluate(rows):
+   net.eval();out=[]
+   with torch.no_grad():
+    for r in rows:guard();out.append(float(net(**batch(r)).loss))
+   if not all(math.isfinite(x) for x in out):raise ValueError('nonfinite evaluation')
+   return sum(out)/len(out)
+  before={k:evaluate(data[k]) for k in ('retention','transfer')}
+  opt=torch.optim.AdamW(params,lr=1e-4);losses=[]
+  # Alternate verified teacher and symbolic replay examples when both exist.
+  teach=[r for r in data['training'] if r['source']=='teacher'];replay=[r for r in data['training'] if r['source']!='teacher']
+  net.train()
+  for i in range(steps):
+   guard();rows=teach if teach and i%2==0 else replay or teach;r=rows[(i//2)%len(rows)]
+   opt.zero_grad();loss=net(**batch(r)).loss
+   if not torch.isfinite(loss):raise ValueError('nonfinite loss')
+   loss.backward();torch.nn.utils.clip_grad_norm_(params,1.0);opt.step();losses.append(float(loss.detach()))
+  after={k:evaluate(data[k]) for k in ('retention','transfer')}
+  accepted=promotion_gate(before,after)
+  result={'status':'evaluated','model':model,'base_sha256':MODELS[model][2],'before':before,'after':after,'steps':steps,'losses':losses,'trainable_parameters':sum(p.numel() for p in params),'accepted':accepted,'teacher_examples':len(teach),'scope':'synthetic answer-only NLL pilot; not general reasoning qualification','external_base_weights_modified':False,'adapter_weight_training':True,'production_authority':False}
+  if accepted:
+   name='adapter-'+hashlib.sha256((filehash(corpus)+str(time.time_ns())).encode()).hexdigest()[:16];stage=bank/(name+'.stage');stage.mkdir()
+   net.save_pretrained(str(stage),safe_serialization=True)
+   files={k:filehash(stage/k) for k in ('adapter_model.safetensors','adapter_config.json')}
+   if sum(p.stat().st_size for p in stage.rglob('*') if p.is_file())>50000000:raise ValueError('adapter size')
+   atomic(stage/'receipt.json',result);stage.rename(bank/name)
+   atomic(active,{'name':name,'base_sha256':MODELS[model][2],'files':files,'corpus_sha256':filehash(corpus)})
+  atomic(bank/'last-result.json',result);return result
+ finally:lock.unlink(missing_ok=True)
+if __name__=='__main__':
+ p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True);p.add_argument('--workspace',type=Path,required=True);p.add_argument('--model',choices=list(MODELS),required=True);p.add_argument('--corpus',type=Path,required=True);p.add_argument('--steps',type=int,default=4);a=p.parse_args()
+ print(json.dumps(run(a.root.resolve(),a.workspace.resolve(),a.model,a.corpus.resolve(),a.steps)),flush=True)

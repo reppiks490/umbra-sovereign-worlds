@@ -92,3 +92,7 @@ See [INFINITY](docs/INFINITY.md) for the autonomous public model discovery, boun
 
 ### Intelligence gap detection and consolidated handoff
 See [Gap detection](docs/GAP_DETECTION.md) and [Master handoff](docs/MASTER_HANDOFF_20261124.md) for evidence-driven capability assessment, benchmarked local models, deterministic fallbacks, discovery prioritization, automatic audit scheduling, and remaining qualification work. No broad intelligence or production qualification is asserted.
+
+
+### MEGASWARM Ω and native training
+See [MEGASWARM](docs/MEGASWARM.md) for the 4,096 shared-weight agent population, verified cross-model teaching, numerical learning and research, native training bootstrap, autonomous scheduling, pilot LoRA gates, evidence and unresolved limitations. Logical agents are not independent trained weight copies; native fine-tuning remains unverified pending download and RAM admission.

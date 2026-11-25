@@ -41,3 +41,7 @@ Local evidence from prior experiments may be in TEMP; copy verified checkpoints 
 
 ## Verification and handoff commands (for engineering recovery, not routine user interaction)
 Run npm test; Python unittest discover for test_infinity.py, test_hf_weight_cache.py and test_agentic_native.py using reviewed venv. Query Git HEAD, branch, diff and scheduled task status. Verify live Ollama tags and acquisition logs, never report queued models as installed. See AUTOGENESIS.md, AGENTIC_NEXUS.md, HF_WEIGHT_CACHE.md, INFINITY.md and GAP_DETECTION.md. PR #34 remains draft and unmerged. Use local owner automation for ordinary cycles; do not require the user to type commands for normal operation.
+
+
+### MEGASWARM Ω and native training
+See [MEGASWARM](MEGASWARM.md) for the 4,096 shared-weight agent population, verified cross-model teaching, numerical learning and research, native training bootstrap, autonomous scheduling, pilot LoRA gates, evidence and unresolved limitations. Logical agents are not independent trained weight copies; native fine-tuning remains unverified pending download and RAM admission.

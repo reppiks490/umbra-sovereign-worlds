@@ -25,3 +25,7 @@ Vary each of the seven parameters in predeclared increments, then use a small fa
 ## D: Audit record
 
 Exports contain seed, engine version, policy, generated data/assumptions, and optional experiment. The optional SHA-256 value only checks local file integrity and is not a signature or externally witnessed proof. The model engine is authoritative and recomputes state on import rather than trusting a snapshot of arbitrary serialized state.
+
+
+### AUTOGENESIS Ω (bounded synthetic learning)
+See [AUTOGENESIS documentation](AUTOGENESIS.md). Adds 100 strategy-role configurations, paired-seed exploration, learned numerical reward prediction, disjoint holdout promotion, checkpoint integrity and bounded owner-local endpoints. No independent trained agent fleet, native-model training, deployment or scientific qualification is implied.

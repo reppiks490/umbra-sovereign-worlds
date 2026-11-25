@@ -94,3 +94,7 @@ This is a **research and engineering roadmap, not a feature list of the current 
 Potential integrations mentioned by the owner (NOT activated by this package): GitHub/Codex Coordinator/Baton Pass/Akinator/Trellis/Linear for code workflow and structured knowledge; Supabase/Railway for persistence and deployment; Figma/MagicPath/MotionDesign/Runway/Hypernatural/PINOC/Voyager 3D/FFmpeg for design, motion, and production; NVIDIA/Hugging Face/Scite/Parallel/Exa/Tavily/Firecrawl for licensed AI/research pipelines; FMP/Massive/TickerLayer/Unusual Whales/CoinGecko and other finance feeds only if a later, clearly separate, permissioned economic simulation requires them. Personal Finances should **not** be used by default to build a fictional civilization. Avoid calls to all connected apps merely to inflate a feature count.
 
 **Major gating distinction:** Public evidence can inform scenario assumptions, but it does not automatically validate simulation equations or produce causal identification. The user must separately authorize account access, new costs, external writes, hosted deployment, real-world data, and trading. The current v4 is intentionally local-only.
+
+
+### AUTOGENESIS Ω (bounded synthetic learning)
+See [AUTOGENESIS documentation](AUTOGENESIS.md). Adds 100 strategy-role configurations, paired-seed exploration, learned numerical reward prediction, disjoint holdout promotion, checkpoint integrity and bounded owner-local endpoints. No independent trained agent fleet, native-model training, deployment or scientific qualification is implied.

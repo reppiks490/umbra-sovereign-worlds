@@ -27,3 +27,7 @@ Limitations of verification: scripts are served inline in the browser smoke test
 ## Permission / account boundaries
 
 No financial account, broker, wallet or private files used. No source keys accessed. No trades, API writes, paid model tasks, or changes to the user-provided `chatgpt.site` project. No GitHub source writes performed for UMBRA in this release. MagicPath external-agent quota was exhausted and not bypassed. No claims of multiple independent coding agents executing when they did not.
+
+
+### AUTOGENESIS Ω (bounded synthetic learning)
+See [AUTOGENESIS documentation](AUTOGENESIS.md). Adds 100 strategy-role configurations, paired-seed exploration, learned numerical reward prediction, disjoint holdout promotion, checkpoint integrity and bounded owner-local endpoints. No independent trained agent fleet, native-model training, deployment or scientific qualification is implied.

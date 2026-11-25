@@ -38,3 +38,7 @@ See `docs/UMBRA_LOCAL_MODEL_ADAPTERS.md`. The owner CLI now routes explicit mode
 ## POLYMIND continuation
 
 See `docs/UMBRA_POLYMIND.md`. The multi-source acquisition and owner-local unified dispatch branches extend #29/#30. Model discovery and one-request execution use existing Ollama or a separately configured ONNX Python environment; engine state is unchanged. Verify exact revision and actual owner catalog before inference. Preserve the disk reserve, distinguish download from inference qualification, and do not treat the catalog as a trained adapter bank.
+
+
+### AUTOGENESIS Ω (bounded synthetic learning)
+See [AUTOGENESIS documentation](AUTOGENESIS.md). Adds 100 strategy-role configurations, paired-seed exploration, learned numerical reward prediction, disjoint holdout promotion, checkpoint integrity and bounded owner-local endpoints. No independent trained agent fleet, native-model training, deployment or scientific qualification is implied.

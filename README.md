@@ -72,3 +72,7 @@ The project makes **no trading, profit, policy recommendation, real-world predic
 
 - Grimm et al., [ODD protocol for describing agent-based and other simulation models, second update](https://www.jasss.org/23/2/7.html) (2020). This documentation uses ODD-inspired reporting; **the current engine is an aggregate model, not a micro-agent ABM**.
 - NetLogo, [BehaviorSpace experimental methodology](https://docs.netlogo.org/behaviorspace) and documented random-seed experiments. UMBRA implements its own seeded experiments, not NetLogo or BehaviorSpace.
+
+
+### AUTOGENESIS Ω (bounded synthetic learning)
+See [AUTOGENESIS documentation](docs/AUTOGENESIS.md). Adds 100 strategy-role configurations, paired-seed exploration, learned numerical reward prediction, disjoint holdout promotion, checkpoint integrity and bounded owner-local endpoints. No independent trained agent fleet, native-model training, deployment or scientific qualification is implied.

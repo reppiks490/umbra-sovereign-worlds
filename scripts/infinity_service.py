@@ -3,6 +3,7 @@ import argparse,json,os,time,subprocess,shutil,sys
 from pathlib import Path
 from infinity import refresh_catalog,run_cycle,rotate
 from acquisition_recovery import recover
+from neural_priority import resume_priority
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
 from urllib.request import urlopen
@@ -119,6 +120,11 @@ def main(root):
    result['status']=queue_ready(root)
    ready=result['status']
    training=Path.home()/'projects'/'umbra-train-native-20261124'
+   try:
+    result['neural_priority']=resume_priority(root,training,ready)
+    if result['neural_priority']['status'] in ('started','running'):
+     ready='deferred_acquisition';result['status']=ready
+   except Exception as e:result['neural_priority_error']=type(e).__name__
    try:result['discovered']=len(refresh_catalog(root)['models'])
    except Exception as e:result['discovery_error']=type(e).__name__
    if result['status']=='ready':

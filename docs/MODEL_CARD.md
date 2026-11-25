@@ -129,3 +129,7 @@ See [REPOSITORY_EXECUTION_LEARNING](REPOSITORY_EXECUTION_LEARNING.md) for five r
 
 ### Acquisition recovery
 See [ACQUISITION_RECOVERY](ACQUISITION_RECOVERY.md) for the resumed Q8 and neural/tiny queue, automated retries, reuse of installed CPU PyTorch, storage admission and actual outstanding downloads.
+
+
+### Neural priority expansion
+See [NEURAL_PRIORITY_EXPANSION](NEURAL_PRIORITY_EXPANSION.md) for the 15 GB native-weight cap, complementary model ranking, resumable supplemental queue and storage safeguards.

@@ -37,7 +37,8 @@ def digest(p,alg,prefix=b''):
  with p.open('rb') as f:
   for b in iter(lambda:f.read(1024**2),b''):h.update(b)
  return h.hexdigest()
-def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',opener=urllib.request.urlopen,attempts=5):
+def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',opener=urllib.request.urlopen,attempts=5,gate_fn=None):
+ admit=gate_fn or gate
  if type(size) is not int or size<=0 or not re.fullmatch('[a-f0-9]{64}' if algorithm=='sha256' else '[a-f0-9]{40}',expected):raise ValueError('invalid download identity')
  part=target.with_name(target.name+'.part')
  def correct(p):return p.is_file() and not p.is_symlink() and p.stat().st_size==size and digest(p,algorithm,prefix)==expected
@@ -51,7 +52,7 @@ def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',ope
   if offset==size:
    if not correct(part):raise ValueError('partial checksum mismatch')
    part.rename(target);return
-  gate(size-offset)
+  admit(size-offset)
   headers={'User-Agent':'UMBRA-native-training/1.0'}
   if offset:headers['Range']='bytes='+str(offset)+'-'
   try:
@@ -66,7 +67,7 @@ def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',ope
       if not b:break
       count+=len(b)
       if count>size:raise ValueError('size mismatch')
-      gate(len(b));out.write(b)
+      admit(len(b));out.write(b)
      out.flush();os.fsync(out.fileno())
    if count!=size:raise OSError('incomplete transfer')
    if not correct(part):raise ValueError('download checksum mismatch')

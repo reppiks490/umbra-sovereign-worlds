@@ -79,3 +79,7 @@ See [ACQUISITION_RECOVERY](ACQUISITION_RECOVERY.md) for the resumed Q8 and neura
 
 ### Neural priority expansion
 See [NEURAL_PRIORITY_EXPANSION](NEURAL_PRIORITY_EXPANSION.md) for the 15 GB native-weight cap, complementary model ranking, resumable supplemental queue and storage safeguards.
+
+
+### Continual learning workspace
+See [CONTINUAL_LEARNING_WORKSPACE](CONTINUAL_LEARNING_WORKSPACE.md) for transactional replay memory, persistent split protection, fixed assessment anchors, exposure-aware native optimizer replay and durable learning evidence. Actual weight updates remain pending runtime and memory admission.

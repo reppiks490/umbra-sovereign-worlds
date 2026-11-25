@@ -4,6 +4,7 @@ from pathlib import Path
 from infinity import refresh_catalog,run_cycle,rotate
 from acquisition_recovery import recover
 from neural_priority import resume_priority
+from learning_workspace import refresh as refresh_learning_workspace
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
 from urllib.request import urlopen
@@ -150,7 +151,9 @@ def main(root):
     p=subprocess.run(repository_command(root,training,ready),capture_output=True,text=True,timeout=120,check=True)
     result['repository_fabric']=json.loads(p.stdout.splitlines()[-1])
    except Exception as e:result['repository_fabric_error']=type(e).__name__
-   try:result['native_training']=run_native_training(root,training,ready) if curriculum_ready(result) else {'status':'deferred_incomplete_curriculum'}
+   try:result['learning_workspace']=refresh_learning_workspace(root) if curriculum_ready(result) else {'status':'deferred_incomplete_curriculum'}
+   except Exception as e:result['learning_workspace_error']=type(e).__name__
+   try:result['native_training']=run_native_training(root,training,ready) if result.get('learning_workspace',{}).get('status')=='ready' else {'status':'deferred_incomplete_curriculum_or_replay'}
    except Exception as e:result['native_training_error']=type(e).__name__
    write_status(root,result)
    print(json.dumps(result),flush=True)

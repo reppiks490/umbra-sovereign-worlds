@@ -2,6 +2,7 @@
 import argparse,ctypes,hashlib,json,math,os,re,shutil,time
 from pathlib import Path
 from native_training_bootstrap import SOURCES
+from learning_workspace import ReplayBank,plan_replay,summarize_losses,retention_gate
 MODELS={'qwen3:0.6b':SOURCES[0],'granite4:350m':SOURCES[1]}
 def required_memory(model):
  if model not in MODELS:raise ValueError('unsupported model')
@@ -126,25 +127,42 @@ def run(root,workspace,model,corpus,steps=4):
   begin=time.monotonic()
   def guard():
    if time.monotonic()-begin>900 or available_ram()<1000000000:raise ValueError('training runtime budget')
-  def evaluate(rows):
+  def evaluate(rows,anchor_ids):
    net.eval();out=[]
    with torch.no_grad():
     for r in rows:guard();out.append(float(net(**batch(r)).loss))
    if not all(math.isfinite(x) for x in out):raise ValueError('nonfinite evaluation')
-   return sum(out)/len(out)
-  before={k:evaluate(data[k]) for k in ('retention','transfer')}
+   return summarize_losses(rows,out,anchor_ids)
+  with ReplayBank(workspace/'learning-workspace') as ledger:
+   snapshot=ledger.ingest(data)
+   counts=ledger.counts(model)
+   pool=ledger.candidates(model)
+   # Preserve fixed anchors separately from rotating holdouts.
+   anchors={k:ledger.anchors(model,k) for k in ('retention','transfer')}
+  if any(len(v)!=8 for v in anchors.values()):raise ValueError('missing immutable anchors')
+  selected=plan_replay(pool,steps,counts,sum(counts.values()))
+  if len(selected)!=steps:raise ValueError('replay supply')
+  evaluation_sets={k:anchors[k]+[r for r in data[k] if r['prompt_sha256'] not in {a['prompt_sha256'] for a in anchors[k]}][:24] for k in ('retention','transfer')}
+  anchor_ids={k:[r['prompt_sha256'] for r in anchors[k]] for k in anchors}
+  before_detail={k:evaluate(evaluation_sets[k],anchor_ids[k]) for k in anchors}
+  before={k:v['mean'] for k,v in before_detail.items()}
+  anchor_before={k:v['anchor_mean'] for k,v in before_detail.items()}
   opt=torch.optim.AdamW(params,lr=1e-4);losses=[]
-  # Alternate verified teacher and symbolic replay examples when both exist.
-  teach=[r for r in data['training'] if r['source']=='teacher'];replay=[r for r in data['training'] if r['source']!='teacher']
+  teach=[r for r in selected if r['source']=='teacher']
   net.train()
-  for i in range(steps):
-   guard();rows=teach if teach and i%2==0 else replay or teach;r=rows[(i//2)%len(rows)]
+  for r in selected:
+   guard()
    opt.zero_grad();loss=net(**batch(r)).loss
    if not torch.isfinite(loss):raise ValueError('nonfinite loss')
    loss.backward();torch.nn.utils.clip_grad_norm_(params,1.0);opt.step();losses.append(float(loss.detach()))
-  after={k:evaluate(data[k]) for k in ('retention','transfer')}
-  accepted=promotion_gate(before,after)
+  after_detail={k:evaluate(evaluation_sets[k],anchor_ids[k]) for k in anchors}
+  after={k:v['mean'] for k,v in after_detail.items()}
+  anchor_after={k:v['anchor_mean'] for k,v in after_detail.items()}
+  accepted=retention_gate(before,after,anchor_before,anchor_after)
   result={'status':'evaluated','model':model,'base_sha256':MODELS[model][2],'before':before,'after':after,'steps':steps,'rank':rank,'previous_rank':old_rank,'losses':losses,'trainable_parameters':sum(p.numel() for p in params),'accepted':accepted,'teacher_examples':len(teach),'scope':'synthetic answer-only NLL pilot; not general reasoning qualification','external_base_weights_modified':False,'adapter_weight_training':True,'production_authority':False}
+  result.update({'domain_evaluation_before':before_detail,'domain_evaluation_after':after_detail,'anchor_before':anchor_before,'anchor_after':anchor_after,'replay_snapshot':snapshot,'replay_prompts':[r['prompt_sha256'] for r in selected],'replay_domains':sorted({r['domain'] for r in selected}),'evaluation_set_sha256':{k:hashlib.sha256(json.dumps([r['prompt_sha256'] for r in v]).encode()).hexdigest() for k,v in evaluation_sets.items()}})
+  attempt_id='train-'+hashlib.sha256((snapshot+model+str(time.time_ns())).encode()).hexdigest()
+  result['attempt_id']=attempt_id
   if accepted:
    name='adapter-'+hashlib.sha256((filehash(corpus)+str(time.time_ns())).encode()).hexdigest()[:16];stage=bank/(name+'.stage');stage.mkdir()
    net.save_pretrained(str(stage),safe_serialization=True)
@@ -152,7 +170,8 @@ def run(root,workspace,model,corpus,steps=4):
    if sum(p.stat().st_size for p in stage.rglob('*') if p.is_file())>50000000:raise ValueError('adapter size')
    result['accepted_adapter']=name
    atomic(stage/'receipt.json',result);stage.rename(bank/name)
-   atomic(active,{'name':name,'base_sha256':MODELS[model][2],'files':files,'corpus_sha256':filehash(corpus)})
+  with ReplayBank(workspace/'learning-workspace') as ledger:ledger.record_attempt(attempt_id,model,result['replay_prompts'],accepted,result)
+  if accepted:atomic(active,{'name':name,'base_sha256':MODELS[model][2],'files':files,'corpus_sha256':filehash(corpus)})
   atomic(bank/'last-result.json',result);return result
  finally:lock.unlink(missing_ok=True)
 if __name__=='__main__':

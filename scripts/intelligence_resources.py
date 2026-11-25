@@ -13,14 +13,26 @@ DATASETS=[
  ('openai/gsm8k','reasoning'),('google/boolq','reasoning'),('allenai/strategyqa','reasoning'),('openai/gsm-hard','reasoning'),('openai/prm800k','reasoning'),
  ('cais/mmlu','benchmarks'),('HuggingFaceH4/MATH-500','benchmarks'),('TIGER-Lab/MMLU-Pro','benchmarks'),('openai/humaneval','benchmarks'),('google/IFEval','benchmarks'),
  ('wikimedia/structured-wikipedia','semantic'),('rag-datasets/rag-mini-wikipedia','semantic'),('sentence-transformers/natural-questions','semantic'),('microsoft/ms_marco','semantic'),
- ('HuggingFaceTB/smoltalk','synthetic'),('allenai/tulu-3-sft-mixture','synthetic'),('openai/grade-school-math','reasoning')]
+ ('HuggingFaceTB/smoltalk','synthetic'),('allenai/tulu-3-sft-mixture','synthetic'),('openai/grade-school-math','reasoning'),
+ ('HuggingFaceTB/smoltalk2','synthetic'),('HuggingFaceTB/cosmopedia','science'),('HuggingFaceTB/cosmopedia-100k','science'),
+ ('openai/gsm8k','reasoning'),('meta-math/MetaMathQA','reasoning'),('microsoft/orca-math-word-problems-200k','reasoning'),
+ ('allenai/olmo-mix-1124','semantic'),('allenai/OLMo-2-1124-7B-Instruct-SFT','synthetic'),
+ ('HuggingFaceFW/fineweb-edu','semantic'),('HuggingFaceFW/fineweb-edu-dedup','semantic'),
+ ('Salesforce/finqa','finance'),('PatronusAI/financebench','benchmarks'),('ibm/finqa','finance'),
+ ('google-research-datasets/mbpp','benchmarks'),('google-research-datasets/natural_questions','semantic'),
+ ('allenai/scifact','science'),('allenai/multi_news','semantic'),('allenai/ultrafeedback_binarized_cleaned','synthetic'),
+ ('deepmind/math_dataset','reasoning'),('openai/healthbench','benchmarks'),('HuggingFaceH4/ultrafeedback_binarized','synthetic'),
+ ('lighteval/MATH','benchmarks'),('AI4Math/MathVista','benchmarks'),('google/bigbench','benchmarks')]
 PACKAGES=[
  ('networkx','3.4.2','graphs'),('rdflib','7.1.4','graphs'),('sympy','1.14.0','symbolic'),('mpmath','1.3.0','symbolic'),
  ('scipy','1.15.3','algorithms'),('scikit-learn','1.6.1','algorithms'),('simpy','4.1.1','simulation'),('gymnasium','1.1.1','reinforcement'),
  ('dowhy','0.12','causal'),('causal-learn','0.1.4.0','causal'),('hypothesis','6.130.0','synthetic'),
  ('jsonschema','4.23.0','cognition'),('pydantic','2.11.4','cognition'),('rank-bm25','0.2.2','semantic'),('rapidfuzz','3.13.0','semantic'),
  ('duckdb','1.2.2','experience'),('pyarrow','19.0.1','experience'),('optuna','4.3.0','evolution'),('deap','1.4.2','evolution'),
- ('pymoo','0.6.1.3','evolution'),('statsmodels','0.14.4','finance'),('arch','7.2.0','finance')]
+ ('pymoo','0.6.1.3','evolution'),('statsmodels','0.14.4','finance'),('arch','7.2.0','finance'),
+ ('z3-solver','4.14.1.0','symbolic'),('symengine','0.14.1','symbolic'),('PySMT','0.9.6','symbolic'),
+ ('ortools','9.12.4544','algorithms'),('sortedcontainers','2.4.0','algorithms'),('more-itertools','10.7.0','algorithms'),
+ ('rustworkx','0.16.0','graphs'),('polars','1.27.1','experience'),('pymc','5.22.0','causal')]
 def admit(used,category_used,additional,free,training_remaining,learning_remaining,category_cap):
  return (0<additional and used+additional<=CAP and category_used+additional<=category_cap and free-additional>=FLOOR+max(0,training_remaining)+max(0,learning_remaining))
 def neural_complete(status):
@@ -33,20 +45,29 @@ def safe_path(s):
 def dataset_rows(repo,category,m):
  if m.get('id')!=repo or m.get('private') is not False or m.get('gated') not in (False,None) or not re.fullmatch('[a-f0-9]{40}',str(m.get('sha',''))):return []
  lic=(m.get('cardData') or {}).get('license')
+ if isinstance(lic,list) and len(lic)==1:lic=lic[0]
  if not isinstance(lic,str) or lic.lower() not in LICENSES:return []
  rows=[]
  for f in m.get('siblings',[]):
-  p=f.get('rfilename');n=f.get('size');h=(f.get('lfs') or {}).get('sha256')
-  if not safe_path(p) or PurePosixPath(p).suffix.lower() not in ('.parquet','.jsonl','.csv','.json') or type(n) is not int or not 0<n<=500000000 or not re.fullmatch('[a-f0-9]{64}',str(h)):continue
+  p=f.get('rfilename');n=f.get('size');lfs=f.get('lfs');h=(lfs or {}).get('sha256');algorithm='sha256'
+  if not lfs:
+   h=f.get('blobId');algorithm='sha1'
+  if not safe_path(p) or PurePosixPath(p).suffix.lower() not in ('.parquet','.jsonl','.csv','.json') or type(n) is not int or not 0<n<=500000000 or not re.fullmatch('[a-f0-9]{64}' if algorithm=='sha256' else '[a-f0-9]{40}',str(h)):continue
+  # Never use git pointer digests as identities for LFS payloads.
+  if lfs and algorithm!='sha256':continue
   if p.lower().endswith(('dataset_infos.json','config.json')):continue
   split='evaluation' if re.search(r'(^|[/_-])(test|validation|dev|eval)([/_.-]|$)',p.lower()) or category=='benchmarks' else 'candidate_training'
-  rows.append(dict(repo=repo,category=category,revision=m['sha'],license=lic,path=p,size=n,sha=h,split=split,url='https://huggingface.co/datasets/'+repo+'/resolve/'+m['sha']+'/'+urllib.parse.quote(p,safe='/'),kind='dataset'))
+  rows.append(dict(repo=repo,category=category,revision=m['sha'],license=lic,path=p,size=n,sha=h,algorithm=algorithm,split=split,url='https://huggingface.co/datasets/'+repo+'/resolve/'+m['sha']+'/'+urllib.parse.quote(p,safe='/'),kind='dataset'))
  return rows
 def package_row(name,version,category,m):
  i=m.get('info') or {};lic=(i.get('license_expression') or i.get('license') or '').strip().lower()
  if i.get('version')!=version or i.get('name','').lower().replace('_','-')!=name.lower().replace('_','-'):return None
  mapping={'mit license':'mit','bsd license':'bsd-3-clause','apache software license':'apache-2.0','apache 2.0':'apache-2.0'}
  lic=mapping.get(lic,lic)
+ if lic in ('','none','unknown'):
+  exact={'License :: OSI Approved :: MIT License':'mit','License :: OSI Approved :: Apache Software License':'apache-2.0','License :: OSI Approved :: ISC License (ISCL)':'isc'}
+  declared=[c for c in i.get('classifiers',[]) if c.startswith('License ::')]
+  if len(declared)==1:lic=exact.get(declared[0],lic)
  if lic not in LICENSES:return None
  rows=[]
  for f in m.get('urls',[]):
@@ -57,7 +78,7 @@ def package_row(name,version,category,m):
  return min(rows,key=lambda x:x['size']) if rows else None
 def plan():
  rows=[];rejected=[]
- for repo,cat in DATASETS:
+ for repo,cat in dict(DATASETS).items():
   try:
    found=dataset_rows(repo,cat,get('https://huggingface.co/api/datasets/'+repo+'?blobs=true'))
    if not found:raise ValueError('license, pinned data format or digest unavailable')
@@ -73,12 +94,42 @@ def plan():
 def load(p):
  try:return json.loads(p.read_text(encoding='utf8'))
  except (OSError,ValueError):return {}
-def run(plan_only=False):
+def merge_plan(old,new):
+ # Existing repository/file pins always win. No repinning under a live acquisition.
+ rows=list(old.get('rows',[]));seen={(r['repo'],r['path']) for r in rows}
+ for row in new.get('rows',[]):
+  key=(row['repo'],row['path'])
+  if key not in seen:rows.append(row);seen.add(key)
+ accepted={r['repo'] for r in rows}
+ rejected=[r for r in new.get('rejected',[]) if r['repo'] not in accepted]
+ return {**old,**new,'rows':rows,'rejected':rejected}
+def balanced_order(rows):
+ from collections import deque
+ # Separate priority bands; round robin across categories and source repositories.
+ bands={}
+ for r in sorted(rows,key=lambda x:(x['size'],x['repo'],x['path'])):
+  band=(r['kind']!='wheel',r['split']!='evaluation')
+  bands.setdefault(band,{}).setdefault((r['category'],r['repo']),deque()).append(r)
+ for band in sorted(bands):
+  groups=deque(sorted(bands[band].items(),key=lambda x:(x[1][0]['size'],x[0])))
+  while groups:
+   k,q=groups.popleft();yield q.popleft()
+   if q:groups.append((k,q))
+def preview(rows):
+ out={k:{'cap_bytes':v,'eligible_bytes':0,'admitted_bytes':0,'admitted_files':0} for k,v in BUDGETS.items()}
+ for row in balanced_order(rows):
+  c=out[row['category']];n=row['size'];c['eligible_bytes']+=n
+  if c['admitted_bytes']+n+4096*(c['admitted_files']+1)<=c['cap_bytes']:
+   c['admitted_bytes']+=n;c['admitted_files']+=1
+ return out
+def run(plan_only=False,refresh=False):
  root=ROOT/'intelligence-resources';root.mkdir(exist_ok=True)
  manifest=root/'plan.json';m=load(manifest)
- if not m:
-  m=plan();write(manifest,m)
+ if not m or refresh:
+  if refresh and not plan_only:raise ValueError('refresh requires plan-only mode')
+  m=merge_plan(m,plan());write(manifest,m)
  print('PLAN_READY',len(m['rows']),sum(x['size'] for x in m['rows']),flush=True)
+ print('BUDGET_PREVIEW',json.dumps(preview(m['rows'])),flush=True)
  if plan_only:return
  training=ROOT.parent/'umbra-train-native-20261124'
  status=load(ROOT/'neural-priority-status.json')
@@ -89,7 +140,7 @@ def run(plan_only=False):
  results=[]
  try:
   if (training/'bootstrap.lock').exists():return
-  for row in sorted(m['rows'],key=lambda x:(x['kind']!='wheel',x['split']!='evaluation',x['size'],x['repo'],x['path'])):
+  for row in balanced_order(m['rows']):
    cat=row['category'];bucket=root/cat;folder=bucket/(row['repo'].replace('/','--')+'--'+row['revision'][:12]);target=folder/row['path']
    if not safe_path(row['path']) or cat not in BUDGETS:raise ValueError('unsafe manifest')
    receipt=target.with_name(target.name+'.receipt.json')
@@ -104,11 +155,13 @@ def run(plan_only=False):
     if not admit(size(root),size(bucket),max(1,n),shutil.disk_usage(ROOT).free,reserve_training,reserve_learning,BUDGETS[cat]):raise ValueError('resource disk gate')
    try:
     print('PULL',row['repo'],row['path'],row['size'],flush=True)
-    download_verified(row['url'],target,row['size'],row['sha'],attempts=2,gate_fn=gate)
+    alg=row.get('algorithm','sha256')
+    prefix=('blob '+str(row['size'])+'\0').encode() if alg=='sha1' else b''
+    download_verified(row['url'],target,row['size'],row['sha'],alg,prefix,attempts=2,gate_fn=gate)
     write(receipt,row);results.append({'repo':row['repo'],'path':row['path'],'status':'verified'});print('VERIFIED',row['repo'],row['path'],flush=True)
    except Exception as e:
     results.append({'repo':row['repo'],'path':row['path'],'status':'retry_needed','reason':type(e).__name__});print('RETRY',row['repo'],type(e).__name__,flush=True)
-  write(root/'status.json',{'status':'pass_finished','timestamp':int(time.time()),'results':results,'used_bytes':size(root)})
+  write(root/'status.json',{'status':'pass_finished','timestamp':int(time.time()),'results':results,'manifest_rows':len(m['rows']),'used_bytes':size(root)})
  finally:lock.unlink(missing_ok=True)
 def resume(root,training,queue_status):
  import subprocess
@@ -117,7 +170,7 @@ def resume(root,training,queue_status):
  s=load(d/'status.json');a=load(d/'attempt.json');now=int(time.time())
  if pid_alive(a.get('pid')):return {'status':'running'}
  if queue_status!='ready' or not neural_complete(load(root/'neural-priority-status.json')) or (training/'bootstrap.lock').exists():return {'status':'deferred_neural_or_training'}
- if s.get('status')=='pass_finished' and not any(x.get('status') in ('deferred_storage','retry_needed') for x in s.get('results',[])):return {'status':'complete'}
+ if s.get('status')=='pass_finished' and s.get('manifest_rows')==len(load(d/'plan.json').get('rows',[])) and not any(x.get('status') in ('deferred_storage','retry_needed') for x in s.get('results',[])):return {'status':'complete'}
  if now-max(a.get('timestamp',0),s.get('timestamp',0))<1800:return {'status':'cooldown'}
  py=Path(sys.base_prefix)/'python.exe'
  if not py.is_file():return {'status':'deferred_runtime'}
@@ -125,4 +178,4 @@ def resume(root,training,queue_status):
   proc=subprocess.Popen([str(py),'-u',str(Path(__file__).resolve())],stdout=out,stderr=subprocess.STDOUT,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
  write(d/'attempt.json',{'pid':proc.pid,'timestamp':now});return {'status':'started','pid':proc.pid}
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--plan',action='store_true');run(p.parse_args().plan)
+ p=argparse.ArgumentParser();p.add_argument('--plan',action='store_true');p.add_argument('--refresh',action='store_true');a=p.parse_args();run(a.plan,a.refresh)

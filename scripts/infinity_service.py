@@ -5,6 +5,7 @@ from infinity import refresh_catalog,run_cycle,rotate
 from acquisition_recovery import recover
 from neural_priority import resume_priority
 from intelligence_resources import resume as resume_resources
+from campaign_baselines import benchmark as benchmark_baselines
 from learning_workspace import refresh as refresh_learning_workspace
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
@@ -112,6 +113,8 @@ def run_native_training(root,training,status):
  stamp.write_text(json.dumps({'timestamp':int(time.time())}),encoding='utf8')
  p=subprocess.run([str(py),str(Path(__file__).resolve().with_name('native_lora_train.py')),'--root',str(training),'--workspace',str(root/'experience'),'--model',plan['model'],'--corpus',plan['corpus'],'--steps','4'],capture_output=True,text=True,timeout=1200,check=True)
  return json.loads(p.stdout.splitlines()[-1])
+def resource_queue_status(status,bootstrap):
+ return 'deferred_bootstrap' if bootstrap.get('status') in ('started','running') else status
 def main(root):
  root=root.resolve();d=root/'infinity';d.mkdir(exist_ok=True)
  try:
@@ -127,6 +130,10 @@ def main(root):
     if result['neural_priority']['status'] in ('started','running'):
      ready='deferred_acquisition';result['status']=ready
    except Exception as e:result['neural_priority_error']=type(e).__name__
+   try:
+    evidence=benchmark_baselines()
+    result['campaign_baselines']={'scope':evidence['scope'],'case_sha256':evidence['case_sha256'],'lanes':{k:{'passed':v['passed'],'cases':v['cases']} for k,v in evidence['lanes'].items()},'neural_inference_verified':False}
+   except Exception as e:result['campaign_baselines_error']=type(e).__name__
    try:result['discovered']=len(refresh_catalog(root)['models'])
    except Exception as e:result['discovery_error']=type(e).__name__
    if result['status']=='ready':
@@ -137,7 +144,7 @@ def main(root):
    try:result['training_bootstrap']=resume_bootstrap(root,training,ready)
    except Exception as e:result['training_bootstrap_error']=type(e).__name__
    try:
-    result['intelligence_resources']=resume_resources(root,training,ready)
+    result['intelligence_resources']=resume_resources(root,training,resource_queue_status(ready,result.get('training_bootstrap',{})))
     if result['intelligence_resources']['status'] in ('started','running'):
      ready='deferred_acquisition';result['status']=ready
    except Exception as e:result['intelligence_resources_error']=type(e).__name__

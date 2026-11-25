@@ -87,3 +87,6 @@ See [CONTINUAL_LEARNING_WORKSPACE](CONTINUAL_LEARNING_WORKSPACE.md) for transact
 
 ### EXASOVEREIGN pre-December 18 campaign (2026-11-25)
 See docs/EXASOVEREIGN_PRE_DEC18_CAMPAIGN.md for the owner-approved 28 GB neural-first + 15 GB resource queue, storage and license gates, proposed milestone criteria and explicit unverified status. Resource acquisition is data-only, not training or deployment.
+
+
+EXASOVEREIGN campaign update: six executable deterministic numerical lanes and balanced, license-screened resource qualification; see docs/EXASOVEREIGN_PRE_DEC18_CAMPAIGN.md. Synthetic baseline verification is not neural inference or training.

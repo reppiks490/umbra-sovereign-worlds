@@ -3,9 +3,9 @@ sys.path.insert(0,str(pathlib.Path(__file__).resolve().parents[1]/'scripts'))
 from neural_priority import can_admit,rank_candidates,CAP
 class Test(unittest.TestCase):
  def test_expanded_cap_and_storage_protection(self):
-  self.assertEqual(CAP,15000000000)
+  self.assertEqual(CAP,18000000000)
   self.assertTrue(can_admit(12000000000,1000000000,12000000000,2000000000))
-  self.assertFalse(can_admit(14900000000,200000000,20000000000,0))
+  self.assertFalse(can_admit(17900000000,200000000,20000000000,0))
   self.assertFalse(can_admit(12000000000,1000000000,5999999999,2000000000))
  def test_rank_new_capabilities_and_skip_duplicates(self):
   rows=[{'repo':'old','digest':'a','total':100,'domain':'vision','value':10},{'repo':'audio','digest':'b','total':200,'domain':'audio','value':9},{'repo':'vision','digest':'c','total':100,'domain':'vision','value':9}]
@@ -24,3 +24,12 @@ class Test(unittest.TestCase):
  def test_storage_deferral_does_not_starve_training_bootstrap(self):
   from neural_priority import priority_plan
   self.assertEqual(priority_plan('ready',False,False,0,10000,{'status':'pass_finished','results':[{'status':'deferred_storage'}],'timestamp':8000}),'cooldown')
+
+ def test_expanded_allocation_reopens_prior_cap_deferral(self):
+  from neural_priority import priority_plan
+  old={'cap_bytes':15000000000,'status':'pass_finished','timestamp':9999,'results':[{'status':'deferred_storage'}]}
+  self.assertEqual(CAP,18000000000)
+  self.assertEqual(priority_plan('ready',False,False,9999,10000,old),'eligible')
+  self.assertEqual(priority_plan('ready',True,False,9999,10000,old),'deferred_bootstrap')
+  self.assertTrue(can_admit(14736604255,3137246852,6700000000,0))
+  self.assertFalse(can_admit(14736604255,3137246852,6100000000,0))

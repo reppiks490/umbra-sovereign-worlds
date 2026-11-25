@@ -67,3 +67,7 @@ See [CONTINUAL_LEARNING_WORKSPACE](CONTINUAL_LEARNING_WORKSPACE.md) for transact
 
 ### Storage policy supersession
 The owner-approved [3 GB free-space floor](STORAGE_RESERVE_POLICY.md) supersedes the historical 8 GB limits in earlier documentation. Existing active downloads were not interrupted.
+
+
+### Second neural expansion
+Owner requested +3 GB additional neural allocation; cap now 18 GB. Existing [neural expansion plan](NEURAL_PRIORITY_EXPANSION.md) reopens the deferred BART MNLI and SigLIP 2 candidates once bootstrap is no longer active and disk admission passes. 3 GB free-space reserve unchanged.

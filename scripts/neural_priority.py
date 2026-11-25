@@ -3,7 +3,7 @@ import argparse,json,hashlib,os,shutil,sys,time,urllib.parse
 from pathlib import Path
 from urllib.request import urlopen
 from native_training_bootstrap import download_verified,used as training_used
-CAP=15000000000
+CAP=18000000000
 FLOOR=3000000000
 TRAINING_CAP=4500000000
 ROOT=Path.home()/'projects'/'umbra-agentic-native-20261124'
@@ -75,6 +75,7 @@ def run(plan_only=False):
  seen,domains,repos=inventory(ROOT)
  if manifest.exists():
   m=json.loads(manifest.read_text(encoding='utf8'));rows=m['candidates'];rejected=m['rejected']
+  if m.get('cap_bytes')!=CAP:write(manifest,{**m,'cap_bytes':CAP})
  else:
   rows,rejected=inspect_candidates(old)
   write(manifest,{'schema':'umbra.neural.priority.v1','cap_bytes':CAP,'learning_workspace_bytes':3000000000,'candidates':rows,'rejected':rejected})
@@ -117,6 +118,7 @@ def priority_plan(queue_status,bootstrap_running,priority_running,last,now,statu
  if queue_status!='ready':return 'deferred_original'
  if bootstrap_running:return 'deferred_bootstrap'
  if priority_running:return 'running'
+ if type(status.get('cap_bytes')) is int and status['cap_bytes']<CAP and status.get('status')=='pass_finished':return 'eligible'
  if status.get('status')=='pass_finished' and not any(r.get('status') in ('deferred_storage','retry_needed') for r in status.get('results',[])):return 'complete'
  delay=21600 if status.get('status')=='pass_finished' and any(r.get('status')=='deferred_storage' for r in status.get('results',[])) else 1800
  if now-max(last,status.get('timestamp',0))<delay:return 'cooldown'

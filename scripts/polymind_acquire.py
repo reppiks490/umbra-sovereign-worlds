@@ -13,7 +13,10 @@ PRIORITY=('Xenova/all-MiniLM-L12-v2','Xenova/bge-small-en-v1.5','Xenova/gte-smal
 HEX=re.compile(r'^[a-f0-9]{64}$')
 REPO=re.compile(r'^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$')
 def count_unique(xs): return len(set(xs))
-def admissible(free,size): return size>0 and free-size>=RESERVE
+def reserve_bytes(minimum_mib, headroom_mib):
+    if type(minimum_mib) is not int or type(headroom_mib) is not int or not 1024<=minimum_mib<=1048576 or not 0<=headroom_mib<=1048576: raise ValueError('invalid disk policy')
+    return (minimum_mib+headroom_mib)*1024**2
+def admissible(free,size,reserve=RESERVE): return size>0 and free-size>=reserve
 def select_bundle(meta):
     rid=meta.get('id',''); rev=meta.get('sha',''); task=meta.get('pipeline_tag')
     if not REPO.fullmatch(rid) or rid.split('/')[0] not in AUTHORS or not re.fullmatch('[a-f0-9]{40}',rev): return None
@@ -76,7 +79,7 @@ def catalog(root):
             if weight.is_file() and HEX.fullmatch(d['weight_sha256']) and weight.stat().st_size==next(f['size'] for f in d['files'] if f['name']==d['weight']): out.append(d)
         except (OSError,ValueError,KeyError,StopIteration): pass
     return out
-def download_file(root,bundle,f):
+def download_file(root,bundle,f,reserve=RESERVE):
     rel=f['name']; dest=root/rel; dest.parent.mkdir(parents=True,exist_ok=True)
     if dest.exists():
         if dest.stat().st_size==f['size']:
@@ -96,14 +99,14 @@ def download_file(root,bundle,f):
                 block=r.read(256*1024)
                 if not block: break
                 n+=len(block)
-                if n>f['size'] or shutil.disk_usage(root).free-len(block)<RESERVE: raise ValueError('download budget')
+                if n>f['size'] or shutil.disk_usage(root).free-len(block)<reserve: raise ValueError('download budget')
                 h.update(block); git.update(block); out.write(block)
         if n!=f['size'] or (f.get('sha256') and h.hexdigest()!=f['sha256']): raise ValueError('size or LFS digest mismatch')
         if not f.get('sha256') and f.get('blobId') and git.hexdigest()!=f['blobId']: raise ValueError('Git blob mismatch')
         part.replace(dest)
     finally:
         if part.exists(): part.unlink()
-def acquire(root,target):
+def acquire(root,target,reserve=RESERVE):
     root.mkdir(parents=True,exist_ok=True)
     receipts=catalog(root); seen={d['weight_sha256'] for d in receipts}; repos={d['repo'] for d in receipts}
     existing=ollama_count()
@@ -117,26 +120,30 @@ def acquire(root,target):
             candidates.extend(x['id'] for x in rows if x.get('pipeline_tag') in TASKS)
         except Exception as e: print('DISCOVERY_SKIP',author,type(e).__name__,flush=True)
     for rid in dict.fromkeys(candidates):
-        if existing+len(seen)>=target or shutil.disk_usage(root).free<=RESERVE: break
+        if existing+len(seen)>=target or shutil.disk_usage(root).free<=reserve: break
         if rid in repos or not REPO.fullmatch(rid) or any(s in rid.lower() for s in ('tiny-random','dummy','test-model','random-','tiny_random')): continue
         try:
             m=get_json('https://huggingface.co/api/models/'+rid+'?blobs=true'); b=select_bundle(m)
             if not b or b['weight_sha256'] in seen: continue
-            if not admissible(shutil.disk_usage(root).free,b['total_bytes']): continue
+            if not admissible(shutil.disk_usage(root).free,b['total_bytes'],reserve): continue
             folder=root/(rid.replace('/','--')+'--'+b['revision'][:12])
             folder.mkdir(exist_ok=True)
             print('PULL',rid,b['total_bytes'],flush=True)
-            for f in b['files']: download_file(folder,b,f)
+            for f in b['files']: download_file(folder,b,f,reserve)
             b.update({'schema':'umbra.polymind.bundle.v1','source':'huggingface','runtime':'onnxruntime','inference_verified':False,'research_qualified':False,'production_authority':False})
             tmp=folder/'receipt.tmp'; tmp.write_text(json.dumps(b,indent=2),encoding='utf8'); tmp.replace(folder/'receipt.json')
             seen.add(b['weight_sha256']); repos.add(rid)
             print('VERIFIED',rid,'TOTAL',existing+len(seen),'FREE',shutil.disk_usage(root).free,flush=True)
         except (OSError,ValueError,KeyError,RuntimeError) as e:
             print('SKIP',rid,type(e).__name__,flush=True)
-            if shutil.disk_usage(root).free<=RESERVE: break
+            if shutil.disk_usage(root).free<=reserve: break
     print('FINAL',existing+len(seen),'FREE',shutil.disk_usage(root).free,flush=True)
 if __name__=='__main__':
-    p=argparse.ArgumentParser(); p.add_argument('--root',required=True,type=Path);p.add_argument('--target',type=int,default=100); p.add_argument('--inventory',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument('--root',required=True,type=Path);p.add_argument('--target',type=int,default=100); p.add_argument('--inventory',action='store_true');p.add_argument('--minimum-free-mib',type=int,default=3072);p.add_argument('--headroom-mib',type=int,default=256);a=p.parse_args()
     if not 1<=a.target<=100: p.error('target must be 1-100')
     if a.inventory: print(json.dumps({'ollama':ollama_count(),'external':catalog(a.root)},indent=2))
-    else: acquire(a.root,a.target)
+    else:
+        try: reserve=reserve_bytes(a.minimum_free_mib,a.headroom_mib)
+        except ValueError as e: p.error(str(e))
+        print('RESERVE_BYTES',reserve,flush=True)
+        acquire(a.root,a.target,reserve)

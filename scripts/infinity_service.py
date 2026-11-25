@@ -8,6 +8,8 @@ from intelligence_resources import resume as resume_resources
 from campaign_baselines import benchmark as benchmark_baselines
 from chronos_tournament import campaign as chronos_campaign
 from learning_workspace import refresh as refresh_learning_workspace
+from source_knowledge import refresh as refresh_source_knowledge, learning_policy
+from source_assist import cycle as source_assist_cycle
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
 from urllib.request import urlopen
@@ -135,18 +137,11 @@ def main(root):
     evidence=benchmark_baselines()
     result['campaign_baselines']={'scope':evidence['scope'],'case_sha256':evidence['case_sha256'],'lanes':{k:{'passed':v['passed'],'cases':v['cases']} for k,v in evidence['lanes'].items()},'neural_inference_verified':False}
    except Exception as e:result['campaign_baselines_error']=type(e).__name__
-   try:
-    seed=int(time.time())//1800
-    report=chronos_campaign(seed)
-    out=root/'infinity'/'chronos-tournament.json';tmp=out.with_suffix('.tmp');tmp.write_text(json.dumps(report,indent=2),encoding='utf8');os.replace(tmp,out)
-    result['chronos_tournament']={k:v for k,v in report.items() if k!='rows'}
-   except Exception as e:result['chronos_tournament_error']=type(e).__name__
+   result['chronos_tournament']={'status':'paused_synthetic_research'}
    try:result['discovered']=len(refresh_catalog(root)['models'])
    except Exception as e:result['discovery_error']=type(e).__name__
-   if result['status']=='ready':
-    state=run_cycle(root);result.update({'status':state['status'],'cycles':state.get('cycles',0),'champion':state.get('champion')})
-    if state['status']=='completed':result['rotated']=rotate(root)
-   try:result['intelligence_gap_audit']=run_gap_audit(root,ready if not (training/'bootstrap.lock').exists() else 'deferred_bootstrap')
+   result['infinity_synthetic_qualification']={'status':'paused_source_only'}
+   try:result['intelligence_gap_audit']=run_gap_audit(root,'source_only')
    except Exception as e:result['gap_audit_error']=type(e).__name__
    try:result['training_bootstrap']=resume_bootstrap(root,training,ready)
    except Exception as e:result['training_bootstrap_error']=type(e).__name__
@@ -155,33 +150,19 @@ def main(root):
     if result['intelligence_resources']['status'] in ('started','running'):
      ready='deferred_acquisition';result['status']=ready
    except Exception as e:result['intelligence_resources_error']=type(e).__name__
+   result['learning_policy']=learning_policy()
+   result['megaswarm']={'status':'paused_synthetic_curriculum'}
+   result['market_academy']={'status':'paused_synthetic_curriculum'}
+   result['omni_academy']={'status':'paused_synthetic_curriculum'}
+   result['repository_fabric']={'status':'preserved_existing_registry'}
+   result['learning_workspace']={'status':'preserved_legacy_archive'}
+   result['native_training']={'status':'paused_pending_source_corpus'}
+   result['campaign_weight_bank']={'status':'paused_owner_directive'}
+   try:result['source_knowledge']=refresh_source_knowledge(root)
+   except Exception as e:result['source_knowledge_error']=type(e).__name__
    try:
-    p=subprocess.run(swarm_command(root,training),capture_output=True,text=True,timeout=300,check=True)
-    result['megaswarm']=json.loads(p.stdout.splitlines()[-1])
-   except Exception as e:result['megaswarm_error']=type(e).__name__
-   try:
-    p=subprocess.run(market_command(root,training,ready),capture_output=True,text=True,timeout=120,check=True)
-    result['market_academy']=json.loads(p.stdout.splitlines()[-1])
-   except Exception as e:result['market_academy_error']=type(e).__name__
-   try:
-    p=subprocess.run(omni_command(root,training,ready),capture_output=True,text=True,timeout=120,check=True)
-    result['omni_academy']=json.loads(p.stdout.splitlines()[-1])
-   except Exception as e:result['omni_academy_error']=type(e).__name__
-   try:
-    p=subprocess.run(repository_command(root,training,ready),capture_output=True,text=True,timeout=120,check=True)
-    result['repository_fabric']=json.loads(p.stdout.splitlines()[-1])
-   except Exception as e:result['repository_fabric_error']=type(e).__name__
-   try:result['learning_workspace']=refresh_learning_workspace(root) if curriculum_ready(result) else {'status':'deferred_incomplete_curriculum'}
-   except Exception as e:result['learning_workspace_error']=type(e).__name__
-   try:result['native_training']=run_native_training(root,training,ready) if result.get('learning_workspace',{}).get('status')=='ready' else {'status':'deferred_incomplete_curriculum_or_replay'}
-   except Exception as e:result['native_training_error']=type(e).__name__
-   try:
-    py=training/'venv'/'Scripts'/'python.exe'
-    if py.is_file() and available_ram()>=3000000000 and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running'):
-     p=subprocess.run([str(py),str(Path(__file__).resolve().with_name('campaign_weight_bank.py')),'--root',str(root),'--training',str(training)],capture_output=True,text=True,timeout=180,check=True)
-     result['campaign_weight_bank']=json.loads(p.stdout.splitlines()[-1])
-    else:result['campaign_weight_bank']={'status':'deferred_memory_or_runtime'}
-   except Exception as e:result['campaign_weight_bank_error']=type(e).__name__
+    result['source_assist']=source_assist_cycle(root) if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running') else {'status':'deferred_source_or_bootstrap'}
+   except Exception as e:result['source_assist_error']=type(e).__name__
    write_status(root,result)
    print(json.dumps(result),flush=True)
  except FileExistsError:print(json.dumps({'status':'service_busy'}),flush=True)

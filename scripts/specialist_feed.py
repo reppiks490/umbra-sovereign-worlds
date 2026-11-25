@@ -58,7 +58,7 @@ def run(root,query,model):
  result={'status':'feed_verified' if answer.get('status')=='quote_verified' else 'ranked_sources_only','query':query,'model':model,'specialists':results,'errors':errors,'ranked_sources':[{k:s.get(k) for k in ('repo','revision','path','sha256','start_line','end_line','specialist_scores','fused_score')} for s in ranked],'answer':answer,'catalog':catalog(root),'weight_training':False,'production_authority':False}
  p=outdir/'latest-specialist-feed.json';tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(result,indent=2),encoding='utf8');tmp.replace(p)
  if result['status']=='feed_verified':
-  target=outdir/('latest-specialist-feed-'+model.replace(':','-')+'.json')
+  target=outdir/('latest-specialist-feed-'+model.replace(':','-').replace('/','--')+'.json')
   temp=target.with_suffix('.tmp');temp.write_text(json.dumps(result,indent=2),encoding='utf8');temp.replace(target)
  return {**result,'catalog':{'receipt_count':len(result['catalog']),'scope':'metadata only, not all inference-qualified'}}
 def cycle(root):

@@ -11,7 +11,7 @@ REPOS={
  'shiyu-coder--Kronos':'shiyu-coder/Kronos','takuseno--d3rlpy':'takuseno/d3rlpy',
  'thuml--Time-Series-Library':'thuml/Time-Series-Library','yuezhihan--ts2vec':'yuezhihan/ts2vec'}
 def learning_policy():
- return {'synthetic_training':False,'legacy_llm_optimizer':False,'source_retrieval':True,'source_weight_training':False,'reason':'owner requires real source-backed knowledge; separate audited corpus required'}
+ return {'synthetic_training':False,'legacy_llm_optimizer':False,'source_retrieval':True,'source_weight_training':'bounded_native_pilot_enabled','reason':'original human-authored corpus only; verified checkpoints, independent validation and memory admission required'}
 def license_id(s):
  t=s.lower()
  normalized=' '.join(t.split())
@@ -43,7 +43,7 @@ class Knowledge:
  def __enter__(self):return self
  def __exit__(self,*a):self.db.close()
  def ingest(self,repo,revision,path,lic,text):
-  if not re.fullmatch(r'[\w.-]+/[\w.-]+',repo) or not re.fullmatch('[a-f0-9]{40,64}',revision) or lic not in ('MIT','Apache-2.0','BSD-3-Clause') or not safe_doc(path) or not 0<len(text.encode('utf8'))<=65536 or '\x00' in text:raise ValueError('source identity')
+  if not re.fullmatch(r'[\w.-]+/[\w.-]+',repo) or not re.fullmatch('[a-f0-9]{40,64}',revision) or (lic not in ('MIT','Apache-2.0','BSD-3-Clause') and not (lic=='OWNER-LOCAL' and repo.lower().startswith('reppiks490/'))) or not safe_doc(path) or not 0<len(text.encode('utf8'))<=65536 or '\x00' in text:raise ValueError('source identity')
   h=digest(text);old=self.db.execute('SELECT sha FROM sources WHERE repo=? AND revision=? AND path=?',(repo,revision,path)).fetchone()
   if old:
    if old[0]!=h:raise ValueError('immutable source conflict')

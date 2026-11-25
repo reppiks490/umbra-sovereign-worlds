@@ -9,7 +9,10 @@ from campaign_baselines import benchmark as benchmark_baselines
 from chronos_tournament import campaign as chronos_campaign
 from learning_workspace import refresh as refresh_learning_workspace
 from source_knowledge import refresh as refresh_source_knowledge, learning_policy
-from specialist_feed import cycle as source_assist_cycle
+from student_council import run as council_cycle
+from icarus_knowledge import refresh as refresh_icarus
+from capability_frontier import run as refresh_frontier
+from source_training_schedule import run as source_training_cycle
 from human_corpus import audit as audit_human_corpus
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
@@ -161,11 +164,17 @@ def main(root):
    result['campaign_weight_bank']={'status':'paused_owner_directive'}
    try:result['source_knowledge']=refresh_source_knowledge(root)
    except Exception as e:result['source_knowledge_error']=type(e).__name__
+   try:result['icarus_knowledge']=refresh_icarus(root)
+   except Exception as e:result['icarus_knowledge_error']=type(e).__name__
    try:
-    result['source_assist']=source_assist_cycle(root) if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running') else {'status':'deferred_source_or_bootstrap'}
+    result['source_assist']=council_cycle(root,training) if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running') else {'status':'deferred_source_or_bootstrap'}
    except Exception as e:result['source_assist_error']=type(e).__name__
    try:result['human_corpus']=audit_human_corpus(root)
    except Exception as e:result['human_corpus_error']=type(e).__name__
+   try:result['native_training']=source_training_cycle(root,training)
+   except Exception as e:result['native_training_error']=type(e).__name__
+   try:result['capability_frontier']=refresh_frontier(root)
+   except Exception as e:result['capability_frontier_error']=type(e).__name__
    write_status(root,result)
    print(json.dumps(result),flush=True)
  except FileExistsError:print(json.dumps({'status':'service_busy'}),flush=True)

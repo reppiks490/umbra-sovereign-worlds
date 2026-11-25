@@ -26,3 +26,7 @@ Regression: 163 Node tests and 25 Python tests, all passed (188 total). Live ini
 
 ## Next work
 Independent benchmark diversity beyond templates, cross-domain agent graduation, external datasets with leakage controls, actual native LoRA and per-agent adapter inference, real 7B paired runs, neural/27B teacher integration after verified admission, broader curriculum modalities, expanded training throughput, archive/lineage retention and resource-aware scalable execution. No guarantee small base models can attain broad 7B reasoning through training alone; the target is empirical performance on increasingly difficult held-out tasks.
+
+
+### Market Academy Ω
+See [MARKET_ACADEMY](MARKET_ACADEMY.md) for 24 market lanes, ten tiers, source-reviewed mechanism questions, verified teaching/evaluation separation, native corpus expansion and empirical market-data roadmap. No trading authority or demonstrated market prediction ability.

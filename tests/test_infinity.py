@@ -72,3 +72,13 @@ class BootstrapRecoveryTest(unittest.TestCase):
    self.assertEqual(bootstrap_plan(training,'deferred_acquisition',50*10**9,0,100000)['status'],'deferred_storage')
    self.assertEqual(bootstrap_plan(training,'ready',20*10**9,0,100000)['status'],'eligible')
    self.assertEqual(bootstrap_plan(training,'ready',20*10**9,99999,100000)['status'],'deferred_cooldown')
+
+class MarketScheduleTest(unittest.TestCase):
+ def test_market_academy_defers_inference_during_acquisition_or_bootstrap(self):
+  from infinity_service import market_command
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);training=root/'training';training.mkdir()
+   self.assertEqual(market_command(root,training,'deferred_acquisition')[-1],'audit')
+   self.assertEqual(market_command(root,training,'ready')[-1],'cycle')
+   (training/'bootstrap.lock').write_text('active')
+   self.assertEqual(market_command(root,training,'ready')[-1],'audit')

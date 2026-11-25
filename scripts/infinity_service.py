@@ -52,6 +52,8 @@ def resume_bootstrap(root,training,status):
  return {'status':'started','pid':proc.pid,'after_queue':plan['after_queue']}
 def swarm_command(root,training):
  return [shutil.which('node') or 'node',str(Path(__file__).resolve().with_name('swarm_cycle.mjs')),str(root),'init' if (training/'bootstrap.lock').exists() else 'cycle']
+def market_command(root,training,status):
+ return [shutil.which('node') or 'node',str(Path(__file__).resolve().with_name('market_cycle.mjs')),str(root),'cycle' if status=='ready' and not (training/'bootstrap.lock').exists() else 'audit']
 def native_training_plan(root,training,status,free):
  if (training/'bootstrap.lock').exists():return {'status':'deferred_bootstrap'}
  if status!='ready':return {'status':status}
@@ -105,6 +107,10 @@ def main(root):
     p=subprocess.run(swarm_command(root,training),capture_output=True,text=True,timeout=300,check=True)
     result['megaswarm']=json.loads(p.stdout.splitlines()[-1])
    except Exception as e:result['megaswarm_error']=type(e).__name__
+   try:
+    p=subprocess.run(market_command(root,training,ready),capture_output=True,text=True,timeout=120,check=True)
+    result['market_academy']=json.loads(p.stdout.splitlines()[-1])
+   except Exception as e:result['market_academy_error']=type(e).__name__
    try:result['native_training']=run_native_training(root,training,ready)
    except Exception as e:result['native_training_error']=type(e).__name__
    write_status(root,result)

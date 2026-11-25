@@ -37,3 +37,7 @@ Verification: Node 151/151; Python tests 23/23 (INFINITY 10, HF cache 5, native 
 
 ### Progressive swarm academy
 See [SWARM_ACADEMY](SWARM_ACADEMY.md) for ten-tier verified task generation, student-to-teacher lineage, the fixed 7B reference target, native adaptive LoRA growth, resource limits, and remaining qualification work.
+
+
+### Market Academy Ω
+See [MARKET_ACADEMY](MARKET_ACADEMY.md) for 24 market lanes, ten tiers, source-reviewed mechanism questions, verified teaching/evaluation separation, native corpus expansion and empirical market-data roadmap. No trading authority or demonstrated market prediction ability.

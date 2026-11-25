@@ -19,3 +19,6 @@ test('busy Ollama is excluded and untrusted sizes fail closed',()=>{
  assert.throws(()=>planAdmission({models:[{...m,size_bytes:-1}]},'reasoning',8*G));
  assert.throws(()=>planAdmission({models:[m]},'reasoning',NaN));
 });
+
+import {polymindPlan} from '../mcp/polymind_router.mjs';
+test('live plan uses injected runtime and memory readings without executing models',async()=>{const p=await polymindPlan({role:'reasoning'},{list:async()=>({models:[{runtime:'ollama',model:'mistral:latest',roles:['reasoning'],size_bytes:G}]}),free:()=>3*G,busy:async()=>false});assert.equal(p.eligible[0].model,'mistral:latest');await assert.rejects(polymindPlan({role:'reasoning',free:99}));});

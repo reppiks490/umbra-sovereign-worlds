@@ -43,3 +43,7 @@ Priorities: verify Q8/native/tiny acquisition and disk; actual native optimizer 
 
 ## Documents
 MASTER_HANDOFF_20261124.md, AUTOGENESIS.md, AGENTIC_NEXUS.md, HF_WEIGHT_CACHE.md, INFINITY.md, GAP_DETECTION.md, MEGASWARM.md, SWARM_ACADEMY.md, MARKET_ACADEMY.md, OMNISCIENCE.md. Git history and private local receipt banks are source of truth for actual execution. This public-facing ledger excludes credentials, personal files and private raw records.
+
+
+### Local repository fabric
+See [LOCAL_REPOSITORY_FABRIC](LOCAL_REPOSITORY_FABRIC.md) for the mounted-drive and WSL discovery, existing MYRIAD manifest reconciliation, shared source registry, verified agent inheritance and post-acquisition qualification gates. Local source availability is not executable integration.

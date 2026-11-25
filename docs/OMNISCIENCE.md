@@ -15,3 +15,7 @@ mcp/omni_knowledge.mjs defines card bank, grading, replay, augmentation; mcp/omn
 mcp/external_capabilities.mjs registers these exact source revisions and eligible role scopes. All entries explicitly enabled=false. This is a pinned integration intake and role plan, not installed applications, functioning MCP connections or external tool execution. No upstream code downloaded or launched in this phase; no extra dependencies competing with active weights. Installation must review source/dependencies/licenses, use pinned isolated runtime, test actual bounded local operations, then enable narrow adapter after evidence. Tools expand agent action/research capabilities, not base model parameter count.
 
 Other suitable future capabilities: existing local Ollama, Hugging Face weight cache, deterministic numerical tools, audited GitHub source retrieval, authorized financial data providers, source-backed search and constrained Python/Node verification. Prioritize native runtime completion and actual reference inference over adding more unverified tool names.
+
+
+### Local repository fabric
+See [LOCAL_REPOSITORY_FABRIC](LOCAL_REPOSITORY_FABRIC.md) for the mounted-drive and WSL discovery, existing MYRIAD manifest reconciliation, shared source registry, verified agent inheritance and post-acquisition qualification gates. Local source availability is not executable integration.

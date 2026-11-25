@@ -92,3 +92,15 @@ class OmniScheduleTest(unittest.TestCase):
    self.assertEqual(omni_command(root,training,'ready')[-1],'cycle')
    (training/'bootstrap.lock').write_text('active')
    self.assertEqual(omni_command(root,training,'ready')[-1],'audit')
+
+class RepositoryScheduleTest(unittest.TestCase):
+ def test_repository_qualification_waits_for_verified_downloads_and_bootstrap(self):
+  from infinity_service import repository_command
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);training=root/'training';training.mkdir()
+   self.assertEqual(repository_command(root,training,'deferred_acquisition')[-1],'audit')
+   self.assertEqual(repository_command(root,training,'ready')[-1],'audit')
+   (training/'ready.json').write_text('{"runtime_verified":true,"native_sources_verified":true}')
+   self.assertEqual(repository_command(root,training,'ready')[-1],'ready')
+   (training/'bootstrap.lock').write_text('active')
+   self.assertEqual(repository_command(root,training,'ready')[-1],'audit')

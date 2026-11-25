@@ -10,6 +10,7 @@ import {teach,verifyLesson,makeLesson} from '../mcp/swarm_teachers.mjs';
 import {makeCorpus} from '../mcp/swarm_corpus.mjs';
 import {learnSwarmPolicy} from '../mcp/swarm_policy.mjs';
 import {runResearch} from '../mcp/research_learning.mjs';
+import {buildRegistry,attachRegistry,mergeInventories} from '../mcp/repository_fabric.mjs';
 import {DOMAINS} from '../mcp/intelligence_gaps.mjs';
 const [rootArg,mode='cycle']=process.argv.slice(2);
 if(!rootArg||!['cycle','init','status'].includes(mode))throw Error('usage: swarm_cycle.mjs ROOT [init|cycle|status]');
@@ -95,7 +96,12 @@ try{
  save(join(dir,'neural-policy.json'),learning);
  const research=runResearch(roundSeed);
  save(join(dir,'research.json'),research);
+ const localInventory=join(root,'local-source-inventory.json');
+ if(existsSync(localInventory)){
+  const wsl=join(root,'wsl-source-inventory.json'),archives=join(root,'local-source-archives.json');
+  state=attachRegistry(state,buildRegistry(mergeInventories(read(localInventory,32*1024**2),existsSync(wsl)?read(wsl,32*1024**2):null,existsSync(archives)?read(archives,32*1024**2):null)));
+ }
  save(join(dir,'population.json'),state);
- const status={status:'completed',mode,agents:state.agents.length,agents_per_family:state.per_family,executable_agents:state.agents.filter(a=>supportedDomains.includes(a.domain)).length,agents_with_outcomes:state.agents.filter(a=>a.attempts>0).length,verified_tasks:state.evidence.length,successful_tasks:state.agents.reduce((n,a)=>n+a.wins,0),results,teacher,reference:{...reference,receipts:refs.length,specialist_matches:parity.filter(x=>x.status==='matched_on_specialist_probes').length,general_reasoning_verified:false},lineage:{teachers:lineage.teachers.length,births:lineage.births.length,max_observed_level:Math.max(1,...observations.filter(r=>r.seed<200000000).map(r=>levelOf(r.seed))),capacity_reached:lineage.capacity_reached,parity_7b_general_verified:false},neural_policy:learning.status,research:{continual_selected:research.continual.selected.name,retention_mse:research.continual.selected.retention_mse,transfer_mse:research.continual.selected.transfer_mse,forecast:research.forecast.selected,causal_effect:research.causal.effect,hypothesis:research.hypothesis.selected},verified_lessons:lessons.length,verified_examples:lessons.reduce((n,l)=>n+l.examples.length,0),independent_llm_weights:false,production_authority:false};
+ const status={status:'completed',mode,agents:state.agents.length,agents_per_family:state.per_family,executable_agents:state.agents.filter(a=>supportedDomains.includes(a.domain)).length,agents_with_outcomes:state.agents.filter(a=>a.attempts>0).length,verified_tasks:state.evidence.length,successful_tasks:state.agents.reduce((n,a)=>n+a.wins,0),results,teacher,reference:{...reference,receipts:refs.length,specialist_matches:parity.filter(x=>x.status==='matched_on_specialist_probes').length,general_reasoning_verified:false},lineage:{teachers:lineage.teachers.length,births:lineage.births.length,max_observed_level:Math.max(1,...observations.filter(r=>r.seed<200000000).map(r=>levelOf(r.seed))),capacity_reached:lineage.capacity_reached,parity_7b_general_verified:false},neural_policy:learning.status,research:{continual_selected:research.continual.selected.name,retention_mse:research.continual.selected.retention_mse,transfer_mse:research.continual.selected.transfer_mse,forecast:research.forecast.selected,causal_effect:research.causal.effect,hypothesis:research.hypothesis.selected},verified_lessons:lessons.length,verified_examples:lessons.reduce((n,l)=>n+l.examples.length,0),repository_registry:state.repository_registry??null,repository_locations:state.agents[0]?.repository_count??0,independent_llm_weights:false,production_authority:false};
  save(join(dir,'status.json'),status);console.log(JSON.stringify(status));
 }finally{closeSync(fd);unlinkSync(lock);}

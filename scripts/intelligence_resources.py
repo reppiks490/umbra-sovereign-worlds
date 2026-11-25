@@ -115,6 +115,20 @@ def balanced_order(rows):
   while groups:
    k,q=groups.popleft();yield q.popleft()
    if q:groups.append((k,q))
+from human_corpus import ORIGINAL_ROWS
+SOURCE_POLICY_VERSION=2
+def source_disposition(row):
+ if row.get('kind')=='wheel':return 'tool_artifact'
+ if row.get('kind')!='dataset':return 'deferred_source_review'
+ if row in ORIGINAL_ROWS:return 'human_authored_corpus' if row['split']=='candidate_training' else 'evaluation_only'
+ if row.get('repo') in ('cais/mmlu','google-research-datasets/mbpp','google/IFEval','TIGER-Lab/MMLU-Pro','openai/healthbench') and row.get('split')=='evaluation':return 'evaluation_only'
+ return 'deferred_source_review'
+def source_order(rows):
+ # The two original GSM8K main shards precede all other resources.
+ ordered=list(balanced_order(rows))
+ first=[r for r in ordered if r in ORIGINAL_ROWS]
+ yield from first
+ yield from (r for r in ordered if r not in first and source_disposition(r)!='deferred_source_review')
 def preview(rows):
  out={k:{'cap_bytes':v,'eligible_bytes':0,'admitted_bytes':0,'admitted_files':0} for k,v in BUDGETS.items()}
  for row in balanced_order(rows):
@@ -128,8 +142,10 @@ def run(plan_only=False,refresh=False):
  if not m or refresh:
   if refresh and not plan_only:raise ValueError('refresh requires plan-only mode')
   m=merge_plan(m,plan());write(manifest,m)
+ if any(r not in m['rows'] for r in ORIGINAL_ROWS):
+  m=merge_plan(m,{**m,'rows':ORIGINAL_ROWS});write(manifest,m)
  print('PLAN_READY',len(m['rows']),sum(x['size'] for x in m['rows']),flush=True)
- print('BUDGET_PREVIEW',json.dumps(preview(m['rows'])),flush=True)
+ print('SOURCE_POLICY_PREVIEW',json.dumps(preview(list(source_order(m['rows'])))),flush=True)
  if plan_only:return
  training=ROOT.parent/'umbra-train-native-20261124'
  status=load(ROOT/'neural-priority-status.json')
@@ -140,7 +156,7 @@ def run(plan_only=False,refresh=False):
  results=[]
  try:
   if (training/'bootstrap.lock').exists():return
-  for row in balanced_order(m['rows']):
+  for row in source_order(m['rows']):
    cat=row['category'];bucket=root/cat;folder=bucket/(row['repo'].replace('/','--')+'--'+row['revision'][:12]);target=folder/row['path']
    if not safe_path(row['path']) or cat not in BUDGETS:raise ValueError('unsafe manifest')
    receipt=target.with_name(target.name+'.receipt.json')
@@ -161,7 +177,7 @@ def run(plan_only=False,refresh=False):
     write(receipt,row);results.append({'repo':row['repo'],'path':row['path'],'status':'verified'});print('VERIFIED',row['repo'],row['path'],flush=True)
    except Exception as e:
     results.append({'repo':row['repo'],'path':row['path'],'status':'retry_needed','reason':type(e).__name__});print('RETRY',row['repo'],type(e).__name__,flush=True)
-  write(root/'status.json',{'status':'pass_finished','timestamp':int(time.time()),'results':results,'manifest_rows':len(m['rows']),'used_bytes':size(root)})
+  write(root/'status.json',{'status':'pass_finished','timestamp':int(time.time()),'results':results,'manifest_rows':len(m['rows']),'source_policy_version':SOURCE_POLICY_VERSION,'deferred_source_review':sum(source_disposition(r)=='deferred_source_review' for r in m['rows']),'used_bytes':size(root)})
  finally:lock.unlink(missing_ok=True)
 def resume(root,training,queue_status):
  import subprocess
@@ -170,7 +186,7 @@ def resume(root,training,queue_status):
  s=load(d/'status.json');a=load(d/'attempt.json');now=int(time.time())
  if pid_alive(a.get('pid')):return {'status':'running'}
  if queue_status!='ready' or not neural_complete(load(root/'neural-priority-status.json')) or (training/'bootstrap.lock').exists():return {'status':'deferred_neural_or_training'}
- if s.get('status')=='pass_finished' and s.get('manifest_rows')==len(load(d/'plan.json').get('rows',[])) and not any(x.get('status') in ('deferred_storage','retry_needed') for x in s.get('results',[])):return {'status':'complete'}
+ if s.get('status')=='pass_finished' and s.get('source_policy_version')==SOURCE_POLICY_VERSION and s.get('manifest_rows')==len(load(d/'plan.json').get('rows',[])) and not any(x.get('status') in ('deferred_storage','retry_needed') for x in s.get('results',[])):return {'status':'complete'}
  if now-max(a.get('timestamp',0),s.get('timestamp',0))<1800:return {'status':'cooldown'}
  py=Path(sys.base_prefix)/'python.exe'
  if not py.is_file():return {'status':'deferred_runtime'}

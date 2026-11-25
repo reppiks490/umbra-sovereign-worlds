@@ -10,6 +10,7 @@ from chronos_tournament import campaign as chronos_campaign
 from learning_workspace import refresh as refresh_learning_workspace
 from source_knowledge import refresh as refresh_source_knowledge, learning_policy
 from source_assist import cycle as source_assist_cycle
+from human_corpus import audit as audit_human_corpus
 from hf_weight_cache import lock
 from native_lora_train import available_ram,required_memory
 from urllib.request import urlopen
@@ -163,6 +164,8 @@ def main(root):
    try:
     result['source_assist']=source_assist_cycle(root) if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running') else {'status':'deferred_source_or_bootstrap'}
    except Exception as e:result['source_assist_error']=type(e).__name__
+   try:result['human_corpus']=audit_human_corpus(root)
+   except Exception as e:result['human_corpus_error']=type(e).__name__
    write_status(root,result)
    print(json.dumps(result),flush=True)
  except FileExistsError:print(json.dumps({'status':'service_busy'}),flush=True)

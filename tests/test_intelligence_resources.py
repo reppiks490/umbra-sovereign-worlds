@@ -54,3 +54,17 @@ class ResourcesTest(unittest.TestCase):
   self.assertEqual(result['science']['admitted_bytes'],1800000000)
   self.assertEqual(result['science']['admitted_files'],2)
   self.assertEqual(result['symbolic']['admitted_bytes'],0)
+
+ def test_source_only_acquisition_preserves_review_boundary(self):
+  from intelligence_resources import source_disposition,source_order
+  from human_corpus import ORIGINAL_ROWS
+  human=ORIGINAL_ROWS[0]
+  synthetic={**human,'repo':'HuggingFaceTB/cosmopedia'}
+  duplicate={**human,'path':'socratic/train-00000-of-00001.parquet'}
+  benchmark={**human,'repo':'cais/mmlu','split':'evaluation'}
+  wheel={**human,'repo':'symengine','kind':'wheel','split':'tool_artifact'}
+  self.assertEqual(source_disposition(human),'human_authored_corpus')
+  self.assertEqual(source_disposition(benchmark),'evaluation_only')
+  self.assertEqual(source_disposition(synthetic),'deferred_source_review')
+  self.assertEqual(source_disposition(duplicate),'deferred_source_review')
+  self.assertEqual(list(source_order([wheel,synthetic,duplicate,benchmark,human])),[human,wheel,benchmark])

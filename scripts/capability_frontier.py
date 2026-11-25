@@ -61,6 +61,12 @@ def run(root):
  results=[load(p) for p in (e/'source-lora').rglob('last-result.json')]
  with Knowledge(k) as db:stats=db.stats()
  r=make_frontier({'native_bundles':len(list((root/'neural').glob('*/receipt.json'))),'students':sum(x['present'] for x in roster(root)),'source_repos':stats['repositories'],'human_records':human.get('original_training',0)+human.get('original_test',0),'student_feeds':len(feeds),'optimizer_steps':sum(x.get('optimizer_steps',0) for x in results),'accepted_adapters':sum(bool(x.get('retained_candidate')) for x in results),'icarus_repos':len(coverage.get('indexed',[])),'resource_files':len(list((root/'intelligence-resources').rglob('*.receipt.json')))})
+ code=load(k/'code-coverage.json');retrieval=load(k/'retrieval-qualification.json')
+ r['evidence']={'code_index':{x:code.get(x) for x in ('symbols','files','repositories','integrity')},'retrieval_probe_count':retrieval.get('probe_count',0),'retrieval_variants':len(retrieval.get('variants',{})),'reference_parity':retrieval.get('parity',{})}
+ for g in r['gaps']:
+  if g['route']=='repository_code_index' and code.get('integrity')=='ok' and code.get('symbols',0)>0:g['status']='partial';g['next_evidence']='Expand selected static symbol index and evaluate code-grounded answers.'
+  if g['route']=='model_composition' and len(retrieval.get('variants',{}))>1:g['status']='partial';g['next_evidence']='Compare exploratory combinations on independent labeled data, then test downstream answers.'
+  if g['route']=='reranking' and 'cross-encoder/ms-marco-MiniLM-L6-v2' in retrieval.get('identities',{}):g['status']='partial';g['next_evidence']='Evaluate cross-encoder on a larger independent relevance benchmark and connect bounded inference to students.'
  r['timestamp']=int(time.time());r['training_scope']='latest completed receipt per model, not cumulative optimizer lifetime';r['verified_feed_models']=sorted(feeds);r['repository_coverage']=coverage.get('unavailable',[])
  p=root/'infinity'/'capability-frontier.json';p.parent.mkdir(exist_ok=True);tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(r,indent=2),encoding='utf8');tmp.replace(p)
  return r

@@ -11,6 +11,7 @@ from learning_workspace import refresh as refresh_learning_workspace
 from source_knowledge import refresh as refresh_source_knowledge, learning_policy
 from student_council import run as council_cycle
 from icarus_knowledge import refresh as refresh_icarus
+from icarus_code_index import run as refresh_code_index
 from capability_frontier import run as refresh_frontier
 from source_training_schedule import run as source_training_cycle
 from human_corpus import audit as audit_human_corpus
@@ -166,6 +167,10 @@ def main(root):
    except Exception as e:result['source_knowledge_error']=type(e).__name__
    try:result['icarus_knowledge']=refresh_icarus(root)
    except Exception as e:result['icarus_knowledge_error']=type(e).__name__
+   try:
+    code=root/'experience'/'source-knowledge'/'code-coverage.json'
+    if not code.exists() or time.time()-code.stat().st_mtime>=86400:result['icarus_code_index']=refresh_code_index(root)
+   except Exception as e:result['icarus_code_index_error']=type(e).__name__
    try:
     result['source_assist']=council_cycle(root,training) if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running') else {'status':'deferred_source_or_bootstrap'}
    except Exception as e:result['source_assist_error']=type(e).__name__

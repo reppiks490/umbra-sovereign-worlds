@@ -9,7 +9,7 @@ def validate_quote(value,sources):
  i=value['source'];q=value['quote']
  if type(i) is not int or not 1<=i<=len(sources) or not isinstance(q,str) or not 12<=len(q)<=600 or q not in sources[i-1]['text']:return {'verified_quote':False}
  s=sources[i-1]
- return {'verified_quote':True,'quote':q,**{k:s.get(k) for k in ('repo','revision','path','sha256','start_line','end_line')},'scope':'verbatim source evidence; relevance and factual correctness not established'}
+ return {'verified_quote':True,'quote':q,**{k:s.get(k) for k in ('repo','revision','path','sha256','start_line','end_line','symbol','blob_sha256')},'scope':'verbatim source evidence; relevance and factual correctness not established'}
 def local_api(path,body=None,timeout=10):
  with urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:11434/api/'+path,data=json.dumps(body).encode() if body is not None else None,headers={'Content-Type':'application/json'}),timeout=timeout) as f:
   raw=f.read(1048577)
@@ -26,10 +26,20 @@ def apply_ranked(sources,ranked):
   if not isinstance(scores,dict) or not scores or any(not isinstance(k,str) or type(v) not in (int,float) or not math.isfinite(v) or abs(v)>1 for k,v in scores.items()) or type(fused) not in (int,float) or not math.isfinite(fused) or abs(fused)>1:raise ValueError('ranking score')
   unused.remove(original);out.append(row)
  return out
+def merge_sources(query,docs,code):
+ if not re.search(r'\bicarus\b',query,re.I) or not code:return docs[:3]
+ return docs[:2]+code[:1]
+def retrieve_sources(root,query):
+ with Knowledge(root/'experience'/'source-knowledge') as bank:docs=bank.search(query,3)
+ if not re.search(r'\bicarus\b',query,re.I):return docs
+ from icarus_code_index import search
+ p=root/'experience'/'source-knowledge'/'code-symbols.sqlite3'
+ code=search(root,query,1) if p.is_file() else []
+ return merge_sources(query,docs,code)
 def assist(root,query,model,ranked_sources=None):
  if model not in MODELS:raise ValueError('unsupported local model')
  if not isinstance(query,str) or not 1<=len(query)<=300:raise ValueError('query budget')
- with Knowledge(root/'experience'/'source-knowledge') as bank:sources=bank.search(query,3)
+ sources=retrieve_sources(root,query)
  if not sources:return {'status':'no_evidence','production_authority':False}
  if ranked_sources is not None:sources=apply_ranked(sources,ranked_sources)
  if local_api('ps').get('models'):return {'status':'deferred_busy','production_authority':False}

@@ -41,7 +41,8 @@ def run(root,training,name,attempt,query):
  from specialist_feed import score,fuse_rankings,MODELS
  p,digest,n=checkpoint(root,training,name)
  if available_ram()<2*n+3000000000:return {'feed':{'status':'deferred_memory'},'lesson':{'status':'deferred_memory'}}
- with Knowledge(root/'experience'/'source-knowledge') as k:sources=k.search(query,3)
+ from source_assist import retrieve_sources
+ sources=retrieve_sources(root,query)
  results=[];errors=[]
  with lock(root/'cache-use.lock'):
   for repo in MODELS:

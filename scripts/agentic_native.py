@@ -124,6 +124,10 @@ def available_ram():
   if not ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)):raise ValueError('RAM unavailable')
   return m.avail
  return os.sysconf('SC_AVPHYS_PAGES')*os.sysconf('SC_PAGE_SIZE')
+def configure_tokenizer(tokenizer,max_length):
+ if type(max_length) is not int or not 1<=max_length<=128:raise ValueError('token budget')
+ tokenizer.no_padding();tokenizer.enable_truncation(max_length=max_length)
+ return tokenizer
 def embed(root,repo,text):
  if repo not in SUPPORTED or not isinstance(text,str) or not 1<=len(text)<=2048:raise ValueError('unsupported embedding')
  candidates=inventory(root,repo)
@@ -134,7 +138,7 @@ def embed(root,repo,text):
  cfg=json.loads(verify_file(folder,files['config.json']).read_text(encoding='utf8'))
  if cfg.get('model_type')!='bert':raise ValueError('unsupported architecture')
  from tokenizers import Tokenizer
- tokenizer=Tokenizer.from_file(str(verify_file(folder,files['tokenizer.json'])));tokenizer.enable_truncation(max_length=128)
+ tokenizer=configure_tokenizer(Tokenizer.from_file(str(verify_file(folder,files['tokenizer.json']))),128)
  ids=tokenizer.encode(text).ids
  with SafeWeights(verify_file(folder,files['model.safetensors'])) as w:out=bert_forward(w,cfg,ids,SUPPORTED[repo])
  return {'schema':'umbra.native.embedding.v1','model':repo,'revision':r['revision'],'weight_sha256':r['digest'],'dimensions':len(out),'embedding':out.tolist(),'inference_verified':True,'synthetic':True,'research_qualified':False,'production_authority':False}

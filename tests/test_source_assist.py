@@ -16,3 +16,13 @@ class SourceAssistTest(unittest.TestCase):
   self.assertEqual([r['text'] for r in apply_ranked([a,b],ranked)],['original second','original first'])
   with self.assertRaises(ValueError):apply_ranked([a,b],[{**ranked[0],'text':'changed'},ranked[1]])
   with self.assertRaises(ValueError):apply_ranked([a,b],[ranked[0],ranked[0]])
+
+ def test_source_mix_preserves_provenance_and_budget(self):
+  from source_assist import merge_sources
+  docs=[{'text':'document','sha256':'a'*64},{'text':'second','sha256':'b'*64},{'text':'third','sha256':'c'*64}]
+  code=[{'text':'def foo(): return 1','sha256':'d'*64,'symbol':'foo','blob_sha256':'e'*64}]
+  self.assertEqual(merge_sources('general research',docs,code),docs)
+  mixed=merge_sources('ICARUS risk implementation',docs,code)
+  self.assertEqual(len(mixed),3)
+  self.assertEqual(mixed[2],code[0])
+  self.assertEqual(merge_sources('ICARUS risk',docs,[]),docs)

@@ -16,7 +16,7 @@ def fuse_rankings(sources,results):
   out.append({**s,'specialist_scores':scores,'fused_score':round(sum(scores.values())/len(scores),12)})
  return sorted(out,key=lambda x:-x['fused_score'])
 def score(root,repo,query,sources):
- from agentic_native import inventory,read_receipt,verify_file,SafeWeights,bert_forward,SUPPORTED
+ from agentic_native import inventory,read_receipt,verify_file,SafeWeights,bert_forward,SUPPORTED,configure_tokenizer
  from tokenizers import Tokenizer
  import numpy as np
  candidates=inventory(root,repo)
@@ -26,7 +26,7 @@ def score(root,repo,query,sources):
  receipt=read_receipt(folder);files={f['name']:f for f in receipt['files']}
  cfg=json.loads(verify_file(folder,files['config.json']).read_text(encoding='utf8'))
  if cfg.get('model_type')!='bert':raise ValueError('architecture')
- tok=Tokenizer.from_file(str(verify_file(folder,files['tokenizer.json'])));tok.enable_truncation(max_length=96)
+ tok=configure_tokenizer(Tokenizer.from_file(str(verify_file(folder,files['tokenizer.json']))),96)
  with SafeWeights(verify_file(folder,files['model.safetensors'])) as w:
   q=bert_forward(w,cfg,tok.encode(query).ids,SUPPORTED[repo])
   scores=[float(np.clip(q@bert_forward(w,cfg,tok.encode(s['text']).ids,SUPPORTED[repo]),-1,1)) for s in sources]
@@ -41,10 +41,10 @@ def catalog(root):
    except (OSError,ValueError):continue
  return rows
 def run(root,query,model):
- from source_assist import assist
+ from source_assist import assist,retrieve_sources
  from hf_weight_cache import lock
  outdir=root/'experience'/'source-knowledge';outdir.mkdir(parents=True,exist_ok=True)
- with Knowledge(outdir) as db:sources=db.search(query,3)
+ sources=retrieve_sources(root,query)
  if not sources:return {'status':'no_sources'}
  with lock(root/'cache-use.lock'):
   results=[];errors=[]
@@ -55,7 +55,7 @@ def run(root,query,model):
  ranked=fuse_rankings(sources,results)
  try:answer=assist(root,query,model,ranked_sources=ranked)
  except Exception as e:answer={'status':'failed','reason':type(e).__name__}
- result={'status':'feed_verified' if answer.get('status')=='quote_verified' else 'ranked_sources_only','query':query,'model':model,'specialists':results,'errors':errors,'ranked_sources':[{k:s.get(k) for k in ('repo','revision','path','sha256','start_line','end_line','specialist_scores','fused_score')} for s in ranked],'answer':answer,'catalog':catalog(root),'weight_training':False,'production_authority':False}
+ result={'status':'feed_verified' if answer.get('status')=='quote_verified' else 'ranked_sources_only','query':query,'model':model,'specialists':results,'errors':errors,'ranked_sources':[{k:s.get(k) for k in ('repo','revision','path','sha256','start_line','end_line','symbol','blob_sha256','specialist_scores','fused_score')} for s in ranked],'answer':answer,'catalog':catalog(root),'weight_training':False,'production_authority':False}
  p=outdir/'latest-specialist-feed.json';tmp=p.with_suffix('.tmp');tmp.write_text(json.dumps(result,indent=2),encoding='utf8');tmp.replace(p)
  if result['status']=='feed_verified':
   target=outdir/('latest-specialist-feed-'+model.replace(':','-').replace('/','--')+'.json')

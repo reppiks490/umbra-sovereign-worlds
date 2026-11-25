@@ -139,7 +139,13 @@ def embed(root,repo,text):
  with SafeWeights(verify_file(folder,files['model.safetensors'])) as w:out=bert_forward(w,cfg,ids,SUPPORTED[repo])
  return {'schema':'umbra.native.embedding.v1','model':repo,'revision':r['revision'],'weight_sha256':r['digest'],'dimensions':len(out),'embedding':out.tolist(),'inference_verified':True,'synthetic':True,'research_qualified':False,'production_authority':False}
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--root',required=True,type=Path);p.add_argument('--model');a=p.parse_args()
+ from hf_weight_cache import Cache,lock
+ p=argparse.ArgumentParser();p.add_argument('--root',required=True,type=Path);p.add_argument('--model');p.add_argument('--restore',action='store_true');a=p.parse_args()
  if a.model:
-  text=sys.stdin.read(2049);print(json.dumps(embed(a.root,a.model,text)))
- else:print(json.dumps({'models':inventory(a.root),'research_qualified':False,'production_authority':False}))
+  if a.restore and a.model in SUPPORTED:
+   remote=[x for x in Cache(a.root).list() if x['repo']==a.model and x['status']=='remote']
+   if len(remote)==1:Cache(a.root).ensure(remote[0]['digest'])
+   elif len(remote)>1:raise ValueError('ambiguous remote revision')
+  text=sys.stdin.read(2049)
+  with lock(a.root/'cache-use.lock'):print(json.dumps(embed(a.root,a.model,text)))
+ else:print(json.dumps({'models':inventory(a.root),'archived':[x for x in Cache(a.root).list() if x['status']=='remote'],'research_qualified':False,'production_authority':False}))

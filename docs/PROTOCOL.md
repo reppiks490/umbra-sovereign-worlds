@@ -33,3 +33,7 @@ See [AUTOGENESIS documentation](AUTOGENESIS.md). Adds 100 strategy-role configur
 
 ### Agentic Nexus Ω
 See [Agentic Nexus](AGENTIC_NEXUS.md) for the owner-local council, native BERT inference, experience bank, replay-verified training and adaptive model routing. Synthetic evaluation only; native pretrained inference and broad agentic capability remain unqualified.
+
+
+### Hugging Face-backed weight cache
+See [HF weight cache](HF_WEIGHT_CACHE.md): owner-only eviction and checksum-pinned restoration of original public single-file native weights, remote registry and opt-in supported-model retrieval. No automatic deletion, private uploads or Ollama weight eviction.

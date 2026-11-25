@@ -21,7 +21,7 @@ function nativeInvoke(model,text){
  const env={};for(const k of ['SystemRoot','SYSTEMROOT','WINDIR','TEMP','TMP','TMPDIR','LANG','PATH','Path'])if(process.env[k]!==undefined)env[k]=process.env[k];
  Object.assign(env,{OPENBLAS_NUM_THREADS:'1',OMP_NUM_THREADS:'1',MKL_NUM_THREADS:'1',TOKENIZERS_PARALLELISM:'false',PYTHONNOUSERSITE:'1'});
  const args=[join(ROOT,'scripts','agentic_native.py'),'--root',c.root];
- if(model)args.push('--model',model);
+ if(model){args.push('--model',model);if(process.env.UMBRA_AGENTIC_AUTO_RESTORE==='1')args.push('--restore');}
  const p=spawnSync(c.python,args,{input:text,encoding:'utf8',cwd:ROOT,env,timeout:120000,maxBuffer:2097152,windowsHide:true});
  if(p.error||p.status!==0)throw Error('native inference or catalog unavailable');
  return JSON.parse(p.stdout);
@@ -48,11 +48,22 @@ export async function nexusCatalog({ollama=availableAdapters,native=()=>nativeIn
   seen.add(x.digest);
   return {model:x.repo,runtime:x.runtime,revision:x.revision,weight_sha256:x.digest,size_bytes:x.size_bytes,roles:x.runtime==='numpy-bert'?['retrieval']:[],weights_verified:true,inference_verified:false};
  });
- return {schema:'umbra.nexus.catalog.v1',models:[...o.adapters.map(x=>({...x,runtime:'ollama',inference_verified:false})),...ext],research_qualified:false,production_authority:false};
+ const archives=n.archived??[];
+ if(!Array.isArray(archives)||archives.length>200)throw Error('invalid archive inventory');
+ const remote=archives.map(x=>{
+  if(typeof x.repo!=='string'||!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(x.repo)||!hex(x.digest)||!rev(x.revision)||seen.has(x.digest)||!Number.isSafeInteger(x.size_bytes)||x.size_bytes<=0||x.status!=='remote'||x.source!=='https://huggingface.co/'+x.repo+'/tree/'+x.revision)throw Error('invalid archive entry');
+  seen.add(x.digest);
+  return {model:x.repo,runtime:supported.has(x.repo)?'numpy-bert':'catalog-only',revision:x.revision,weight_sha256:x.digest,size_bytes:x.size_bytes,roles:supported.has(x.repo)?['retrieval']:[],availability:'remote',source:x.source,weights_verified:false,inference_verified:false};
+ });
+ return {schema:'umbra.nexus.catalog.v1',models:[...o.adapters.map(x=>({...x,runtime:'ollama',inference_verified:false})),...ext,...remote],research_qualified:false,production_authority:false};
 }
 export function nativeMissionEmbedding(model,mission,{native=nativeInvoke}={}){
  if(!supported.has(model))throw Error('unsupported native model');
  const c=native(),matches=c.models.filter(x=>x.repo===model&&x.runtime==='numpy-bert'&&x.weights_verified===true);
+ if(matches.length===0&&process.env.UMBRA_AGENTIC_AUTO_RESTORE==='1'){
+  const archived=(c.archived??[]).filter(x=>x.repo===model&&x.status==='remote'&&hex(x.digest)&&rev(x.revision)&&x.source==='https://huggingface.co/'+x.repo+'/tree/'+x.revision);
+  if(archived.length===1)matches.push(archived[0]);
+ }
  if(matches.length!==1)throw Error('verified native bundle unavailable');
  const r=native(model,missionText(mission));validateEmbedding(r,matches[0]);return r;
 }

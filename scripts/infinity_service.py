@@ -175,6 +175,13 @@ def main(root):
    except Exception as e:result['learning_workspace_error']=type(e).__name__
    try:result['native_training']=run_native_training(root,training,ready) if result.get('learning_workspace',{}).get('status')=='ready' else {'status':'deferred_incomplete_curriculum_or_replay'}
    except Exception as e:result['native_training_error']=type(e).__name__
+   try:
+    py=training/'venv'/'Scripts'/'python.exe'
+    if py.is_file() and available_ram()>=3000000000 and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running'):
+     p=subprocess.run([str(py),str(Path(__file__).resolve().with_name('campaign_weight_bank.py')),'--root',str(root),'--training',str(training)],capture_output=True,text=True,timeout=180,check=True)
+     result['campaign_weight_bank']=json.loads(p.stdout.splitlines()[-1])
+    else:result['campaign_weight_bank']={'status':'deferred_memory_or_runtime'}
+   except Exception as e:result['campaign_weight_bank_error']=type(e).__name__
    write_status(root,result)
    print(json.dumps(result),flush=True)
  except FileExistsError:print(json.dumps({'status':'service_busy'}),flush=True)

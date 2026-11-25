@@ -38,6 +38,7 @@ function parseInventory(input){
  }
  return out.sort((a,b)=>a.model.localeCompare(b.model));
 }
+export async function ollamaBusy({request=localRequest}={}){const status=await request('/api/ps');if(!Array.isArray(status?.models))throw Error('invalid runtime status');return status.models.length!==0;}
 export async function availableAdapters({request=localRequest}={}){
  return {schema:'umbra.local_adapters.v1',adapters:parseInventory(await request('/api/tags')),research_qualified:false,production_authority:false};
 }

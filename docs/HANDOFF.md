@@ -30,3 +30,7 @@ Never claim a branch/PR/merge/hosting release exists without checking provider r
 ## 2026-11-24 owner-local continuation
 
 Native compute PR #26 provides the actual engine-backed stdio tools. The stacked owner-local branch adds `mcp/owner_once.mjs`, a one-request local execution path for an independently authorized Desktop Commander connection; see `docs/UMBRA_OWNER_LOCAL_EXECUTION.md`. No public endpoint, model training, or production deployment is implied. Keep MYRIAD PR #21 separate and preserve existing schedules. Require exact-head tests and owner-machine receipts before claiming operational readiness.
+
+## Owner-local model adapters
+
+See `docs/UMBRA_LOCAL_MODEL_ADAPTERS.md`. The owner CLI now routes explicit model_list and model operations to installed Ollama models for bounded synthetic evidence commentary or retrieval fingerprints. Runtime adapters are not trained LoRA weights; no automatic training or live engine decisions. Preserve the separate research and inventory PRs and verify exact-head tests before merging.

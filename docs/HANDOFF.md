@@ -34,3 +34,7 @@ Native compute PR #26 provides the actual engine-backed stdio tools. The stacked
 ## Owner-local model adapters
 
 See `docs/UMBRA_LOCAL_MODEL_ADAPTERS.md`. The owner CLI now routes explicit model_list and model operations to installed Ollama models for bounded synthetic evidence commentary or retrieval fingerprints. Runtime adapters are not trained LoRA weights; no automatic training or live engine decisions. Preserve the separate research and inventory PRs and verify exact-head tests before merging.
+
+## POLYMIND continuation
+
+See `docs/UMBRA_POLYMIND.md`. The multi-source acquisition and owner-local unified dispatch branches extend #29/#30. Model discovery and one-request execution use existing Ollama or a separately configured ONNX Python environment; engine state is unchanged. Verify exact revision and actual owner catalog before inference. Preserve the disk reserve, distinguish download from inference qualification, and do not treat the catalog as a trained adapter bank.

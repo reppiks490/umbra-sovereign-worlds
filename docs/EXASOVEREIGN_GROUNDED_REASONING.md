@@ -1,0 +1,9 @@
+# EXASOVEREIGN grounded executable reasoning
+
+Exact rational arithmetic with a bounded typed DAG, explicit operator precedence, numeric resource limits, replayable computation receipts and no arbitrary code execution. Model-generated expressions are parsed rather than executed as code. Literal membership in original source questions is checked, including explicitly triggered conversion constants. Correct computation does not establish correct interpretation.
+
+Owner's arithmetic challenge: (2*17+42*(372*47))/2 = 367181, independently checked by the exact engine. The unaided benchmark returned six model responses: Qwen3 4B truncated, Phi4 Mini 365181, Granite 3.3 2B 367231, Qwen3 1.7B 369441, DeepSeek R1 1.5B 8759, Qwen2.5 Coder 1.5B invalid symbolic answer. None supplied the intended final answer. Three Ollama variants deferred busy, six native variants deferred memory, one native checkpoint absent. Nominal 7B was not admitted by the initial parameter filter; no grade assigned. Raw receipts remain local. This one owner question is not a general model benchmark.
+
+The new grounded-reasoning portfolio lane compares matched direct and tool-assisted answers on original development validation cases with equal generation budgets. It preserves complete and partial receipts separately, verifies model digest and source identities, replays raw responses and exact computations, rejects overlaps, and aggregates verified results. No generated training data, final-test inference, or automatic promotion. Source selection verified against 715 original validation records. 193 Python tests passed including 20 new tests; live hybrid inference superiority is not yet established.
+
+Run: python scripts/grounded_reasoning.py --root DATA_ROOT --model qwen3:0.6b --offset 100 --count 2 in the existing native environment. Existing shared compute admission remains enforced.

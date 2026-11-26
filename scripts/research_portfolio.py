@@ -1,7 +1,7 @@
 """Resource-admitted source-only research portfolio with bounded fair scheduling."""
 import argparse,hashlib,json,shutil,subprocess,sys,time
 from pathlib import Path
-LANES={'collective':3000000000,'authentic_retrieval':2800000000,'neural_routing':4000000000,'instruction_following':2800000000,'receipt_replay':1500000000}
+LANES={'collective':3000000000,'authentic_retrieval':2800000000,'neural_routing':4000000000,'instruction_following':2800000000,'receipt_replay':1500000000,'grounded_reasoning':2800000000}
 STUDENTS=('qwen3:0.6b','granite4:350m','gemma3:1b')
 QUERIES=('ICARUS causal market replay event clock and execution verification','quality diversity optimization archives and behavior descriptors','time series forecasting chronological validation and persistence baseline')
 
@@ -40,6 +40,10 @@ def command_for(lane,root,python,completed):
         offset=2*(completed//len(STUDENTS))
         if offset>=8:return None
         return [str(python),str(scripts/'ifeval_local.py'),'--root',str(root),'--model',model,'--offset',str(offset),'--count','2']
+    if lane=='grounded_reasoning':
+        offset=100+2*(completed//len(STUDENTS))
+        if offset>713:return None
+        return [str(python),str(scripts/'grounded_reasoning.py'),'--root',str(root),'--count','2','--offset',str(offset),'--model',model]
     if lane=='receipt_replay':
         return [str(python),str(scripts/'council_receipt_audit.py'),'--root',str(root)]
     raise ValueError('unknown lane')
@@ -53,7 +57,7 @@ def normalize(lane,result):
     if status=='already_recorded':
         return 'already_recorded'
     if status=='completed':
-        if lane in ('collective','authentic_retrieval','instruction_following'):
+        if lane in ('collective','authentic_retrieval','instruction_following','grounded_reasoning'):
             return 'completed' if result.get('model_calls',0)>0 and result.get('completed_calls')==result.get('model_calls') else 'partial'
         if lane=='neural_routing':
             return 'completed' if len(result.get('specialists',[]))==3 and result.get('candidate_answer',{}).get('status') in ('quote_verified','abstained') else 'partial'
@@ -177,7 +181,12 @@ def evidence_snapshot(root):
                          'quote_verified':r.get('candidate_answer',{}).get('status')=='quote_verified',
                          'scope':'latest recorded trial; relevance not established'}
     except (OSError,ValueError,TypeError,KeyError) as exc:errors.append('routing:'+type(exc).__name__)
-    return {'collective':collective,'lesson_retrieval':load_trials(e/'lesson-retrieval','lesson'),
+    from grounded_reasoning import audit as audit_grounded
+    try:grounded=audit_grounded(root)
+    except (OSError,ValueError,TypeError,KeyError) as exc:
+        grounded={'cases':0,'trials':0,'production_authority':False}
+        errors.append('grounded:'+type(exc).__name__)
+    return {'grounded_reasoning':grounded,'collective':collective,'lesson_retrieval':load_trials(e/'lesson-retrieval','lesson'),
             'instruction_following':load_trials(e/'ifeval-local','instruction'),
             'neural_routing':routing,'errors':errors,
             'scope':'recorded development evidence, not independent general intelligence qualification',

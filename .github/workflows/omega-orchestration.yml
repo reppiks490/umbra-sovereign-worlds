@@ -1,0 +1,29 @@
+name: OMEGA orchestration qualification
+on:
+  pull_request:
+    paths:
+      - 'orchestration/omega/**'
+      - '.github/workflows/omega-orchestration.yml'
+permissions:
+  contents: read
+concurrency:
+  group: omega-orchestration-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  qualify:
+    name: OMEGA stdlib on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Execute dedicated orchestration suite
+        run: python -m unittest discover -s orchestration/omega -v

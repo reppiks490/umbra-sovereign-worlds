@@ -24,4 +24,16 @@ class CampaignTest(unittest.TestCase):
  def test_no_holdout_access(self):
   c=self.corpus();c['test']=None
   self.assertEqual(len(plan_cycle(c,{},4,lambda r:r)['training']),4)
+ def test_cross_split_question_overlap(self):
+  c=self.corpus();c['validation'][0]=validate({'question':' TRAINING 0+2 ','answer':'Different reasoning\n#### 2'})
+  with self.assertRaisesRegex(ValueError,'question overlap'):plan_cycle(c,{},4,lambda r:r)
+ def test_development_question_overlap(self):
+  c=self.corpus();c['validation'][9]=validate({'question':'VALIDATION 0+2','answer':'Different reasoning\n#### 2'})
+  with self.assertRaisesRegex(ValueError,'question overlap'):plan_cycle(c,{},4,lambda r:r)
+ def test_tampered_question_identity(self):
+  c=self.corpus();c['validation'][0]['question']='training 0+2'
+  with self.assertRaisesRegex(ValueError,'question identity'):plan_cycle(c,{},4,lambda r:r)
+ def test_tampered_solution_identity(self):
+  c=self.corpus();c['train'][0]['answer']='#### 999'
+  with self.assertRaisesRegex(ValueError,'record identity'):plan_cycle(c,{},4,lambda r:r)
 if __name__=='__main__':unittest.main()

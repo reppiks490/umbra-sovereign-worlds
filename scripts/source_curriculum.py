@@ -81,10 +81,24 @@ def campaign_eligible(state):
     attempts=cur.get('attempts',0)
     return type(cursor) is int and 0<=cursor<MAX_SCAN and type(attempts) is int and 0<=attempts<MAX_SCAN
 
+def verify_development_isolation(train,validation):
+    """Authenticate both accessible splits without reading the protected test partition."""
+    from human_corpus import validate
+    seen=set()
+    for rows in (train,validation):
+        for row in rows:
+            verified=validate({'question':row['question'],'answer':row['answer']})
+            question=verified['question_sha256']
+            if row.get('question_sha256')!=question:raise ValueError('question identity')
+            if row.get('record_sha256')!=verified['record_sha256']:raise ValueError('record identity')
+            if question in seen:raise ValueError('question overlap')
+            seen.add(question)
+
 def plan_cycle(corpus, prior, steps, encode):
     """Plan a resumable source-only window. Advance only after a recorded run."""
     if not 1<=steps<=8:raise ValueError('optimizer step budget')
     train,validation=corpus['train'],corpus['validation']
+    verify_development_isolation(train,validation)
     ti,vi=corpus_identity(train),corpus_identity(validation)
     if prior and (prior.get('train_identity')!=ti or prior.get('validation_identity')!=vi):
         raise ValueError('curriculum source changed')

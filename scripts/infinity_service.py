@@ -10,6 +10,7 @@ from chronos_tournament import campaign as chronos_campaign
 from learning_workspace import refresh as refresh_learning_workspace
 from source_knowledge import refresh as refresh_source_knowledge, learning_policy
 from student_council import run as council_cycle
+from research_portfolio import run as portfolio_cycle,service_due
 from icarus_knowledge import refresh as refresh_icarus
 from icarus_code_index import run as refresh_code_index
 from capability_frontier import run as refresh_frontier
@@ -172,7 +173,12 @@ def main(root):
     if not code.exists() or time.time()-code.stat().st_mtime>=86400:result['icarus_code_index']=refresh_code_index(root)
    except Exception as e:result['icarus_code_index_error']=type(e).__name__
    try:
-    result['source_assist']=council_cycle(root,training) if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running') else {'status':'deferred_source_or_bootstrap'}
+    if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running'):
+     if service_due(time.time()):
+      result['research_portfolio']=portfolio_cycle(root,training)
+      result['source_assist']={'status':'research_portfolio_cycle'}
+     else:result['source_assist']=council_cycle(root,training)
+    else:result['source_assist']={'status':'deferred_source_or_bootstrap'}
    except Exception as e:result['source_assist_error']=type(e).__name__
    try:result['human_corpus']=audit_human_corpus(root)
    except Exception as e:result['human_corpus_error']=type(e).__name__

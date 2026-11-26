@@ -9,10 +9,10 @@ from fractions import Fraction
 class ReasoningError(ValueError):
     pass
 
-NUMBER=re.compile(r'[+-]?[0-9]{1,24}(?:\.[0-9]{1,24})?')
+NUMBER=re.compile(r'[+-]?(?:[0-9]{1,24}(?:\.[0-9]{1,24})?|\.[0-9]{1,24})')
 IDENT=re.compile(r'[a-zA-Z][a-zA-Z0-9_]{0,31}')
 MAX_BITS=256
-ARITY={'add':(2,16),'sub':(2,2),'mul':(2,16),'div':(2,2),'neg':(1,1),
+ARITY={'add':(2,16),'sub':(2,2),'mul':(2,16),'div':(2,2),'floor_div':(2,2),'neg':(1,1),
        'abs':(1,1),'mean':(1,16),'min':(1,16),'max':(1,16),
        'return_pct':(2,2),'percent_of':(2,2),'pow':(2,2)}
 
@@ -36,6 +36,7 @@ def operation(op, a):
             v=Fraction(1)
             for x in a:v=bounded(v*x)
         elif op=='div':v=a[0]/a[1]
+        elif op=='floor_div':v=Fraction(a[0]//a[1])
         elif op=='neg':v=-a[0]
         elif op=='abs':v=abs(a[0])
         elif op=='mean':v=sum(a,Fraction(0))/len(a)
@@ -90,7 +91,7 @@ def verify_receipt(plan,receipt):
     try:return execute_plan(plan)==receipt
     except (ReasoningError,TypeError,ValueError):return False
 
-TOKEN=re.compile(r'[0-9]+(?:\.[0-9]+)?|[()+*/-]')
+TOKEN=re.compile(r'[0-9]+(?:\.[0-9]+)?|\.[0-9]+|//|[()+*/-]')
 def calculate(expr):
     """Compile an explicitly scoped expression; reject natural-language ambiguity."""
     if not isinstance(expr,str) or not 1<=len(expr)<=512:raise ReasoningError('expression budget')
@@ -127,8 +128,8 @@ def calculate(expr):
             return node('neg',args=[v]) if t=='-' else v
         literal(t)
         return node('literal',value=t)
-    precedence={'+':1,'-':1,'*':2,'/':2}
-    ops={'+':'add','-':'sub','*':'mul','/':'div'}
+    precedence={'+':1,'-':1,'*':2,'/':2,'//':2}
+    ops={'+':'add','-':'sub','*':'mul','/':'div','//':'floor_div'}
     def expression(minimum,depth):
         left=factor(depth)
         while peek() in precedence and precedence[peek()]>=minimum:

@@ -12,7 +12,7 @@ from verified_reasoner import calculate,ReasoningError
 class GroundingError(ValueError):
     pass
 
-NUM=re.compile(r'(?<![0-9.])(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.[0-9]+)?(?![0-9])')
+NUM=re.compile(r'(?<![0-9.])(?:(?:[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+)(?:\.[0-9]+)?|\.[0-9]+)(?![0-9])')
 CONVERSIONS=((r'\b(?:half|halves|twice|double|pair|pairs)\b','2'),
              (r'\b(?:quarter|quarters)\b','4'),
              (r'\b(?:triple|third|thirds)\b','3'),

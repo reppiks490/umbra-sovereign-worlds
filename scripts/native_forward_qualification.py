@@ -10,11 +10,22 @@ CAUSAL={'llama','qwen2','qwen3','granite','gemma','gemma2','gemma3_text'}
 VISION={'vit','resnet','swin'}
 TASKS={'feature-extraction','sentence-similarity'}
 CLASSIFICATION={'text-classification','zero-shot-classification','text-ranking'}
+FORECAST_ARCH={'patchtst':'PatchTSTForPrediction','patchtsmixer':'PatchTSMixerForPrediction'}
+def forecast_dimensions(config):
+    dimensions=tuple(config.get(k) for k in ('context_length','prediction_length','num_input_channels'))
+    if any(type(v) is not int or not 1<=v<=limit for v,limit in zip(dimensions,(2048,512,32))):raise ValueError('forecast dimensions')
+    if config.get('loss')!='mse':raise ValueError('only deterministic point forecasts supported')
+    return dimensions
 def route(receipt,config):
     if not isinstance(config,dict) or config.get('auto_map'):return None
     kind=config.get('model_type');task=receipt.get('task')
     names={x.get('name') for x in receipt.get('files',[]) if isinstance(x,dict)}
     if not {'model.safetensors','config.json'}<=names:return None
+    if task=='time-series-forecasting':
+        if kind not in FORECAST_ARCH or config.get('architectures')!=[FORECAST_ARCH[kind]]:return None
+        try:forecast_dimensions(config)
+        except ValueError:return None
+        return 'forecast'
     if kind in VISION and task=='image-classification':return 'vision'
     if kind in VISION|{'dinov2'} and task=='image-feature-extraction':return 'vision_features'
     if task=='automatic-speech-recognition':
@@ -72,10 +83,16 @@ def forward(folder,receipt,lane):
     import transformers as tf
     torch.set_num_threads(1)
     loaders={'encoder':tf.AutoModel,'classification':tf.AutoModelForSequenceClassification,'causal':tf.AutoModelForCausalLM,'vision':tf.AutoModelForImageClassification,'vision_features':tf.AutoModel,'seq2seq':tf.AutoModelForSeq2SeqLM,'whisper':tf.WhisperForConditionalGeneration,'ctc':tf.AutoModelForCTC,'masked':tf.AutoModelForMaskedLM,'token_classification':tf.AutoModelForTokenClassification}
+    if lane=='forecast':loaders[lane]=getattr(tf,FORECAST_ARCH[cfg['model_type']])
     model,info=loaders[lane].from_pretrained(str(folder),local_files_only=True,trust_remote_code=False,use_safetensors=True,torch_dtype=torch.float32,output_loading_info=True,low_cpu_mem_usage=True)
     if any(info.get(k) for k in ('missing_keys','unexpected_keys','mismatched_keys','error_msgs')):raise ValueError('inexact model load')
     model.eval()
-    if lane in ('vision','vision_features'):
+    if lane=='forecast':
+        context,horizon,channels=forecast_dimensions(cfg)
+        x=torch.arange(context,dtype=torch.float32)/context
+        past=torch.stack([torch.sin(x*(i+1)*math.pi)+x for i in range(channels)],dim=-1).unsqueeze(0)
+        args={'past_values':past}
+    elif lane in ('vision','vision_features'):
         side=cfg.get('image_size',224);channels=cfg.get('num_channels',3)
         if type(side) is not int or not 32<=side<=512 or channels!=3:raise ValueError('image shape budget')
         args={'pixel_values':torch.linspace(-1,1,3*side*side).reshape(1,3,side,side)}
@@ -105,7 +122,10 @@ def forward(folder,receipt,lane):
         args['decoder_input_ids']=torch.tensor([[token]],dtype=torch.long)
     with torch.inference_mode():
         result=model(**args)
-        tensor=result.last_hidden_state if lane in ('encoder','vision_features') else result.logits
+        if lane=='forecast':
+            tensor=result.prediction_outputs
+            if tuple(tensor.shape)!=(1,horizon,channels):raise ValueError('forecast output shape')
+        else:tensor=result.last_hidden_state if lane in ('encoder','vision_features') else result.logits
         if lane=='vision_features':tensor=tensor[:,0,:]
         if lane=='masked':tensor=tensor[:,mask_position,:]
         if lane in ('encoder','causal','seq2seq','whisper','ctc'):tensor=tensor[:,-1,:]

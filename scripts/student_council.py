@@ -6,7 +6,7 @@ from native_lora_train import available_ram,atomic
 from source_assist import local_api,MODELS as OLLAMA
 from hf_weight_cache import lock
 from human_corpus import audit_records,read_verified,ORIGINAL_ROWS
-NATIVE=('HuggingFaceTB/SmolLM2-360M-Instruct','HuggingFaceTB/SmolLM2-1.7B-Instruct','Qwen/Qwen2.5-Coder-0.5B-Instruct','Qwen/Qwen2.5-Coder-1.5B-Instruct','HuggingFaceTB/SmolLM2-135M-Instruct','Qwen/Qwen2.5-Math-1.5B-Instruct','Qwen/Qwen2.5-1.5B-Instruct')
+NATIVE=('HuggingFaceTB/SmolLM2-360M-Instruct','HuggingFaceTB/SmolLM2-1.7B-Instruct','Qwen/Qwen2.5-Coder-0.5B-Instruct','Qwen/Qwen2.5-Coder-1.5B-Instruct','HuggingFaceTB/SmolLM2-135M-Instruct','Qwen/Qwen2.5-Math-1.5B-Instruct','Qwen/Qwen2.5-1.5B-Instruct','Qwen/Qwen2.5-0.5B-Instruct','Qwen/Qwen2.5-Coder-0.5B','deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B')
 QUERIES=('ICARUS architecture market data indicators','time series forecasting methods','ICARUS backtesting signal execution risk','quantitative investment research','quality diversity archive','sparse identification nonlinear dynamics','reinforcement learning offline datasets')
 def load_json(p):
  try:return json.loads(p.read_text(encoding='utf8'))

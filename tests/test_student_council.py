@@ -28,3 +28,27 @@ class CouncilTest(unittest.TestCase):
   self.assertTrue(QUERIES[0].startswith('ICARUS'))
   self.assertTrue(any('quantitative investment' in x for x in QUERIES))
   self.assertGreaterEqual(len(set(QUERIES)),7)
+
+ def test_new_native_reasoning_bundles_are_admitted_only_with_receipts(self):
+  import json
+  from unittest.mock import patch
+  from student_council import roster
+  from native_student import TRAINABLE
+  names=('Qwen/Qwen2.5-0.5B-Instruct','Qwen/Qwen2.5-Coder-0.5B','deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B')
+  with tempfile.TemporaryDirectory() as d:
+   root=pathlib.Path(d);(root/'neural').mkdir()
+   for i,name in enumerate(names):
+    self.assertIn(name,TRAINABLE)
+    folder=root/'neural'/str(i);folder.mkdir()
+    if i!=2:
+     (folder/'receipt.json').write_text(json.dumps({'repo':name,'native_verified':True,'total':999602607,'digest':'a'*64}),encoding='utf8')
+   with patch('student_council.local_api',return_value={'models':[]}):
+    rows={r['name']:r for r in roster(root)}
+    self.assertTrue(rows[names[0]]['present'])
+    self.assertTrue(rows[names[1]]['present'])
+    self.assertFalse(rows[names[2]]['present'])
+    self.assertGreater(rows[names[0]]['required_ram'],4500000000)
+    (root/'neural'/'duplicate').mkdir()
+    (root/'neural'/'duplicate'/'receipt.json').write_text((root/'neural'/'0'/'receipt.json').read_text(),encoding='utf8')
+    rows={r['name']:r for r in roster(root)}
+    self.assertFalse(rows[names[0]]['present'])

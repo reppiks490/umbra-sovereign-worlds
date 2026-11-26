@@ -8,6 +8,7 @@ from source_knowledge import Knowledge
 from hf_weight_cache import lock
 from neural_priority import size
 from source_curriculum import plan_cycle,gate,campaign_eligible
+from storage_budget import source_training_storage_admitted
 TRAINABLE=NATIVE+('granite4:350m','qwen3:0.6b')
 def checkpoint(root,training,name):
  if name in ('granite4:350m','qwen3:0.6b'):
@@ -69,12 +70,13 @@ def train(root,training,name,steps=8):
  from source_assist import local_api
  workspace=root/'experience';bank=workspace/'source-lora';bank.mkdir(exist_ok=True)
  if (training/'bootstrap.lock').exists() or (workspace/'student-council'/'council.lock').exists() or local_api('ps').get('models'):return {'status':'deferred_busy'}
- if size(workspace)>2800000000 or size(bank)>400000000 or shutil.disk_usage(root).free<6000000000:return {'status':'deferred_storage'}
+ if size(workspace)>2800000000 or size(bank)>400000000 or not source_training_storage_admitted(root,shutil.disk_usage(root).free):return {'status':'deferred_storage'}
  p,digest,n=checkpoint(root,training,name)
  required=max(4500000000,2*n+3000000000)
  if available_ram()<required:return {'status':'deferred_memory','required':required,'available':available_ram()}
  key=hashlib.sha256(name.encode()).hexdigest()[:20];target=bank/key;target.mkdir(exist_ok=True)
  with lock(workspace/'model-compute.lock'),lock(bank/'training.lock'):
+  if not source_training_storage_admitted(root,shutil.disk_usage(root).free):return {'status':'deferred_storage'}
   history=target/'state.json'
   prior=json.loads(history.read_text()) if history.exists() else {}
   if prior.get('base_sha256')!=digest:prior={}
@@ -107,6 +109,7 @@ def train(root,training,name,steps=8):
   next_curriculum=plan['next_state']
   started=time.monotonic()
   def guard():
+   if not source_training_storage_admitted(root,shutil.disk_usage(root).free):raise ValueError('source training storage budget')
    if available_ram()<900000000 or time.monotonic()-started>600:raise ValueError('runtime budget')
   def evaluate(rows):
    net.eval();values=[]
@@ -117,6 +120,7 @@ def train(root,training,name,steps=8):
   # Persist attempt before optimizer to bound retries after interruption.
   attempt_id='attempt-'+str(attempt+1).zfill(8)+'-'+str(time.time_ns())
   reservations={'training_records':[r['record_sha256'] for r,x in training_rows],'retention_records':[r['record_sha256'] for r,x in validation],'fresh_records':[r['record_sha256'] for r,x in fresh]}
+  guard()
   atomic(target/(attempt_id+'-reserved.json'),{'status':'reserved','base_sha256':digest,'next_curriculum':next_curriculum,**reservations})
   atomic(history,{**prior,'base_sha256':digest,'attempts':attempt+1,'timestamp':int(time.time()),'status':'attempting','pending_attempt':attempt_id})
   before=evaluate(validation);fresh_before=evaluate(fresh)
@@ -130,6 +134,7 @@ def train(root,training,name,steps=8):
   accepted=changed and gate(before,after,fresh_before,fresh_after)
   result={'status':'evaluated','model':name,'base_sha256':digest,'optimizer_steps':len(losses),'adapter_weights_changed':changed,'trainable_parameters':sum(x.numel() for x in params),'before_nll':before,'after_nll':after,'losses':losses,'validation_gate_passed':accepted,'training_records':[r['record_sha256'] for r,x in training_rows],'validation_records':[r['record_sha256'] for r,x in validation],'source':'original human-authored GSM8K','test_partition_used':False,'production_authority':False,'base_weights_modified':False,'retained_candidate':incumbent}
   result.update(curriculum=next_curriculum,attempt_id=attempt_id,fresh_before_nll=fresh_before,fresh_after_nll=fresh_after,fresh_validation_records=reservations['fresh_records'],qualification_scope='development retention gate only; not independent holdout accuracy')
+  guard()
   if accepted:
    tag='candidate-'+hashlib.sha256((digest+str(time.time_ns())).encode()).hexdigest()[:16]
    stage=target/(tag+'.stage');stage.mkdir();net.save_pretrained(str(stage),safe_serialization=True)

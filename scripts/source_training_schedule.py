@@ -5,12 +5,13 @@ from native_lora_train import available_ram,MODELS,required_memory
 from student_council import roster,load_json
 from source_assist import local_api
 from source_curriculum import campaign_eligible
+from storage_budget import source_training_storage_admitted
 def select_candidate(rows,ram,now,campaign=False):
  eligible=[r for r in rows if r['present'] and r['required_ram']<=ram and (campaign_eligible(r['state']) if campaign else r['state'].get('attempts',0)<20) and now-r['state'].get('timestamp',0)>=3600]
  return min(eligible,key=lambda r:(r['state'].get('timestamp',0),r['required_ram'],r['name'])) if eligible else None
 def run(root,training):
  if (training/'bootstrap.lock').exists() or (root/'experience'/'model-compute.lock').exists() or (root/'experience'/'student-council'/'council.lock').exists() or local_api('ps').get('models'):return {'status':'deferred_busy','source_only':True}
- if shutil.disk_usage(root).free<6000000000:return {'status':'deferred_storage','source_only':True}
+ if not source_training_storage_admitted(root,shutil.disk_usage(root).free):return {'status':'deferred_storage','source_only':True}
  py=training/'venv'/'Scripts'/'python.exe'
  if not py.is_file():return {'status':'deferred_runtime','source_only':True}
  if not (root/'experience'/'source-knowledge'/'human-corpus'/'audit.json').is_file():return {'status':'deferred_corpus','source_only':True}

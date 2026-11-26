@@ -1,0 +1,5 @@
+# Local process settlement
+
+Windows uses a read-only process handle, creation FILETIME and zero-time wait; Linux uses /proc stat start time and boot identity. A captured identity also includes host and platform. Mismatched or inaccessible identities are unknown; an absent previously captured PID is considered settled only with trusted launch provenance. This cannot prove descendant termination, external jobs, authenticated ownership, or runtime-lock release. It neither signals nor terminates processes and is not wired to the live ledger. Host naming is not cryptographic identity; Linux /proc visibility and namespace boundaries require operator control. Existing external resource gates remain authoritative.
+
+Local full orchestration suite 42/42 passed in 1.678s, exit 0, including five new tests and actual child lifecycle. Initial missing-module test failed. Dedicated cross-platform CI inherited from PR44; verify exact-head outcomes before further use. No production deployment or schedule mutation.

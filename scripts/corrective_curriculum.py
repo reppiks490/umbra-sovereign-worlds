@@ -102,10 +102,17 @@ def run(root):
  from native_lora_train import atomic
  bank=root/'experience'/'generated-challenges'
  rows=read_failures(bank/'ledger.sqlite3')
- result=plan(load_corpus(root),rows)
+ corpus=load_corpus(root)
+ result=plan(corpus,rows)
+ from owner_probe import read,corrective_candidates
+ historical=read(root)
+ result['owner_probe']=historical
+ result['owner_corrective_candidates']=corrective_candidates(corpus,historical['evaluated'])
+ if historical['evaluated'] and result['status']=='no_verified_failures':result['status']='planned'
  bank.mkdir(parents=True,exist_ok=True)
  atomic(bank/'corrective-plan.json',result)
  return {'status':result['status'],'clusters':len(result['clusters']),'source_candidate_clusters':sum(x['status']=='source_prerequisite_candidates' for x in result['clusters']),
- 'failure_receipts':len(rows),'weight_training':False,'production_authority':False}
+ 'failure_receipts':len(rows),'historical_owner_calls':historical['historical_completed_calls'],
+ 'historical_candidates':len(result['owner_corrective_candidates']),'new_model_calls':0,'weight_training':False,'production_authority':False}
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--root',required=True,type=Path);a=p.parse_args();print(json.dumps(run(a.root)))

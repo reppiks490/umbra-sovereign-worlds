@@ -31,6 +31,12 @@ def budget(root):
      not re.fullmatch('[a-f0-9]{40}',str(r.get('deployed_revision',''))) or not completed_receipt(root)):
   raise ValueError('unverified retirement receipt')
  return RETIRED
+def source_training_storage_admitted(root,free):
+ # Preserve the historical 6 GB guard and the verified retirement floor.
+ # Reserve 20 MB for the bounded adapter and 5 MB for atomic receipt/state writes.
+ if type(free) is not int or free<0:return False
+ try:return free>=max(6000000000,budget(root).floor)+25000000
+ except (OSError,ValueError,TypeError,KeyError):return False
 def expansion_lane(domain):return 'native' if domain in NATIVE_DOMAINS else 'specialist'
 def incremental_usage(baseline,current,lanes):
  for values in (baseline,current):

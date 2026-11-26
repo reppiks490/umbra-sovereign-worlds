@@ -1,0 +1,9 @@
+# Operational local compute coordination
+
+- Operational UMBRA checkout fast-forwarded from cd43ff3 to CI-green 1920fd72ed1b9f2465c2096bdda7c346e8fdfb53. No main merge or force-push. 33 files updated.
+- MYRIAD local run-research-v59.ps1 and run-training-v35.ps1 use shared-model-compute.ps1 and DATA_ROOT/experience/model-compute.lock. Exclusive CreateNew, decimal PID owner, finally release with owner verification. PowerShell exclusive acquire/reacquire and Python lock interoperability passed. Schedules PT5M and PT12H unchanged.
+- Original scripts preserved as <filename>.before-shared-guard-20261125-231328.bak. Guard is in projects/MYRIAD-v32-local-pilot-20261124. Rollback only while both tasks Ready and compute lock absent; restore originals after checking hashes and ownership. Preserve all active workers and never remove ambiguous locks.
+- ICARUS Paper Access, remote-control Node processes, Ollama and Windows security preserved. No confirmed app-closure RAM savings. Latest memory observation roughly 4.8–5.0 GB available.
+- Verified collective ledger: 24 completed inference calls across eight authentic development cases, ensemble 2/8, Qwen and Gemma 2/8 each, Granite 1/8; 297.313 inference seconds. New council batch launched, not counted until replay. No new retained adapter.
+- Native training still deferred: live bootstrap PID 604 owns bootstrap.lock, Qwen3-0.6B partial checkpoint 730,502,301/1,503,300,328 bytes after transfer retries. Do not delete lock or interrupt active download. Check byte progress and runtime integrity before training. Existing native model checkpoints remain preserved.
+- Shared guard is cooperative, not global enforcement. Complete scheduled-cycle evidence and sustained throughput remain outstanding. Parallel untracked guard/test files in development checkout were preserved; do not overwrite or stage them inadvertently.

@@ -136,7 +136,8 @@ def main(after_queue=False):
  if (ROOT/'ready.json').exists():raise ValueError('already ready')
  if after_queue:
   if not after_queue_ready():raise ValueError('initial acquisition not verified')
-  FLOOR=3000000000
+  from storage_budget import budget
+  FLOOR=budget(ROOT.parent/'umbra-agentic-native-20261124').floor
   if shutil.disk_usage(ROOT).free<FLOOR+max(0,CAP-used()):raise ValueError('insufficient post-acquisition headroom')
  elif shutil.disk_usage(ROOT).free<51000000000:raise ValueError('insufficient initial headroom for original queue')
  lock=ROOT/'bootstrap.lock'

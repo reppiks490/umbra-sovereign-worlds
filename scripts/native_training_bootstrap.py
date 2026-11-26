@@ -115,15 +115,8 @@ def torch_ready(py):
   return r.returncode==0
  except (OSError,subprocess.TimeoutExpired):return False
 def after_queue_ready():
- root=Path.home()/'projects'/'umbra-agentic-native-20261124'
- if (root/'active.lock').exists():return False
- try:
-  with (root/'acquisition.log').open('rb') as f:
-   f.seek(max(0,(root/'acquisition.log').stat().st_size-65536));tail=f.read().decode('utf8','replace')
-  if not any(' DONE ' in line for line in tail.splitlines()):return False
-  with urllib.request.urlopen('http://127.0.0.1:11434/api/tags',timeout=10) as r:
-   return any(x.get('name')=='qwen3.8:27b-q8_0' for x in json.load(r)['models'])
- except Exception:return False
+ from acquisition_receipt import queue_status
+ return queue_status(Path.home()/'projects'/'umbra-agentic-native-20261124')=='ready'
 def main(after_queue=False):
  global FLOOR
  ROOT.mkdir(exist_ok=True)

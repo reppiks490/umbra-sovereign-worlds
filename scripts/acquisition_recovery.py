@@ -20,7 +20,8 @@ def remaining_bytes(blobs,blob=BLOB,total=TOTAL):
    end+=size;completed+=done
   return total-completed if end==total else None
  except (OSError,ValueError,TypeError,KeyError):return None
-def plan_recovery(installed,pull_alive,queue_locked,queue_done,free,remaining):
+def plan_recovery(installed,pull_alive,queue_locked,queue_done,free,remaining,*,completed_proof=False):
+ if queue_done and completed_proof:return {'status':'queue_running' if queue_locked else 'complete'}
  if installed:
   if queue_locked:return {'status':'queue_running'}
   if queue_done:return {'status':'complete'}
@@ -51,7 +52,8 @@ def recover(root):
  except (OSError,ValueError):state={}
  try:
   with urlopen('http://127.0.0.1:11434/api/tags',timeout=10) as f:
-   installed=any(x.get('name')==TAG for x in json.load(f)['models'])
+   from acquisition_receipt import installed as exact_installed
+   installed=exact_installed(json.load(f)['models'])
  except Exception:return {'status':'deferred_ollama_unavailable'}
  log=root/'acquisition.log';done=False
  if log.exists():
@@ -62,7 +64,8 @@ def recover(root):
   done=bool(terminal and ' DONE ' in terminal[-1])
  blobs=Path.home()/'.ollama'/'models'/'blobs'
  remaining=0 if installed else remaining_bytes(blobs)
- plan=plan_recovery(installed,pid_alive(state.get('pull_pid')), (root/'active.lock').exists(),done,shutil.disk_usage(root).free,remaining)
+ from acquisition_receipt import completed_receipt
+ plan=plan_recovery(installed,pid_alive(state.get('pull_pid')), (root/'active.lock').exists(),done,shutil.disk_usage(root).free,remaining,completed_proof=completed_receipt(root))
  if plan['status'] not in ('resume_q8','resume_queue'):return plan
  if time.time()-state.get('last_attempt',0)<900:return {'status':'deferred_retry_cooldown'}
  if plan['status']=='resume_q8':

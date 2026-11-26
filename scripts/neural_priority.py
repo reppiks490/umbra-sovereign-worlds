@@ -118,13 +118,8 @@ def inventory(root):
   except (ValueError,KeyError,OSError):continue
  return seen,domains,repos
 def original_done(root):
- try:
-  if (root/'active.lock').exists():return False
-  log=(root/'acquisition.log').read_text(encoding='utf8')
-  terminal=[x for x in log.splitlines() if ' DONE ' in x or ' STOP_' in x or ' WAIT_Q8 ' in x]
-  if not terminal or ' DONE ' not in terminal[-1]:return False
-  with urlopen('http://127.0.0.1:11434/api/tags',timeout=10) as r:return any(x.get('name')=='qwen3.8:27b-q8_0' for x in json.load(r)['models'])
- except (OSError,ValueError,KeyError):return False
+ from acquisition_receipt import queue_status
+ return queue_status(root)=='ready'
 def run(plan_only=False,wait_bootstrap=False,wait_existing=False):
  sys.path.insert(0,str(ROOT.parent/'umbra-polymind-acquisition-pinned'))
  import agentic_acquire_20261124 as old

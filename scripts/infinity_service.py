@@ -24,17 +24,8 @@ def write_status(root,result):
  with tmp.open('w',encoding='utf8') as f:json.dump({'timestamp':int(time.time()),**result},f,indent=2);f.flush();os.fsync(f.fileno())
  os.replace(tmp,p)
 def queue_ready(root):
- if (root/'active.lock').exists():return 'deferred_acquisition'
- log=root/'acquisition.log'
- if not log.is_file():return 'initial_queue_not_verified'
- with log.open('rb') as f:
-  f.seek(max(0,log.stat().st_size-65536));tail=f.read().decode('utf8','replace')
- if not any(' DONE ' in line for line in tail.splitlines()):return 'initial_queue_not_verified'
- try:
-  with urlopen('http://127.0.0.1:11434/api/tags',timeout=10) as r:tags=json.load(r)
-  if not any(x.get('name')=='qwen3.8:27b-q8_0' for x in tags['models']):return 'q8_not_installed'
- except Exception:return 'ollama_unavailable'
- return 'ready'
+ from acquisition_receipt import queue_status
+ return queue_status(root)
 def gap_command(root,status):
  return [shutil.which('node') or 'node',str(Path(__file__).resolve().with_name('gap_audit.mjs')),str(root),'probe' if status=='ready' else 'audit']
 def run_gap_audit(root,status):

@@ -8,9 +8,11 @@ def canonical(value):
         return None
     try:
         n=Decimal(value)
-        if not n.is_finite() or abs(n)>Decimal('1e24'):
+        if not n.is_finite() or n.copy_abs()>Decimal('1e24'):
             return None
-        return format(n.normalize(),'f') if n else '0'
+        if not n:return '0'
+        exact=format(n,'f')
+        return exact.rstrip('0').rstrip('.') if '.' in exact else exact
     except InvalidOperation:
         return None
 

@@ -53,7 +53,7 @@ def trace_audit(rows):
                 lhs,rhs=annotation.split('=')
                 lhs=lhs.replace(',','').strip()
                 rhs=rhs.replace(',','').strip()
-                if not re.fullmatch(r'-?[0-9]{1,24}(?:\.[0-9]{1,24})?',rhs):raise ValueError('label')
+                if not re.fullmatch(r'-?(?:[0-9]{1,24}(?:\.[0-9]{1,24})?|\.[0-9]{1,24})',rhs):raise ValueError('label')
                 exact=Fraction(calculate(lhs)['value']);expected=Fraction(rhs)
                 if exact==expected:result['verified']+=1;good+=1
                 else:result['mismatch']+=1

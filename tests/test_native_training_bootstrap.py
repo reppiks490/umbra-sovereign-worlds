@@ -91,3 +91,40 @@ class BoundedRangeTests(unittest.TestCase):
    with self.assertRaises(ValueError):
     b.download_verified('https://example.invalid/weights',target,8,hashlib.sha256(b'abcdefgh').hexdigest(),opener=lambda *a,**kw:Response(b'abcde'),gate_fn=lambda n:None,range_bytes=4)
    self.assertFalse(target.exists());self.assertEqual(target.with_name('weights.part').stat().st_size,0)
+
+class AdaptiveRangeTests(unittest.TestCase):
+ def test_adaptive_short_response_recovers_to_one_mib(self):
+  import io,hashlib,re
+  mib=1024**2;raw=b'x'*(5*mib+17);requests=[]
+  class Response(io.BytesIO):
+   status=206
+   def __init__(self,start,end):
+    self.headers={'Content-Range':f'bytes {start}-{end}/{len(raw)}'}
+    super().__init__(raw[start:min(end+1,start+mib)])
+  def opener(req,timeout):
+   m=re.fullmatch(r'bytes=(\d+)-(\d+)',req.get_header('Range') or '')
+   self.assertIsNotNone(m)
+   start,end=map(int,m.groups());requests.append(end-start+1)
+   return Response(start,end)
+  with tempfile.TemporaryDirectory() as d,patch.object(b,'log'),patch.object(b.time,'sleep'):
+   target=pathlib.Path(d)/'weights'
+   b.download_verified('https://example.invalid/weights',target,len(raw),hashlib.sha256(raw).hexdigest(),opener=opener,attempts=3,gate_fn=lambda n:None)
+   self.assertEqual(target.read_bytes(),raw)
+   self.assertEqual(requests[:3],[4*mib,2*mib,mib])
+   self.assertTrue(all(n<=mib for n in requests[2:]))
+ def test_no_progress_is_bounded_at_minimum_range(self):
+  import io,hashlib,re
+  mib=1024**2;raw=b'x'*(8*mib);requests=[]
+  class Response(io.BytesIO):
+   status=206
+   def __init__(self,start,end):
+    super().__init__(b'');self.headers={'Content-Range':f'bytes {start}-{end}/{len(raw)}'}
+  def opener(req,timeout):
+   start,end=map(int,re.fullmatch(r'bytes=(\d+)-(\d+)',req.get_header('Range')).groups())
+   requests.append(end-start+1);return Response(start,end)
+  with tempfile.TemporaryDirectory() as d,patch.object(b,'log'),patch.object(b.time,'sleep'):
+   target=pathlib.Path(d)/'weights'
+   with self.assertRaises(OSError):
+    b.download_verified('https://example.invalid/weights',target,len(raw),hashlib.sha256(raw).hexdigest(),opener=opener,attempts=4,gate_fn=lambda n:None)
+   self.assertEqual(requests,[4*mib,2*mib,mib,mib])
+   self.assertFalse(target.exists())

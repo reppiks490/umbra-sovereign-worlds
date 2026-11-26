@@ -81,3 +81,7 @@ Each turn `stepWorld`:
 
 - Grimm et al. (2020). [The ODD protocol: second update](https://www.jasss.org/23/2/7.html). DOI 10.18564/jasss.4259.
 - NetLogo (current manual). [BehaviorSpace](https://docs.netlogo.org/behaviorspace) — reproducible computational experiments and repeatable seeds. UMBRA does not embed NetLogo.
+
+## UM-106 replay-bound integration — 2026-11-26
+
+Reality Court's engineering gate compares selected rounded state only. A structurally valid world beyond 5,000 turns is not invalidated merely by replay-budget exhaustion; no change to world rules or scientific claims.

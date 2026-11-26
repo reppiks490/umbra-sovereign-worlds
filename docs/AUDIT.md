@@ -27,3 +27,7 @@ Limitations of verification: scripts are served inline in the browser smoke test
 ## Permission / account boundaries
 
 No financial account, broker, wallet or private files used. No source keys accessed. No trades, API writes, paid model tasks, or changes to the user-provided `chatgpt.site` project. No GitHub source writes performed for UMBRA in this release. MagicPath external-agent quota was exhausted and not bypassed. No claims of multiple independent coding agents executing when they did not.
+
+## UM-106 replay-bound integration — 2026-11-26
+
+New isolated native software qualification at UM-106 parent: 74/74 after bounded replay correction. Original live three-route site and browser storage unchanged. Real-device/browser performance and public deployment remain unqualified.

@@ -25,3 +25,7 @@ Vary each of the seven parameters in predeclared increments, then use a small fa
 ## D: Audit record
 
 Exports contain seed, engine version, policy, generated data/assumptions, and optional experiment. The optional SHA-256 value only checks local file integrity and is not a signature or externally witnessed proof. The model engine is authoritative and recomputes state on import rather than trusting a snapshot of arbitrary serialized state.
+
+## UM-106 replay-bound integration — 2026-11-26
+
+Before independent replay, reject invalid caller budgets and malformed turn metadata; cap each replay to the engine's 5,000-turn maximum. A blocked result is missing evidence, never a pass. Preserve prior seeded semantics.

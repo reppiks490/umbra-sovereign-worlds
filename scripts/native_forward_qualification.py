@@ -19,7 +19,9 @@ def route(receipt,config):
     if kind in VISION|{'dinov2'} and task=='image-feature-extraction':return 'vision_features'
     if task=='automatic-speech-recognition':
         return {'whisper':'whisper','wav2vec2':'ctc'}.get(kind)
-    if 'tokenizer.json' not in names:return None
+    if 'tokenizer.json' not in names and not (kind=='bert' and 'vocab.txt' in names):return None
+    if kind in ENCODERS and task=='fill-mask':return 'masked'
+    if kind in ENCODERS and task=='token-classification':return 'token_classification'
     if kind in {'t5','longt5','bart'}:
         if task in {'text2text-generation','summarization','translation'}:return 'seq2seq'
         if task is None and set(config.get('architectures') or []) & {'T5ForConditionalGeneration','LongT5ForConditionalGeneration','BartForConditionalGeneration'}:return 'seq2seq'
@@ -69,7 +71,7 @@ def forward(folder,receipt,lane):
     import torch
     import transformers as tf
     torch.set_num_threads(1)
-    loaders={'encoder':tf.AutoModel,'classification':tf.AutoModelForSequenceClassification,'causal':tf.AutoModelForCausalLM,'vision':tf.AutoModelForImageClassification,'vision_features':tf.AutoModel,'seq2seq':tf.AutoModelForSeq2SeqLM,'whisper':tf.WhisperForConditionalGeneration,'ctc':tf.AutoModelForCTC}
+    loaders={'encoder':tf.AutoModel,'classification':tf.AutoModelForSequenceClassification,'causal':tf.AutoModelForCausalLM,'vision':tf.AutoModelForImageClassification,'vision_features':tf.AutoModel,'seq2seq':tf.AutoModelForSeq2SeqLM,'whisper':tf.WhisperForConditionalGeneration,'ctc':tf.AutoModelForCTC,'masked':tf.AutoModelForMaskedLM,'token_classification':tf.AutoModelForTokenClassification}
     model,info=loaders[lane].from_pretrained(str(folder),local_files_only=True,trust_remote_code=False,use_safetensors=True,torch_dtype=torch.float32,output_loading_info=True,low_cpu_mem_usage=True)
     if any(info.get(k) for k in ('missing_keys','unexpected_keys','mismatched_keys','error_msgs')):raise ValueError('inexact model load')
     model.eval()
@@ -86,7 +88,15 @@ def forward(folder,receipt,lane):
         args={'input_values':(0.1*torch.sin(2*math.pi*440*t)).reshape(1,-1)}
     else:
         tok=tf.AutoTokenizer.from_pretrained(str(folder),local_files_only=True,trust_remote_code=False)
-        args=tok('Chronological validation separates observations from future evidence.',return_tensors='pt',truncation=True,max_length=32)
+        prompt='Chronological validation separates observations from future evidence.'
+        if lane=='masked':
+            if not tok.mask_token or type(tok.mask_token_id) is not int:raise ValueError('mask token identity')
+            prompt='Chronological validation separates '+tok.mask_token+' from future evidence.'
+        args=tok(prompt,return_tensors='pt',truncation=True,max_length=32)
+        if lane=='masked':
+            positions=(args['input_ids'][0]==tok.mask_token_id).nonzero(as_tuple=True)[0]
+            if positions.numel()!=1:raise ValueError('expected exactly one mask')
+            mask_position=int(positions.item())
         if lane in ('causal','seq2seq') or cfg.get('model_type')=='bart':args.pop('token_type_ids',None)
         if not 1<=args['input_ids'].shape[1]<=32:raise ValueError('token budget')
     if lane in ('seq2seq','whisper'):
@@ -97,6 +107,7 @@ def forward(folder,receipt,lane):
         result=model(**args)
         tensor=result.last_hidden_state if lane in ('encoder','vision_features') else result.logits
         if lane=='vision_features':tensor=tensor[:,0,:]
+        if lane=='masked':tensor=tensor[:,mask_position,:]
         if lane in ('encoder','causal','seq2seq','whisper','ctc'):tensor=tensor[:,-1,:]
         tensor=tensor.detach().float().cpu().contiguous()
     return output_evidence(tensor.flatten().tolist(),list(tensor.shape))

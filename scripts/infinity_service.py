@@ -32,20 +32,25 @@ def run_gap_audit(root,status):
  p=subprocess.run(gap_command(root,status),capture_output=True,text=True,timeout=300,check=True)
  r=json.loads(p.stdout)
  return {k:r.get(k) for k in ('status','probe_status','total_probes','high_confidence_errors','discovered_candidates')}
-def bootstrap_plan(training,status,free,last,now,used_bytes=0):
+def bootstrap_plan(training,status,free,last,now,used_bytes=0,*,floor=3000000000):
  if (training/'bootstrap.lock').exists():return {'status':'running'}
  if (training/'ready.json').exists():return {'status':'ready_marker'}
  if now-last<(1800 if status=='ready' else 21600):return {'status':'deferred_cooldown'}
  after=status=='ready'
- if free<(3000000000+max(0,4500000000-used_bytes) if after else 51000000000):return {'status':'deferred_storage'}
+ if free<(floor+max(0,4500000000-used_bytes) if after else 51000000000):return {'status':'deferred_storage'}
  return {'status':'eligible','after_queue':after}
 def resume_bootstrap(root,training,status):
  training.mkdir(exist_ok=True)
+ if (training/'bootstrap.lock').exists():return {'status':'running'}
+ if (training/'ready.json').exists():return {'status':'ready_marker'}
+ from storage_budget import budget
+ try:floor=budget(root).floor if status=='ready' else 3000000000
+ except (OSError,ValueError,TypeError,KeyError):return {'status':'deferred_storage_policy'}
  stamp=training/'service-attempt.json';now=int(time.time())
  try:last=int(json.loads(stamp.read_text(encoding='utf8'))['timestamp'])
  except (OSError,ValueError,KeyError,TypeError):last=0
  from native_training_bootstrap import used
- plan=bootstrap_plan(training,status,shutil.disk_usage(training).free,last,now,used() if status=='ready' else 0)
+ plan=bootstrap_plan(training,status,shutil.disk_usage(training).free,last,now,used() if status=='ready' else 0,floor=floor)
  if plan['status']!='eligible':return plan
  # The isolated native training venv is not used to create itself.
  python=Path(sys.base_prefix)/'python.exe'

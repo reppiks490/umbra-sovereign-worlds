@@ -67,4 +67,28 @@ class GeneratedChallengesTest(unittest.TestCase):
   self.assertEqual(normalize('generated_challenges',{'status':'completed','model_calls':2,'completed_calls':2}),'completed')
   self.assertEqual(normalize('generated_challenges',{'status':'completed','model_calls':2,'completed_calls':1}),'partial')
 
+
+ def test_tampered_correct_scores_cannot_promote(self):
+  with tempfile.TemporaryDirectory() as d:
+   with Ledger(pathlib.Path(d)/'test.sqlite3') as b:
+    for _ in range(8):
+     r=b.reserve('m','c'*64,'arithmetic',0)
+     b.finish(r['attempt'],'ABSTAIN','stop',1,1.0)
+    with b.db:b.db.execute("update attempts set outcome='correct'")
+    self.assertEqual(b.tier('m','c'*64,'arithmetic'),0)
+ def test_readonly_ledger_audit_never_creates_or_writes(self):
+  import sqlite3
+  with tempfile.TemporaryDirectory() as d:
+   p=pathlib.Path(d)/'test.sqlite3'
+   with self.assertRaises(sqlite3.OperationalError):Ledger(p,readonly=True)
+   self.assertFalse(p.exists())
+   with Ledger(p) as b:
+    r=b.reserve('m','c'*64,'arithmetic',0)
+    b.finish(r['attempt'],'ANSWER: '+r['question']['expected'],'stop',2,1)
+   before=p.read_bytes()
+   with Ledger(p,readonly=True) as b:
+    self.assertEqual(b.audit()['correct'],1)
+    with self.assertRaises(sqlite3.OperationalError):b.db.execute("delete from attempts")
+   self.assertEqual(p.read_bytes(),before)
+
 if __name__=='__main__':unittest.main()

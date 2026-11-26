@@ -89,11 +89,14 @@ def grade(q,response,done_reason):
  except (ValueError,ZeroDivisionError):return 'format'
 
 class Ledger:
- def __init__(self,path):
+ def __init__(self,path,*,readonly=False):
   self.path=Path(path)
   if self.path.is_symlink():raise ValueError('ledger symlink')
-  self.db=sqlite3.connect(self.path,timeout=5)
+  self.db=sqlite3.connect(self.path.resolve().as_uri()+"?mode=ro",uri=True,timeout=5) if readonly else sqlite3.connect(self.path,timeout=5)
   self.db.row_factory=sqlite3.Row
+  if readonly:
+   self.db.execute("pragma query_only=ON")
+   return
   self.db.execute('pragma synchronous=FULL')
   self.db.execute('pragma journal_mode=DELETE')
   self.db.execute('pragma max_page_count='+str(MAX_DB//self.db.execute('pragma page_size').fetchone()[0]))
@@ -114,10 +117,21 @@ class Ledger:
   return self.db.execute(sql,args).fetchone()[0]
  def tier(self,model,identity,skill):
   t=self.db.execute('select coalesce(max(tier),0) from attempts where model=? and digest=? and skill=?',(model,identity,skill)).fetchone()[0]
-  rows=self.db.execute("select outcome,status from attempts where model=? and digest=? and skill=? and tier=? order by attempt desc limit 8",(model,identity,skill,t)).fetchall()
+  rows=self.db.execute("select * from attempts where model=? and digest=? and skill=? and tier=? order by attempt desc limit 8",(model,identity,skill,t)).fetchall()
   # Developmental progression only, never independent mastery certification.
-  if t<3 and len(rows)==8 and all(x['status']=='completed' and x['outcome']=='correct' for x in rows):return t+1
+  if t<3 and len(rows)==8 and all(self.verified_correct(x) for x in rows):return t+1
   return t
+ @staticmethod
+ def verified_correct(r):
+  try:
+   q=question(r['skill'],r['tier'],r['ordinal'])
+   return (r['status']=='completed' and r['outcome']=='correct' and q['id']==r['question_id'] and
+     re.fullmatch('[a-f0-9]{64}',r['digest']) is not None and isinstance(r['response'],str) and
+     len(r['response'])<=24000 and digest(r['response'])==r['response_hash'] and
+     r['done_reason']=='stop' and grade(q,r['response'],r['done_reason'])=='correct' and
+     type(r['tokens']) is int and 0<=r['tokens']<=160 and
+     type(r['seconds']) in (int,float) and math.isfinite(r['seconds']) and r['seconds']>=0)
+  except (ValueError,TypeError,KeyError,ZeroDivisionError):return False
  def reserve(self,model,identity,skill,tier):
   if not isinstance(model,str) or not model or len(model)>200 or not re.fullmatch('[a-f0-9]{64}',identity):raise ValueError('model identity')
   self.db.execute('begin immediate')
@@ -171,7 +185,7 @@ class Ledger:
 def audit(root):
  p=Path(root)/'experience'/'generated-challenges'/'ledger.sqlite3'
  if not p.is_file():return {'completed_calls':0,'correct':0,'reserved_unknown':0,'failed':0,'errors':[],'models':{},'weight_training':False,'production_authority':False}
- with Ledger(p) as ledger:return ledger.audit()
+ with Ledger(p,readonly=True) as ledger:return ledger.audit()
 
 def run(root,count=2,requested=None,skill=None):
  from student_council import roster

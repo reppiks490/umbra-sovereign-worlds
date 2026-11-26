@@ -16,7 +16,14 @@ def route(receipt,config):
     names={x.get('name') for x in receipt.get('files',[]) if isinstance(x,dict)}
     if not {'model.safetensors','config.json'}<=names:return None
     if kind in VISION and task=='image-classification':return 'vision'
+    if kind in VISION|{'dinov2'} and task=='image-feature-extraction':return 'vision_features'
+    if task=='automatic-speech-recognition':
+        return {'whisper':'whisper','wav2vec2':'ctc'}.get(kind)
     if 'tokenizer.json' not in names:return None
+    if kind in {'t5','longt5','bart'}:
+        if task in {'text2text-generation','summarization','translation'}:return 'seq2seq'
+        if task is None and set(config.get('architectures') or []) & {'T5ForConditionalGeneration','LongT5ForConditionalGeneration','BartForConditionalGeneration'}:return 'seq2seq'
+        if kind=='bart' and task in CLASSIFICATION:return 'classification'
     if kind in ENCODERS and task in TASKS:return 'encoder'
     if kind in ENCODERS and task in CLASSIFICATION:return 'classification'
     if kind in CAUSAL and task=='text-generation':return 'causal'
@@ -62,23 +69,35 @@ def forward(folder,receipt,lane):
     import torch
     import transformers as tf
     torch.set_num_threads(1)
-    loaders={'encoder':tf.AutoModel,'classification':tf.AutoModelForSequenceClassification,'causal':tf.AutoModelForCausalLM,'vision':tf.AutoModelForImageClassification}
+    loaders={'encoder':tf.AutoModel,'classification':tf.AutoModelForSequenceClassification,'causal':tf.AutoModelForCausalLM,'vision':tf.AutoModelForImageClassification,'vision_features':tf.AutoModel,'seq2seq':tf.AutoModelForSeq2SeqLM,'whisper':tf.WhisperForConditionalGeneration,'ctc':tf.AutoModelForCTC}
     model,info=loaders[lane].from_pretrained(str(folder),local_files_only=True,trust_remote_code=False,use_safetensors=True,torch_dtype=torch.float32,output_loading_info=True,low_cpu_mem_usage=True)
     if any(info.get(k) for k in ('missing_keys','unexpected_keys','mismatched_keys','error_msgs')):raise ValueError('inexact model load')
     model.eval()
-    if lane=='vision':
+    if lane in ('vision','vision_features'):
         side=cfg.get('image_size',224);channels=cfg.get('num_channels',3)
         if type(side) is not int or not 32<=side<=512 or channels!=3:raise ValueError('image shape budget')
         args={'pixel_values':torch.linspace(-1,1,3*side*side).reshape(1,3,side,side)}
+    elif lane=='whisper':
+        bins=cfg.get('num_mel_bins',80);positions=cfg.get('max_source_positions',1500)
+        if type(bins) is not int or not 1<=bins<=128 or type(positions) is not int or not 1<=positions<=1500:raise ValueError('mel shape budget')
+        args={'input_features':torch.linspace(-1,1,bins*2*positions).reshape(1,bins,2*positions)}
+    elif lane=='ctc':
+        t=torch.arange(16000,dtype=torch.float32)/16000
+        args={'input_values':(0.1*torch.sin(2*math.pi*440*t)).reshape(1,-1)}
     else:
         tok=tf.AutoTokenizer.from_pretrained(str(folder),local_files_only=True,trust_remote_code=False)
         args=tok('Chronological validation separates observations from future evidence.',return_tensors='pt',truncation=True,max_length=32)
-        if lane=='causal':args.pop('token_type_ids',None)
+        if lane in ('causal','seq2seq') or cfg.get('model_type')=='bart':args.pop('token_type_ids',None)
         if not 1<=args['input_ids'].shape[1]<=32:raise ValueError('token budget')
+    if lane in ('seq2seq','whisper'):
+        token=model.config.decoder_start_token_id
+        if type(token) is not int or not 0<=token<model.config.vocab_size:raise ValueError('decoder start identity')
+        args['decoder_input_ids']=torch.tensor([[token]],dtype=torch.long)
     with torch.inference_mode():
         result=model(**args)
-        tensor=result.last_hidden_state if lane=='encoder' else result.logits
-        if lane in ('encoder','causal'):tensor=tensor[:,-1,:]
+        tensor=result.last_hidden_state if lane in ('encoder','vision_features') else result.logits
+        if lane=='vision_features':tensor=tensor[:,0,:]
+        if lane in ('encoder','causal','seq2seq','whisper','ctc'):tensor=tensor[:,-1,:]
         tensor=tensor.detach().float().cpu().contiguous()
     return output_evidence(tensor.flatten().tolist(),list(tensor.shape))
 

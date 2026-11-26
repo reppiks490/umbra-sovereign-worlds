@@ -26,6 +26,7 @@ class ClaimBroker:
         self._policy={k:frozenset(v) for k,v in policy.items()}
         with self.l.tx() as c:
             c.execute("""CREATE TABLE IF NOT EXISTS broker_nonces(broker TEXT NOT NULL,principal TEXT NOT NULL,nonce TEXT NOT NULL,issued_at INTEGER NOT NULL,PRIMARY KEY(broker,principal,nonce))""")
+            c.execute("""CREATE TABLE IF NOT EXISTS broker_leases(broker TEXT NOT NULL,task TEXT NOT NULL,token TEXT NOT NULL,principal TEXT NOT NULL,reported_sha TEXT,PRIMARY KEY(broker,task,token))""")
     def claim(self,request,signature,now=None):
         now=int(time.time()) if now is None else now
         if type(now) is not int or not isinstance(request,dict) or set(request)!=FIELDS or type(request['schema']) is not int or request['schema']!=1:raise ValueError('request schema')
@@ -50,5 +51,6 @@ class ClaimBroker:
             token=uuid.uuid4().hex
             c.execute('INSERT INTO broker_nonces(broker,principal,nonce,issued_at) VALUES(?,?,?,?)',(*args,r['issued_at']))
             c.execute("UPDATE tasks SET state='leased',owner=?,token=?,leased_at=?,reason=NULL,retry_condition=NULL WHERE id=?",(principal,token,now,r['task']))
+            c.execute('INSERT INTO broker_leases(broker,task,token,principal) VALUES(?,?,?,?)',(self.broker_id,r['task'],token,principal))
             self.l.event(c,r['task'],'broker-claimed',{'broker':self.broker_id,'principal':principal,'nonce':r['nonce'],'base':r['base']})
             return dict(c.execute('SELECT * FROM tasks WHERE id=?',(r['task'],)).fetchone())

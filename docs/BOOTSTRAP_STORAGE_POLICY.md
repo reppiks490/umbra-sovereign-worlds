@@ -1,0 +1,5 @@
+# Bootstrap and restore storage policy
+
+Use the verified retirement policy for the native installer and its scheduling admission, retaining the original 51 GB initial queue threshold and legacy 3 GB post-queue floor. Reserve the remaining installation budget. Cache restoration uses the same verified reserve for initial and streaming admission. Invalid retirement metadata blocks new bootstrap starts; an existing lock or ready marker is preserved. No actual cache eviction or weight mutation performed.
+
+Failing-first regression reproduced four behavioral failures. Five targeted cases pass after the fix; full combined native Python suite passed 255/255 in the existing owner-local CPU environment. The initial red suite counted inherited fixture tests twice; final focused suite removed those duplicates. This is a separate draft review stacked on PR #36, not a live deployment. The running native download was not interrupted. Complete inference and weight-training qualification remain separate gates.

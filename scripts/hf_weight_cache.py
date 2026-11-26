@@ -91,7 +91,9 @@ class Cache:
     read_receipt(folder);return {'status':'local','digest':sha,'downloaded_bytes':0}
    if not self.marker(folder,r,w):raise ValueError('not a registered offload')
    self.remote_check(r,w)
-   if self.free()-w['size']<MIN_FREE:raise ValueError('storage reserve')
+   from storage_budget import budget
+   floor=max(MIN_FREE,budget(self.root).floor)
+   if self.free()-w['size']<floor:raise ValueError('storage reserve')
    temp=folder/(WEIGHT+'.restore-part');n=0;h=hashlib.sha256()
    if temp.exists() or temp.is_symlink():raise ValueError('prior staging file requires owner review')
    try:
@@ -100,7 +102,7 @@ class Cache:
       block=src.read(1024**2)
       if not block:break
       n+=len(block)
-      if n>w['size'] or self.free()-len(block)<MIN_FREE:raise ValueError('storage reserve or size mismatch')
+      if n>w['size'] or self.free()-len(block)<floor:raise ValueError('storage reserve or size mismatch')
       h.update(block);out.write(block)
      out.flush();os.fsync(out.fileno())
     if n!=w['size'] or h.hexdigest()!=sha:raise ValueError('restore integrity')

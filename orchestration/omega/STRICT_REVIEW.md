@@ -1,0 +1,5 @@
+# Opt-in pinned review transition
+
+Accepts a separately trusted policy digest and review digest, reviewer/lane allowlist, exact task/base/worker/receipt/handle binding, worker evidence revalidation, local process settlement, and absence of configured lock markers before atomically qualifying a reported task. The legacy cooperative Ledger.accept remains unchanged; this is an opt-in path and does not authenticate a reviewer or prevent direct ledger access. Policy pins must come from an independently trusted operator. Local PID settlement is not proof of descendant settlement. Lock-marker absence is not an atomic external resource reservation; only a separately verified broker/runtime lock contract can authorize production release. No live policy, scheduler mutation, or deployment.
+
+Full local suite 51/51 passed in 2.245s, exit 0, including nine new tests with actual SQLite transactions and a real child process. Initial missing-module test failed. Exact-head cross-platform CI required. Prior PR46 dedicated and synthetic workflows completed successfully.

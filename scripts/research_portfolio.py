@@ -1,7 +1,7 @@
 """Resource-admitted source-only research portfolio with bounded fair scheduling."""
 import argparse,hashlib,json,shutil,subprocess,sys,time
 from pathlib import Path
-LANES={'collective':3000000000,'authentic_retrieval':2800000000,'neural_routing':4000000000,'instruction_following':2800000000,'receipt_replay':1500000000,'grounded_reasoning':2800000000}
+LANES={'collective':3000000000,'authentic_retrieval':2800000000,'neural_routing':4000000000,'instruction_following':2800000000,'receipt_replay':1500000000,'grounded_reasoning':2800000000,'generated_challenges':2800000000,'corrective_curriculum':1500000000}
 STUDENTS=('qwen3:0.6b','granite4:350m','gemma3:1b')
 QUERIES=('ICARUS causal market replay event clock and execution verification','quality diversity optimization archives and behavior descriptors','time series forecasting chronological validation and persistence baseline')
 
@@ -44,6 +44,10 @@ def command_for(lane,root,python,completed):
         offset=100+2*(completed//len(STUDENTS))
         if offset>713:return None
         return [str(python),str(scripts/'grounded_reasoning.py'),'--root',str(root),'--count','2','--offset',str(offset),'--model',model]
+    if lane=='corrective_curriculum':
+        return [str(python),str(scripts/'corrective_curriculum.py'),'--root',str(root)]
+    if lane=='generated_challenges':
+        return [str(python),str(scripts/'generated_challenges.py'),'--root',str(root),'--count','2']
     if lane=='receipt_replay':
         return [str(python),str(scripts/'council_receipt_audit.py'),'--root',str(root)]
     raise ValueError('unknown lane')
@@ -52,12 +56,14 @@ def normalize(lane,result):
     if result.get('production_authority') is True or result.get('weight_training') is True:
         raise ValueError('research scope violation')
     status=result.get('status','failed')
+    if lane=='corrective_curriculum' and status in ('planned','no_verified_failures'):
+        return 'completed'
     if lane=='receipt_replay' and status=='replayed' and result.get('replayed_cases',0)>0:
         return 'completed'
     if status=='already_recorded':
         return 'already_recorded'
     if status=='completed':
-        if lane in ('collective','authentic_retrieval','instruction_following','grounded_reasoning'):
+        if lane in ('collective','authentic_retrieval','instruction_following','grounded_reasoning','generated_challenges'):
             return 'completed' if result.get('model_calls',0)>0 and result.get('completed_calls')==result.get('model_calls') else 'partial'
         if lane=='neural_routing':
             return 'completed' if len(result.get('specialists',[]))==3 and result.get('candidate_answer',{}).get('status') in ('quote_verified','abstained') else 'partial'
@@ -186,7 +192,12 @@ def evidence_snapshot(root):
     except (OSError,ValueError,TypeError,KeyError) as exc:
         grounded={'cases':0,'trials':0,'production_authority':False}
         errors.append('grounded:'+type(exc).__name__)
-    return {'grounded_reasoning':grounded,'collective':collective,'lesson_retrieval':load_trials(e/'lesson-retrieval','lesson'),
+    from generated_challenges import audit as audit_generated
+    try:generated=audit_generated(root)
+    except (OSError,ValueError,TypeError,KeyError) as exc:
+        generated={'completed_calls':0,'production_authority':False}
+        errors.append('generated:'+type(exc).__name__)
+    return {'generated_challenges':generated,'grounded_reasoning':grounded,'collective':collective,'lesson_retrieval':load_trials(e/'lesson-retrieval','lesson'),
             'instruction_following':load_trials(e/'ifeval-local','instruction'),
             'neural_routing':routing,'errors':errors,
             'scope':'recorded development evidence, not independent general intelligence qualification',

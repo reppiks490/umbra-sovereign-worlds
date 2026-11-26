@@ -1,0 +1,9 @@
+# Source-only continual curriculum
+
+Replaces the 20-attempt runtime selection cap with a resumable three-traversal source curriculum. Up to eight optimizer steps per admitted cycle, 6,758 training records, rotating eight-case development windows separate from eight fixed retention anchors. Original test answers are not used for inference, optimizer or candidate selection. Corpus order is hash-bound; interrupted reservations remain visible. Candidate retention requires changed adapter weights and fresh-development NLL improvement without excess retention regression. This is not independent final qualification.
+
+Actual source audit: 6,758 training and 715 development records, 23,716 original arithmetic annotations, 22,876 exact matches, zero mismatches among supported annotations, 840 unsupported. 6,131 training and 650 development records had all their annotations verified. This audits equations only, not whole answers or model intelligence. Prior grounded-reasoning paired Qwen3 0.6B trial: both direct and assisted arms scored 1/2; four calls completed. Both prior CI workflows green at f68d1f0.
+
+Local tests: 204 Python passed, including eleven new curriculum tests. No new weight gains established at documentation time. Actual training is subject to shared compute admission, storage, cooldown and runtime guards. The current scan limit is 20,274 training-record positions per model; skipped overlength examples and rejected adapter updates are not acquired knowledge. Do not train repeatedly on final evaluation sets or treat perfect memorization as qualification. Raw records and weights remain local.
+
+Next: test actual candidate retention and inference on independent frozen cases, qualify specialist families, and implement source-specific data loaders rather than treating arbitrary files as training data. Preserve existing service schedules and no-synthetic-training policy.

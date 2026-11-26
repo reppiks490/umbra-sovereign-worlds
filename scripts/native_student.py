@@ -7,6 +7,7 @@ from source_assist import validate_quote
 from source_knowledge import Knowledge
 from hf_weight_cache import lock
 from neural_priority import size
+from source_curriculum import plan_cycle,gate,campaign_eligible
 TRAINABLE=NATIVE+('granite4:350m','qwen3:0.6b')
 def checkpoint(root,training,name):
  if name in ('granite4:350m','qwen3:0.6b'):
@@ -63,7 +64,7 @@ def run(root,training,name,attempt,query):
 def promotion(before,after):
  # Pilot validation only; never automatic deployment.
  return all(math.isfinite(x) and x>=0 for x in before+after) and len(before)==len(after)==8 and sum(after)/8<sum(before)/8-.01 and max(a-b for a,b in zip(after,before))<=.10
-def train(root,training,name,steps=4):
+def train(root,training,name,steps=8):
  if name not in TRAINABLE or not 1<=steps<=8:raise ValueError('training identity')
  from source_assist import local_api
  workspace=root/'experience';bank=workspace/'source-lora';bank.mkdir(exist_ok=True)
@@ -78,7 +79,8 @@ def train(root,training,name,steps=4):
   prior=json.loads(history.read_text()) if history.exists() else {}
   if prior.get('base_sha256')!=digest:prior={}
   attempt=prior.get('attempts',0)
-  if attempt>=20:return {'status':'pilot_limit','model':name}
+  if not campaign_eligible(prior):return {'status':'curriculum_limit','model':name}
+  if local_api('ps').get('models') or available_ram()<required:return {'status':'deferred_busy_or_memory','model':name}
   if time.time()-prior.get('timestamp',0)<3600:return {'status':'cooldown','model':name}
   corpus=load_corpus(root);torch,tok,base=load_model(p,True)
   from peft import LoraConfig,get_peft_model,PeftModel,get_peft_model_state_dict
@@ -100,45 +102,41 @@ def train(root,training,name,steps=4):
    b=tok.encode(' '+row['answer'],add_special_tokens=False)
    if not a or not b or len(a+b)>256:return None
    return {'input_ids':torch.tensor([a+b]),'labels':torch.tensor([[-100]*len(a)+b]),'attention_mask':torch.ones((1,len(a+b)),dtype=torch.long)}
-  def choose(rows,count,offset):
-   out=[]
-   for i in range(len(rows)):
-    r=rows[(i+offset)%len(rows)]
-    x=batch(r)
-    if x is not None:out.append((r,x))
-    if len(out)==count:return out
-   raise ValueError('insufficient corpus')
-  training_rows=choose(corpus['train'],steps,attempt*steps*17)
-  # Fixed validation anchors for comparisons. Original test partition never used.
-  validation=choose(corpus['validation'],8,0)
+  plan=plan_cycle(corpus,prior.get('curriculum',{}),steps,batch)
+  training_rows=plan['training'];validation=plan['retention'];fresh=plan['fresh']
+  next_curriculum=plan['next_state']
   started=time.monotonic()
   def guard():
    if available_ram()<900000000 or time.monotonic()-started>600:raise ValueError('runtime budget')
-  def evaluate():
+  def evaluate(rows):
    net.eval();values=[]
    with torch.no_grad():
-    for r,x in validation:guard();values.append(float(net(**x).loss))
+    for r,x in rows:guard();values.append(float(net(**x).loss))
    if not all(math.isfinite(v) for v in values):raise ValueError('evaluation nonfinite')
    return values
   # Persist attempt before optimizer to bound retries after interruption.
-  atomic(history,{**prior,'base_sha256':digest,'attempts':attempt+1,'timestamp':int(time.time()),'status':'attempting'})
-  before=evaluate()
+  attempt_id='attempt-'+str(attempt+1).zfill(8)+'-'+str(time.time_ns())
+  reservations={'training_records':[r['record_sha256'] for r,x in training_rows],'retention_records':[r['record_sha256'] for r,x in validation],'fresh_records':[r['record_sha256'] for r,x in fresh]}
+  atomic(target/(attempt_id+'-reserved.json'),{'status':'reserved','base_sha256':digest,'next_curriculum':next_curriculum,**reservations})
+  atomic(history,{**prior,'base_sha256':digest,'attempts':attempt+1,'timestamp':int(time.time()),'status':'attempting','pending_attempt':attempt_id})
+  before=evaluate(validation);fresh_before=evaluate(fresh)
   state_before={k:v.detach().cpu().clone() for k,v in get_peft_model_state_dict(net).items()}
   opt=torch.optim.AdamW(params,lr=5e-5);losses=[];net.train()
   for r,x in training_rows:
    guard();opt.zero_grad();loss=net(**x).loss
    if not torch.isfinite(loss):raise ValueError('nonfinite training')
    loss.backward();torch.nn.utils.clip_grad_norm_(params,1.);opt.step();losses.append(float(loss.detach()))
-  after=evaluate();changed=any(not torch.equal(v.detach().cpu(),state_before[k]) for k,v in get_peft_model_state_dict(net).items())
-  accepted=changed and promotion(before,after)
+  after=evaluate(validation);fresh_after=evaluate(fresh);changed=any(not torch.equal(v.detach().cpu(),state_before[k]) for k,v in get_peft_model_state_dict(net).items())
+  accepted=changed and gate(before,after,fresh_before,fresh_after)
   result={'status':'evaluated','model':name,'base_sha256':digest,'optimizer_steps':len(losses),'adapter_weights_changed':changed,'trainable_parameters':sum(x.numel() for x in params),'before_nll':before,'after_nll':after,'losses':losses,'validation_gate_passed':accepted,'training_records':[r['record_sha256'] for r,x in training_rows],'validation_records':[r['record_sha256'] for r,x in validation],'source':'original human-authored GSM8K','test_partition_used':False,'production_authority':False,'base_weights_modified':False,'retained_candidate':incumbent}
+  result.update(curriculum=next_curriculum,attempt_id=attempt_id,fresh_before_nll=fresh_before,fresh_after_nll=fresh_after,fresh_validation_records=reservations['fresh_records'],qualification_scope='development retention gate only; not independent holdout accuracy')
   if accepted:
    tag='candidate-'+hashlib.sha256((digest+str(time.time_ns())).encode()).hexdigest()[:16]
    stage=target/(tag+'.stage');stage.mkdir();net.save_pretrained(str(stage),safe_serialization=True)
    result['adapter_hashes']={k:filehash(stage/k) for k in ('adapter_model.safetensors','adapter_config.json')}
    if size(stage)>20000000:raise ValueError('adapter budget')
    result['retained_candidate']=tag;atomic(stage/'receipt.json',result);stage.rename(target/tag)
-  atomic(target/'last-result.json',result);atomic(history,{'base_sha256':digest,'attempts':attempt+1,'timestamp':int(time.time()),'status':'evaluated','retained_candidate':result['retained_candidate']})
+  atomic(target/(attempt_id+'-result.json'),result);atomic(target/'last-result.json',result);atomic(history,{'base_sha256':digest,'attempts':attempt+1,'timestamp':int(time.time()),'status':'evaluated','retained_candidate':result['retained_candidate'],'curriculum':next_curriculum})
   return result
 if __name__=='__main__':
  a=argparse.ArgumentParser();a.add_argument('--root',required=True,type=Path);a.add_argument('--training',type=Path);a.add_argument('--model',required=True);a.add_argument('--attempt',type=int,default=0);a.add_argument('--query',default='time series forecasting methods');a.add_argument('--train',action='store_true');p=a.parse_args();training=p.training or p.root.parent/'umbra-train-native-20261124'

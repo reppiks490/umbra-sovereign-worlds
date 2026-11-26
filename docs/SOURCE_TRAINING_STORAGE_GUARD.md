@@ -1,0 +1,5 @@
+## Source-only training disk admission
+
+Preserve the existing 6 GB minimum and the verified post-retirement 7.8 GB floor, reserving an additional 25 MB for bounded adapter and receipt writes. The scheduler and optimizer use the same policy; the optimizer rechecks after lock acquisition, before reserved-attempt bookkeeping, during evaluation/optimizer steps and before candidate persistence. Invalid retirement metadata fails closed. Does not modify legacy synthetic training paths or enable production promotion.
+
+Local failing-first evidence: five new regression tests failed on the baseline (three failures, two missing-helper errors). After correcting an isolated candidate syntax error, five focused tests passed; the combined downloader/storage candidate passed 250 Python tests in the existing CPU PyTorch environment. This is not evidence of new model training. The storage candidate is not deployed. Requires independent exact-head CI and a safe idle cutover after the active native transfer completes. This branch intentionally stacks on the native transfer review PR #35.

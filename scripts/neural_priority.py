@@ -3,6 +3,7 @@ import argparse,json,hashlib,os,shutil,sys,time,urllib.parse
 from pathlib import Path
 from urllib.request import urlopen
 from native_training_bootstrap import download_verified,used as training_used
+from storage_budget import budget,RETIRED,expansion_lane,incremental_usage
 CAP=42000000000
 RESOURCE_CAP=1500000000
 LEARNING_CAP=3000000000
@@ -73,11 +74,12 @@ CANDIDATES=[
  ('HuggingFaceTB/SmolLM2-135M-Instruct','edge_reasoning',6),
  ('ibm-granite/granite-embedding-125m-english','retrieval',8),
  ('ibm-granite/granite-embedding-30m-english','retrieval',7)]
+RETIREMENT_CANDIDATES=[('Qwen/Qwen2.5-0.5B-Instruct','native_reasoning',10),('Qwen/Qwen3-1.7B','native_reasoning',9),('deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B','native_reasoning',9),('Qwen/Qwen2.5-Coder-0.5B','native_coding',9),('Qwen/Qwen2.5-0.5B','native_reasoning',8),('HuggingFaceTB/SmolLM2-360M','native_reasoning',8),('BAAI/bge-small-en-v1.5','retrieval',9),('sentence-transformers/multi-qa-MiniLM-L6-cos-v1','retrieval',8)]
 EXTRA_FILES={'tokenizer.model','added_tokens.json','processor_config.json','feature_extractor_config.json','normalizer.json','chat_template.jinja'}
-def protected_remaining(training_bytes,resource_bytes):
- return max(0,TRAINING_CAP-training_bytes)+max(0,RESOURCE_CAP-resource_bytes)+LEARNING_CAP
-def can_admit(used_bytes,additional,free,remaining_training):
- return 0<additional and used_bytes+additional<=CAP and free-additional>=FLOOR+max(0,remaining_training)
+def protected_remaining(training_bytes,resource_bytes,*,resource_cap=RESOURCE_CAP,learning_reserve=LEARNING_CAP):
+ return max(0,TRAINING_CAP-training_bytes)+max(0,resource_cap-resource_bytes)+learning_reserve
+def can_admit(used_bytes,additional,free,remaining_training,*,cap=CAP,floor=FLOOR):
+ return 0<additional and used_bytes+additional<=cap and free-additional>=floor+max(0,remaining_training)
 def rank_candidates(rows,seen,domains):
  return sorted([r for r in rows if r['digest'] not in seen],key=lambda r:(r['domain'] in domains,-r['value'],r['total'],r['repo']))
 def size(root):
@@ -114,9 +116,24 @@ def inventory(root):
    r=json.loads(f.read_text(encoding='utf8'))
    if r.get('native_verified') is not True:continue
    seen.add(r['digest']);repos.add(r['repo'])
-   domains.update(d for name,d,v in CANDIDATES if name==r['repo'])
+   domains.update(d for name,d,v in CANDIDATES+RETIREMENT_CANDIDATES if name==r['repo'])
   except (ValueError,KeyError,OSError):continue
  return seen,domains,repos
+def folder_inventory(bucket):
+ return {p.name:size(p) for p in bucket.iterdir() if p.is_dir() and not p.is_symlink()}
+def expanded_usage(root,bucket):
+ p=root/'retirement-neural-baseline.json'
+ current=folder_inventory(bucket)
+ if not p.exists():write(p,{'version':1,'folders':current})
+ if p.is_symlink() or p.stat().st_size>1000000:raise ValueError('allocation baseline')
+ baseline=json.loads(p.read_text(encoding='utf8'))
+ if baseline.get('version')!=1 or not isinstance(baseline.get('folders'),dict):raise ValueError('allocation baseline')
+ lanes={}
+ for name in current:
+  marker=bucket/name/'priority-bundle.json'
+  if marker.is_file() and not marker.is_symlink():
+   m=json.loads(marker.read_text(encoding='utf8'));lanes[name]=expansion_lane(m['domain'])
+ return incremental_usage(baseline['folders'],current,lanes)
 def original_done(root):
  from acquisition_receipt import queue_status
  return queue_status(root)=='ready'
@@ -124,20 +141,22 @@ def run(plan_only=False,wait_bootstrap=False,wait_existing=False):
  sys.path.insert(0,str(ROOT.parent/'umbra-polymind-acquisition-pinned'))
  import agentic_acquire_20261124 as old
  ROOT.mkdir(exist_ok=True)
+ policy=budget(ROOT);cap=policy.neural_cap;floor=policy.floor
+ candidates=CANDIDATES+RETIREMENT_CANDIDATES if policy==RETIRED else CANDIDATES
  bucket=ROOT/'neural';bucket.mkdir(exist_ok=True)
  manifest=ROOT/'neural-priority-plan.json';status=ROOT/'neural-priority-status.json'
  seen,domains,repos=inventory(ROOT)
  if manifest.exists():
   m=json.loads(manifest.read_text(encoding='utf8'));rows=m['candidates'];rejected=m['rejected']
-  pending=pending_candidates(CANDIDATES,rows,rejected)
+  pending=pending_candidates(candidates,rows,rejected)
   if pending:
    more,failed=inspect_candidates(old,pending);rows+=more;rejected+=failed
-  if pending or m.get('cap_bytes')!=CAP:write(manifest,{**m,'cap_bytes':CAP,'candidates':rows,'rejected':rejected})
+  if pending or m.get('cap_bytes')!=cap:write(manifest,{**m,'cap_bytes':cap,'candidates':rows,'rejected':rejected})
  else:
-  rows,rejected=inspect_candidates(old)
-  write(manifest,{'schema':'umbra.neural.priority.v1','cap_bytes':CAP,'learning_workspace_bytes':3000000000,'candidates':rows,'rejected':rejected})
+  rows,rejected=inspect_candidates(old,candidates)
+  write(manifest,{'schema':'umbra.neural.priority.v1','cap_bytes':cap,'learning_workspace_bytes':policy.learning_reserve,'candidates':rows,'rejected':rejected})
  if plan_only:
-  print(json.dumps({'status':'planned','cap_bytes':CAP,'eligible':[(r['repo'],r['domain'],r['total']) for r in rank_candidates(rows,seen,domains) if r['repo'] not in repos],'rejected':rejected}),flush=True);return
+  print(json.dumps({'status':'planned','cap_bytes':cap,'eligible':[(r['repo'],r['domain'],r['total']) for r in rank_candidates(rows,seen,domains) if r['repo'] not in repos],'rejected':rejected}),flush=True);return
  bootstrap=ROOT.parent/'umbra-train-native-20261124'/'bootstrap.lock'
  if wait_bootstrap and bootstrap.exists():
   print('QUEUED_BEHIND_TRAINING_BOOTSTRAP',flush=True)
@@ -152,7 +171,11 @@ def run(plan_only=False,wait_bootstrap=False,wait_existing=False):
  with lock.open('x') as f:f.write(str(os.getpid()))
  results=[]
  try:
-  for r in rank_candidates(rows,seen,domains):
+  ordered=rank_candidates(rows,seen,domains)
+  if policy==RETIRED:
+   expanded_usage(ROOT,bucket) # freeze existing inventory under exclusive acquisition lock
+   ordered.sort(key=lambda r:expansion_lane(r['domain'])!='native')
+  for r in ordered:
    if r['repo'] in repos or r['digest'] in seen:continue
    folder=bucket/(r['repo'].replace('/','--')+'--'+r['revision'][:12])
    # Only resume folders created by this expansion; never overwrite an original queue folder.
@@ -161,13 +184,15 @@ def run(plan_only=False,wait_bootstrap=False,wait_existing=False):
    if marker.exists() and json.loads(marker.read_text(encoding='utf8'))!=r:continue
    existing=size(folder) if folder.exists() else 0
    need=max(1,r['total']-existing)+65536
-   remaining_training=protected_remaining(training_used(),size(ROOT/'intelligence-resources'))
-   if not can_admit(size(bucket),need,shutil.disk_usage(ROOT).free,remaining_training):
+   remaining_training=protected_remaining(training_used(),size(ROOT/'intelligence-resources'),resource_cap=policy.resource_cap,learning_reserve=policy.learning_reserve)
+   lane=expansion_lane(r['domain']);lane_cap=policy.native_additional if lane=='native' else policy.specialist_additional
+   lane_before=expanded_usage(ROOT,bucket)[lane] if policy==RETIRED else 0
+   if (policy==RETIRED and lane_before+need>lane_cap) or not can_admit(size(bucket),need,shutil.disk_usage(ROOT).free,remaining_training,cap=cap,floor=floor):
     results.append({'repo':r['repo'],'status':'deferred_storage'});continue
    print('PULL',r['repo'],r['total'],flush=True)
    folder.mkdir(exist_ok=True);write(marker,r)
    def gate(n=0):
-    if size(bucket)+n>CAP or shutil.disk_usage(ROOT).free-n<FLOOR+remaining_training:raise ValueError('priority storage gate')
+    if size(bucket)+n>cap or shutil.disk_usage(ROOT).free-n<floor+remaining_training or (policy==RETIRED and lane_before+max(0,size(folder)-existing)+n>lane_cap):raise ValueError('priority storage gate')
    try:
     for f in r['files']:
      name=f['name'];target=folder/name;target.parent.mkdir(exist_ok=True,parents=True)
@@ -179,13 +204,13 @@ def run(plan_only=False,wait_bootstrap=False,wait_existing=False):
     write(folder/'receipt.json',{**r,'native_verified':True,'inference_verified':False,'training_verified':False})
     seen.add(r['digest']);repos.add(r['repo']);domains.add(r['domain']);results.append({'repo':r['repo'],'status':'verified'});print('VERIFIED',r['repo'],flush=True)
    except Exception as e:results.append({'repo':r['repo'],'status':'retry_needed','reason':type(e).__name__});print('RETRY_NEEDED',r['repo'],type(e).__name__,flush=True);break
-  write(status,{'status':'pass_finished','timestamp':int(time.time()),'cap_bytes':CAP,'used_bytes':size(bucket),'results':results})
+  write(status,{'status':'pass_finished','timestamp':int(time.time()),'cap_bytes':cap,'used_bytes':size(bucket),'results':results,'incremental_usage':expanded_usage(ROOT,bucket) if policy==RETIRED else None})
  finally:lock.unlink(missing_ok=True)
-def priority_plan(queue_status,bootstrap_running,priority_running,last,now,status):
+def priority_plan(queue_status,bootstrap_running,priority_running,last,now,status,*,cap=CAP):
  if queue_status!='ready':return 'deferred_original'
  if bootstrap_running:return 'deferred_bootstrap'
  if priority_running:return 'running'
- if type(status.get('cap_bytes')) is int and status['cap_bytes']<CAP and status.get('status')=='pass_finished':return 'eligible'
+ if type(status.get('cap_bytes')) is int and status['cap_bytes']<cap and status.get('status')=='pass_finished':return 'eligible'
  if status.get('status')=='pass_finished' and not any(r.get('status') in ('deferred_storage','retry_needed') for r in status.get('results',[])):return 'complete'
  delay=21600 if status.get('status')=='pass_finished' and any(r.get('status')=='deferred_storage' for r in status.get('results',[])) else 1800
  if now-max(last,status.get('timestamp',0))<delay:return 'cooldown'
@@ -197,14 +222,14 @@ def resume_priority(root,training,queue_status,queue_behind_bootstrap=False,queu
  def read(p):
   try:return json.loads(p.read_text(encoding='utf8'))
   except (OSError,ValueError):return {}
- a=read(stamp);status=read(root/'neural-priority-status.json');now=int(time.time())
- decision=priority_plan('ready' if queue_behind_active and queue_status=='deferred_acquisition' else queue_status,(training/'bootstrap.lock').exists() and not queue_behind_bootstrap,pid_alive(a.get('pid')),a.get('timestamp',0),now,status)
+ a=read(stamp);status=read(root/'neural-priority-status.json');now=int(time.time());policy=budget(root)
+ decision=priority_plan('ready' if queue_behind_active and queue_status=='deferred_acquisition' else queue_status,(training/'bootstrap.lock').exists() and not queue_behind_bootstrap,pid_alive(a.get('pid')),a.get('timestamp',0),now,status,cap=policy.neural_cap)
  if decision!='eligible':return {'status':decision}
- if shutil.disk_usage(root).free<=FLOOR+protected_remaining(training_used(),size(root/'intelligence-resources')):return {'status':'deferred_storage'}
+ if shutil.disk_usage(root).free<=policy.floor+protected_remaining(training_used(),size(root/'intelligence-resources'),resource_cap=policy.resource_cap,learning_reserve=policy.learning_reserve):return {'status':'deferred_storage'}
  py=Path(sys.base_prefix)/'python.exe'
  if not py.is_file():return {'status':'deferred_runtime'}
  with (root/'neural-priority.log').open('a',encoding='utf8') as out:
   proc=subprocess.Popen([str(py),'-u',str(Path(__file__).resolve())]+(['--wait-bootstrap'] if queue_behind_bootstrap else [])+(['--wait-existing'] if queue_behind_active else []),stdout=out,stderr=subprocess.STDOUT,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
- write(stamp,{'pid':proc.pid,'timestamp':now});return {'status':'started','pid':proc.pid,'cap_bytes':CAP}
+ write(stamp,{'pid':proc.pid,'timestamp':now});return {'status':'started','pid':proc.pid,'cap_bytes':policy.neural_cap}
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('--plan',action='store_true');p.add_argument('--wait-bootstrap',action='store_true');p.add_argument('--wait-existing',action='store_true');a=p.parse_args();run(a.plan,a.wait_bootstrap,a.wait_existing)

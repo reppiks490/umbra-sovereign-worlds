@@ -6,6 +6,7 @@ from neural_priority import size,write,ROOT,CAP as NEURAL_CAP, RESOURCE_CAP
 BUDGETS=dict(science=2000000000,finance=2000000000,reasoning=2000000000,graphs=1000000000,symbolic=500000000,algorithms=500000000,experience=1000000000,simulation=1000000000,causal=500000000,benchmarks=1000000000,synthetic=500000000,cognition=500000000,reinforcement=500000000,semantic=1500000000,evolution=500000000)
 CAP=RESOURCE_CAP
 FLOOR=3000000000
+from storage_budget import budget,RETIRED
 LICENSES={'apache-2.0','mit','bsd-2-clause','bsd-3-clause','cc-by-4.0','cc0-1.0','isc','odc-by','odc-pddl','unlicense'}
 DATASETS=[
  ('allenai/ai2_arc','science'),('allenai/openbookqa','science'),('allenai/sciq','science'),('allenai/qasper','science'),('allenai/physqa','science'),
@@ -33,10 +34,10 @@ PACKAGES=[
  ('z3-solver','4.14.1.0','symbolic'),('symengine','0.14.1','symbolic'),('PySMT','0.9.6','symbolic'),
  ('ortools','9.12.4544','algorithms'),('sortedcontainers','2.4.0','algorithms'),('more-itertools','10.7.0','algorithms'),
  ('rustworkx','0.16.0','graphs'),('polars','1.27.1','experience'),('pymc','5.22.0','causal')]
-def admit(used,category_used,additional,free,training_remaining,learning_remaining,category_cap):
- return (0<additional and used+additional<=RESOURCE_CAP and category_used+additional<=category_cap and free-additional>=FLOOR+max(0,training_remaining)+max(0,learning_remaining))
-def neural_complete(status):
- return status.get('status')=='pass_finished' and status.get('cap_bytes',0)>=NEURAL_CAP and not any(x.get('status')=='retry_needed' for x in status.get('results',[]))
+def admit(used,category_used,additional,free,training_remaining,learning_remaining,category_cap,*,cap=RESOURCE_CAP,floor=FLOOR):
+ return (0<additional and used+additional<=cap and category_used+additional<=category_cap and free-additional>=floor+max(0,training_remaining)+max(0,learning_remaining))
+def neural_complete(status,*,cap=NEURAL_CAP):
+ return status.get('status')=='pass_finished' and status.get('cap_bytes',0)>=cap and not any(x.get('status')=='retry_needed' for x in status.get('results',[]))
 def get(url):
  with urllib.request.urlopen(urllib.request.Request(url,headers={'User-Agent':'UMBRA-intelligence-resource/1.0'}),timeout=25) as f:
   return json.load(f)
@@ -129,29 +130,31 @@ def source_order(rows):
  first=[r for r in ordered if r in ORIGINAL_ROWS]
  yield from first
  yield from (r for r in ordered if r not in first and source_disposition(r)!='deferred_source_review')
-def preview(rows):
- out={k:{'cap_bytes':v,'eligible_bytes':0,'admitted_bytes':0,'admitted_files':0} for k,v in BUDGETS.items()}
+def preview(rows,*,cap=CAP,budgets=BUDGETS):
+ out={k:{'cap_bytes':v,'eligible_bytes':0,'admitted_bytes':0,'admitted_files':0} for k,v in budgets.items()}
  for row in balanced_order(rows):
   c=out[row['category']];n=row['size'];c['eligible_bytes']+=n
-  if c['admitted_bytes']+n+4096*(c['admitted_files']+1)<=c['cap_bytes'] and sum(v['admitted_bytes']+4096*v['admitted_files'] for v in out.values())+n+4096<=CAP:
+  if c['admitted_bytes']+n+4096*(c['admitted_files']+1)<=c['cap_bytes'] and sum(v['admitted_bytes']+4096*v['admitted_files'] for v in out.values())+n+4096<=cap:
    c['admitted_bytes']+=n;c['admitted_files']+=1
  return out
 def run(plan_only=False,refresh=False):
  root=ROOT/'intelligence-resources';root.mkdir(exist_ok=True)
+ policy=budget(ROOT);cap=policy.resource_cap;floor=policy.floor
+ budgets={**BUDGETS,'benchmarks':2500000000,'reasoning':3000000000,'science':2500000000,'finance':2500000000} if policy==RETIRED else BUDGETS
  manifest=root/'plan.json';m=load(manifest)
  if not m or refresh:
   if refresh and not plan_only:raise ValueError('refresh requires plan-only mode')
   m=merge_plan(m,plan());write(manifest,m)
- if m.get('cap_bytes')!=CAP:
-  m={**m,'cap_bytes':CAP};write(manifest,m)
+ if m.get('cap_bytes')!=cap or m.get('budgets')!=budgets:
+  m={**m,'cap_bytes':cap,'budgets':budgets};write(manifest,m)
  if any(r not in m['rows'] for r in ORIGINAL_ROWS):
   m=merge_plan(m,{**m,'rows':ORIGINAL_ROWS});write(manifest,m)
  print('PLAN_READY',len(m['rows']),sum(x['size'] for x in m['rows']),flush=True)
- print('SOURCE_POLICY_PREVIEW',json.dumps(preview(list(source_order(m['rows'])))),flush=True)
+ print('SOURCE_POLICY_PREVIEW',json.dumps(preview(list(source_order(m['rows'])),cap=cap,budgets=budgets)),flush=True)
  if plan_only:return
  training=ROOT.parent/'umbra-train-native-20261124'
  status=load(ROOT/'neural-priority-status.json')
- if not neural_complete(status) or (ROOT/'active.lock').exists() or (training/'bootstrap.lock').exists():
+ if not neural_complete(status,cap=policy.neural_cap) or (ROOT/'active.lock').exists() or (training/'bootstrap.lock').exists():
   print('DEFERRED_NEURAL_OR_TRAINING',flush=True);return
  lock=ROOT/'active.lock'
  with lock.open('x') as f:f.write(str(os.getpid()))
@@ -165,12 +168,12 @@ def run(plan_only=False,refresh=False):
    if receipt.exists() and target.is_file() and load(receipt)==row and target.stat().st_size==row['size']:continue
    part=target.with_name(target.name+'.part')
    need=max(1,row['size']-(part.stat().st_size if part.exists() else 0))+4096
-   reserve_training=max(0,4500000000-training_used());reserve_learning=3000000000
-   if not admit(size(root),size(bucket),need,shutil.disk_usage(ROOT).free,reserve_training,reserve_learning,BUDGETS[cat]):
+   reserve_training=max(0,4500000000-training_used());reserve_learning=policy.learning_reserve
+   if not admit(size(root),size(bucket),need,shutil.disk_usage(ROOT).free,reserve_training,reserve_learning,budgets[cat],cap=cap,floor=floor):
     results.append({'repo':row['repo'],'path':row['path'],'status':'deferred_storage'});continue
    target.parent.mkdir(parents=True,exist_ok=True)
    def gate(n=0):
-    if not admit(size(root),size(bucket),max(1,n),shutil.disk_usage(ROOT).free,reserve_training,reserve_learning,BUDGETS[cat]):raise ValueError('resource disk gate')
+    if not admit(size(root),size(bucket),max(1,n),shutil.disk_usage(ROOT).free,reserve_training,reserve_learning,budgets[cat],cap=cap,floor=floor):raise ValueError('resource disk gate')
    try:
     print('PULL',row['repo'],row['path'],row['size'],flush=True)
     alg=row.get('algorithm','sha256')
@@ -179,16 +182,16 @@ def run(plan_only=False,refresh=False):
     write(receipt,row);results.append({'repo':row['repo'],'path':row['path'],'status':'verified'});print('VERIFIED',row['repo'],row['path'],flush=True)
    except Exception as e:
     results.append({'repo':row['repo'],'path':row['path'],'status':'retry_needed','reason':type(e).__name__});print('RETRY',row['repo'],type(e).__name__,flush=True)
-  write(root/'status.json',{'status':'pass_finished','timestamp':int(time.time()),'results':results,'manifest_rows':len(m['rows']),'source_policy_version':SOURCE_POLICY_VERSION,'deferred_source_review':sum(source_disposition(r)=='deferred_source_review' for r in m['rows']),'used_bytes':size(root)})
+  write(root/'status.json',{'status':'pass_finished','timestamp':int(time.time()),'results':results,'manifest_rows':len(m['rows']),'source_policy_version':SOURCE_POLICY_VERSION,'cap_bytes':cap,'deferred_source_review':sum(source_disposition(r)=='deferred_source_review' for r in m['rows']),'used_bytes':size(root)})
  finally:lock.unlink(missing_ok=True)
 def resume(root,training,queue_status):
  import subprocess
  from acquisition_recovery import pid_alive
  d=root/'intelligence-resources';d.mkdir(exist_ok=True)
- s=load(d/'status.json');a=load(d/'attempt.json');now=int(time.time())
+ s=load(d/'status.json');a=load(d/'attempt.json');now=int(time.time());policy=budget(root)
  if pid_alive(a.get('pid')):return {'status':'running'}
- if queue_status!='ready' or not neural_complete(load(root/'neural-priority-status.json')) or (training/'bootstrap.lock').exists():return {'status':'deferred_neural_or_training'}
- if s.get('status')=='pass_finished' and s.get('source_policy_version')==SOURCE_POLICY_VERSION and s.get('manifest_rows')==len(load(d/'plan.json').get('rows',[])) and not any(x.get('status') in ('deferred_storage','retry_needed') for x in s.get('results',[])):return {'status':'complete'}
+ if queue_status!='ready' or not neural_complete(load(root/'neural-priority-status.json'),cap=policy.neural_cap) or (training/'bootstrap.lock').exists():return {'status':'deferred_neural_or_training'}
+ if s.get('status')=='pass_finished' and s.get('cap_bytes',CAP)==policy.resource_cap and s.get('source_policy_version')==SOURCE_POLICY_VERSION and s.get('manifest_rows')==len(load(d/'plan.json').get('rows',[])) and not any(x.get('status') in ('deferred_storage','retry_needed') for x in s.get('results',[])):return {'status':'complete'}
  if now-max(a.get('timestamp',0),s.get('timestamp',0))<1800:return {'status':'cooldown'}
  py=Path(sys.base_prefix)/'python.exe'
  if not py.is_file():return {'status':'deferred_runtime'}

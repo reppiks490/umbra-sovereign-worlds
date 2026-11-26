@@ -1,0 +1,5 @@
+# Authenticated claim prototype
+
+Adds HMAC-SHA256 authenticated, exact-task claims with principal/lane policy, broker identity, a 60-second freshness window, and transactionally persisted nonce consumption. An unsuccessful claim rolls back nonce consumption. No resource-bearing claim is allowed until the external lock contract is integrated. No server, key provisioning, OS access isolation, production broker configuration, authenticated report/review path or live scheduler integration is provided. Direct ledger access remains a bypass; never expose the database to untrusted callers. Keys in tests are fixtures only. Nonce retention, bounded admission, key rotation and clock rollback require further review.
+
+Windows local full suite: 61/61 tests passed in 3.733s, exit 0. Ten new tests include concurrent signed requests, replay across database reopen, invalid key configuration, tampering, exact scope and resource/dependency checks. Initial missing-module test failed. Dedicated cross-platform CI inherited from PR44. No active database, scheduler or runtime mutation.

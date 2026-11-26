@@ -33,11 +33,23 @@ class PortfolioTest(unittest.TestCase):
    s=record_outcome(s,p,10000+i,'completed')
   self.assertEqual(set(s),set(names))
  def test_busy_storage_and_cooldown(self):
-  self.assertIsNone(choose_lane({},10000,10**10,10**10,True))
+  self.assertIn(choose_lane({},10000,10**10,10**10,True),{'receipt_replay','corrective_curriculum'})
   self.assertIsNone(choose_lane({},10000,10**10,1,False))
   self.assertIsNone(choose_lane({},10000,1,10**10,False))
   s={k:{'attempts':1,'last_attempt':10000,'next_due':20000,'completed':1} for k in LANES}
   self.assertIsNone(choose_lane(s,10001,10**10,10**10,False))
+ def test_compute_contention_allows_only_due_evidence_lanes(self):
+  state={}
+  for i in range(2):
+   lane=choose_lane(state,10000+i,10**10,10**10,True)
+   self.assertIn(lane,{'receipt_replay','corrective_curriculum'})
+   state=record_outcome(state,lane,10000+i,'completed')
+  self.assertEqual(set(state),{'receipt_replay','corrective_curriculum'})
+  self.assertIsNone(choose_lane(state,10002,10**10,10**10,True))
+  self.assertIn(choose_lane(state,10002,10**10,10**10,False),set(LANES)-set(state))
+ def test_evidence_work_retains_storage_memory_reserves(self):
+  self.assertIsNone(choose_lane({},10000,1499999999,10**10,True))
+  self.assertIsNone(choose_lane({},10000,10**10,5999999999,True))
  def test_failed_and_deferred_not_completed(self):
   k=next(iter(LANES))
   s=record_outcome({},k,10000,'deferred_busy')

@@ -173,8 +173,12 @@ def main(root):
     if not code.exists() or time.time()-code.stat().st_mtime>=86400:result['icarus_code_index']=refresh_code_index(root)
    except Exception as e:result['icarus_code_index_error']=type(e).__name__
    try:
-    if result.get('source_knowledge',{}).get('status')=='ready' and not (training/'bootstrap.lock').exists() and result.get('training_bootstrap',{}).get('status') not in ('started','running'):
-     if service_due(time.time()):
+    bootstrap_busy=(training/'bootstrap.lock').exists() or result.get('training_bootstrap',{}).get('status') in ('started','running')
+    if result.get('source_knowledge',{}).get('status')=='ready':
+     if bootstrap_busy:
+      result['research_portfolio']=portfolio_cycle(root,training,evidence_only=True)
+      result['source_assist']={'status':'evidence_only_during_bootstrap'}
+     elif service_due(time.time()):
       result['research_portfolio']=portfolio_cycle(root,training)
       result['source_assist']={'status':'research_portfolio_cycle'}
      else:result['source_assist']=council_cycle(root,training)

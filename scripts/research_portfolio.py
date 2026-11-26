@@ -2,13 +2,14 @@
 import argparse,hashlib,json,shutil,subprocess,sys,time
 from pathlib import Path
 LANES={'collective':3000000000,'authentic_retrieval':2800000000,'neural_routing':4000000000,'instruction_following':2800000000,'receipt_replay':1500000000,'grounded_reasoning':2800000000,'generated_challenges':2800000000,'corrective_curriculum':1500000000}
+EVIDENCE_LANES=frozenset(('receipt_replay','corrective_curriculum'))
 STUDENTS=('qwen3:0.6b','granite4:350m','gemma3:1b')
 QUERIES=('ICARUS causal market replay event clock and execution verification','quality diversity optimization archives and behavior descriptors','time series forecasting chronological validation and persistence baseline')
 
 def choose_lane(state,now,ram,free,busy):
-    if busy or free<6000000000 or not isinstance(state,dict):
+    if free<6000000000 or not isinstance(state,dict):
         return None
-    eligible=[k for k,minimum in LANES.items() if ram>=minimum and state.get(k,{}).get('next_due',0)<=now]
+    eligible=[k for k,minimum in LANES.items() if (not busy or k in EVIDENCE_LANES) and ram>=minimum and state.get(k,{}).get('next_due',0)<=now]
     return min(eligible,key=lambda k:(state.get(k,{}).get('last_attempt',0),state.get(k,{}).get('attempts',0),k)) if eligible else None
 
 def record_outcome(state,lane,now,status,summary=None):
@@ -69,7 +70,7 @@ def normalize(lane,result):
             return 'completed' if len(result.get('specialists',[]))==3 and result.get('candidate_answer',{}).get('status') in ('quote_verified','abstained') else 'partial'
     return str(status) if status!='completed' else 'partial'
 
-def run(root,training,only=None):
+def run(root,training,only=None,*,evidence_only=False):
     from native_lora_train import available_ram,atomic
     from hf_weight_cache import lock
     from source_assist import local_api
@@ -84,7 +85,10 @@ def run(root,training,only=None):
             statefile=d/'state.json'
             state=json.loads(statefile.read_text(encoding='utf8')) if statefile.exists() else {}
             now=int(time.time())
-            busy=any(p.exists() for p in (root/'experience'/'model-compute.lock',training/'bootstrap.lock',root/'active.lock')) or bool(local_api('ps').get('models'))
+            busy=evidence_only or any(p.exists() for p in (root/'experience'/'model-compute.lock',training/'bootstrap.lock',root/'active.lock'))
+            if not busy:
+                try:busy=bool(local_api('ps')['models'])
+                except (OSError,ValueError,KeyError,TypeError):busy=True
             ram,free=available_ram(),shutil.disk_usage(root).free
             view=state if only is None else {**state,**{k:{'next_due':now+1} for k in LANES if k!=only}}
             lane=choose_lane(view,now,ram,free,busy)

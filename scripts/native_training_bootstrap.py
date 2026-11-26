@@ -37,7 +37,7 @@ def digest(p,alg,prefix=b''):
  with p.open('rb') as f:
   for b in iter(lambda:f.read(1024**2),b''):h.update(b)
  return h.hexdigest()
-def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',opener=urllib.request.urlopen,attempts=5,gate_fn=None,range_bytes=16*1024**2):
+def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',opener=urllib.request.urlopen,attempts=5,gate_fn=None,range_bytes=4*1024**2):
  admit=gate_fn or gate
  if type(size) is not int or size<=0 or algorithm not in ('sha256','sha1') or not re.fullmatch('[a-f0-9]{64}' if algorithm=='sha256' else '[a-f0-9]{40}',expected):raise ValueError('invalid download identity')
  if type(attempts) is not int or not 1<=attempts<=20 or type(range_bytes) is not int or not 1<=range_bytes<=64*1024**2:raise ValueError('invalid transfer budget')
@@ -87,6 +87,7 @@ def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',ope
   except (OSError,urllib.error.URLError,http.client.HTTPException) as e:
    failures+=1
    if failures>=attempts:raise
+   if ranged and range_bytes>1024**2:range_bytes=max(1024**2,range_bytes//2)
    log('RETRY',target.name,type(e).__name__,'attempt',failures,'offset',part.stat().st_size if part.exists() else 0)
    time.sleep(min(30,2**failures))
 TORCH_WHEEL='torch-2.8.0-cp311-cp311-win_amd64.whl'

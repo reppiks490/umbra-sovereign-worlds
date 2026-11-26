@@ -37,46 +37,58 @@ def digest(p,alg,prefix=b''):
  with p.open('rb') as f:
   for b in iter(lambda:f.read(1024**2),b''):h.update(b)
  return h.hexdigest()
-def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',opener=urllib.request.urlopen,attempts=5,gate_fn=None):
+def download_verified(url,target,size,expected,algorithm='sha256',prefix=b'',opener=urllib.request.urlopen,attempts=5,gate_fn=None,range_bytes=16*1024**2):
  admit=gate_fn or gate
- if type(size) is not int or size<=0 or not re.fullmatch('[a-f0-9]{64}' if algorithm=='sha256' else '[a-f0-9]{40}',expected):raise ValueError('invalid download identity')
+ if type(size) is not int or size<=0 or algorithm not in ('sha256','sha1') or not re.fullmatch('[a-f0-9]{64}' if algorithm=='sha256' else '[a-f0-9]{40}',expected):raise ValueError('invalid download identity')
+ if type(attempts) is not int or not 1<=attempts<=20 or type(range_bytes) is not int or not 1<=range_bytes<=64*1024**2:raise ValueError('invalid transfer budget')
  part=target.with_name(target.name+'.part')
  def correct(p):return p.is_file() and not p.is_symlink() and p.stat().st_size==size and digest(p,algorithm,prefix)==expected
- if target.exists():
+ if target.exists() or target.is_symlink():
   if correct(target):return
   raise ValueError('unexpected target: '+target.name)
- if part.is_symlink():raise ValueError('invalid partial')
- for attempt in range(attempts):
+ if part.is_symlink() or (part.exists() and not part.is_file()):raise ValueError('invalid partial')
+ failures=0
+ while True:
   offset=part.stat().st_size if part.exists() else 0
   if offset>size:raise ValueError('oversized partial')
   if offset==size:
    if not correct(part):raise ValueError('partial checksum mismatch')
+   if target.exists() or target.is_symlink():raise ValueError('target changed')
    part.rename(target);return
   admit(size-offset)
-  headers={'User-Agent':'UMBRA-native-training/1.0'}
-  if offset:headers['Range']='bytes='+str(offset)+'-'
+  end=min(size-1,offset+range_bytes-1)
+  ranged=offset>0 or end<size-1
+  headers={'User-Agent':'UMBRA-native-training/1.1','Accept-Encoding':'identity'}
+  if ranged:headers['Range']='bytes='+str(offset)+'-'+(str(end) if end<size-1 or size>range_bytes else '')
   try:
    with opener(urllib.request.Request(url,headers=headers),timeout=120) as response:
-    if offset:
-     if response.status!=206 or response.headers.get('Content-Range')!='bytes '+str(offset)+'-'+str(size-1)+'/'+str(size):raise ValueError('range response mismatch')
+    if ranged:
+     if response.status!=206 or response.headers.get('Content-Range')!=f'bytes {offset}-{end}/{size}':raise ValueError('range response mismatch')
     elif response.status!=200:raise ValueError('download status')
+    if response.headers.get('Content-Encoding','identity').lower()!='identity':raise ValueError('encoded response')
     count=offset
     with part.open('ab' if offset else 'wb') as out:
-     while True:
-      b=response.read(1024**2)
-      if not b:break
-      count+=len(b)
-      if count>size:raise ValueError('size mismatch')
-      admit(len(b));out.write(b)
-     out.flush();os.fsync(out.fileno())
-   if count!=size:raise OSError('incomplete transfer')
-   if not correct(part):raise ValueError('download checksum mismatch')
-   part.rename(target);return
+     def append(block):
+      nonlocal count
+      if count+len(block)>end+1:raise ValueError('size mismatch')
+      if block:
+       admit(len(block));out.write(block);count+=len(block)
+     try:
+      while True:
+       try:chunk=response.read(1024**2)
+       except http.client.IncompleteRead as exc:
+        append(exc.partial);raise
+       if not chunk:break
+       append(chunk)
+     finally:
+      out.flush();os.fsync(out.fileno())
+   if count!=end+1:raise OSError('incomplete transfer')
+   failures=0
   except (OSError,urllib.error.URLError,http.client.HTTPException) as e:
-   if attempt+1==attempts:raise
-   log('RETRY',target.name,type(e).__name__,'attempt',attempt+1)
-   time.sleep(min(30,2**(attempt+1)))
- raise RuntimeError('download failed')
+   failures+=1
+   if failures>=attempts:raise
+   log('RETRY',target.name,type(e).__name__,'attempt',failures,'offset',part.stat().st_size if part.exists() else 0)
+   time.sleep(min(30,2**failures))
 TORCH_WHEEL='torch-2.8.0-cp311-cp311-win_amd64.whl'
 TORCH_URL='https://files.pythonhosted.org/packages/84/57/2f64161769610cf6b1c5ed782bd8a780e18a3c9d48931319f2887fa9d0b1/'+TORCH_WHEEL
 TORCH_SIZE=241366752

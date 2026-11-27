@@ -89,3 +89,7 @@ Reality Court's engineering gate compares selected rounded state only. A structu
 ## UM-106 corridor and PR verification - 2026-11-27
 
 Civic validity requires integer corridor endpoints 0 <= a < b < sites.length. This is structural validation only, not a change to seeded world dynamics or empirical validity.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+Catalog enumeration correction only; no simulation rules or empirical claims changed.

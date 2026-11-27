@@ -35,3 +35,7 @@ New isolated native software qualification at UM-106 parent: 74/74 after bounded
 ## UM-106 corridor and PR verification - 2026-11-27
 
 Local Node v26.13.0 full suite 111/111 (no failures/skips); both new tests failed before repair. Native log SHA256: 1D06858E98139CBFCF7E197F26B1ADB6E83DEDE1A16D173553346C67D490210C. Browser and hosted jobs on candidate head not yet verified; no independent scientific validation, deployment, data-rights expansion or trading changes.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+Native RED catalog mismatch 5300 vs 300; GREEN both static catalogs valid, zero reported errors; 300/300 synthetic audit, SHA256 D35AF27F1F2E11A96C6C21E7D8D9F8379538E83E70204CECAA99DE080B1A1B23. Hosted rerun and independent review still required.

@@ -80,3 +80,7 @@ Reality Court validates nonnegative safe-integer turns and replay budgets; its s
 ## UM-106 corridor and PR verification - 2026-11-27
 
 Reality Court rejects out-of-range corridor endpoints. The advanced PR qualification calls the reusable core unit/browser workflow; hosted execution remains to be verified.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+The original 300 and advanced 5,000 manual workflow catalogs have separate ID-width validation.

@@ -34,3 +34,7 @@ Reconcile UM-110 bounded replay into existing UM-106 draft without replacing its
 ## UM-106 corridor and PR verification - 2026-11-27
 
 Parent 279392ba62a7654c763d5c477dbf7b79709fae01; isolated Windows checkout via LocalCommander. Corridor RED 0/1, GREEN Court 12/12; CI contract RED 0/1, GREEN 6/6; full Node TAP 111/111, zero skipped, 15.609 s. PR-only reusable call added to existing advanced workflow, unit workflow accepts workflow_call. Existing schedules and read-only permissions retained. Hosted fallback unverified. No live changes.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+At parent 44e9485517f4fe8777ee8d607e8bd5893fd08b55 hosted run 46037014966 unit job 140634868672 failed at the 300-workflow validator after Node passed. Native reproduction: expected 300, found 5300. Scoped glob to three-digit IDs; both catalogs pass 300/300 and 5000/5000, 300/300 synthetic cases pass. No workflow removed.

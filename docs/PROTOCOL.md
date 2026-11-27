@@ -33,3 +33,7 @@ Before independent replay, reject invalid caller budgets and malformed turn meta
 ## UM-106 corridor and PR verification - 2026-11-27
 
 Reject negative and out-of-range corridor endpoints at civic audit and G06 even when replay is blocked. PR qualification invokes core verification with read-only permissions; preserve existing schedules and bounds.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+Three-digit U001-U300 workflow namespace is audited separately from the four-digit advanced namespace. Retain independent validation of both catalogs.

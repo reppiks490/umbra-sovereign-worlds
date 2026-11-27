@@ -102,3 +102,7 @@ UM-106 replay regression integrated; native combined tests passed 74/74. Remaini
 ## UM-106 corridor and PR verification - 2026-11-27
 
 Native corridor and CI contract regressions repaired; 111/111 Node tests pass. Remaining gates: exact-head hosted unit/browser evidence, integration review, independent approval. No release.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+Hosted core verification exposed a catalog glob collision; local validators and all 300 synthetic cases pass after correction. Exact-head hosted requalification remains pending.

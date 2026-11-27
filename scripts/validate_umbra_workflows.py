@@ -3,7 +3,7 @@
 import json, pathlib, re, sys
 ROOT=pathlib.Path(__file__).resolve().parent.parent
 records=json.loads((ROOT/'scripts/umbra_workflow_registry.json').read_text(encoding='utf8'))['items']
-files=sorted((ROOT/'.github/workflows').glob('umbra-u*.yml'))
+files=sorted((ROOT/'.github/workflows').glob('umbra-u[0-9][0-9][0-9]-*.yml'))
 issues=[]
 if len(records)!=300:issues.append(f'expected 300 registry records, found {len(records)}')
 if len(files)!=300:issues.append(f'expected 300 workflows, found {len(files)}')

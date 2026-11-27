@@ -1,0 +1,18 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {createUmbraTools} from '../mcp/umbra_server.mjs';
+import {createBridge} from '../mcp/bridge.mjs';
+import {simulate,pairedExperiment,DEFAULT_POLICY} from '../engine.mjs';
+const root=fileURLToPath(new URL('../',import.meta.url));
+const input={seed:41,steps:12,policy:{...DEFAULT_POLICY,trade:0.25}};
+const req=(id,method,params={})=>({jsonrpc:'2.0',id,method,params});
+const ready=()=>{const b=createBridge(createUmbraTools({}));b.handle(req(1,'initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'test',version:'1'}}));b.handle({jsonrpc:'2.0',method:'notifications/initialized'});return b;};
+const call=(b,name,args)=>{const r=b.handle(req(2,'tools/call',{name,arguments:args}));assert.ok(!r.error,JSON.stringify(r));assert.equal(r.result.isError,false,JSON.stringify(r));return JSON.parse(r.result.content[0].text);};
+test('native simulation returns actual engine outcomes, not a substitute model',()=>{const r=call(ready(),'umbra_simulate',input),w=simulate(input.seed,input.policy,input.steps);assert.equal(r.result.population,w.population);assert.equal(r.result.food,w.food);assert.equal(r.result.tick,w.tick);assert.equal(r.synthetic,true);assert.equal(r.production_authority,false);});
+test('paired experiment returns exact common-seed engine result and sign convention',()=>{const a={seed:45,steps:10,trials:3,baseline:DEFAULT_POLICY,treatment:{...DEFAULT_POLICY,trade:0.25}};const r=call(ready(),'umbra_paired_experiment',a);assert.deepEqual(r.result,pairedExperiment(a));assert.equal(r.difference_convention,'baseline_minus_treatment');});
+test('independent replay and Court checks operate on actual worlds',()=>{const b=ready(),r=call(b,'umbra_independent_replay',input);assert.equal(r.result.executions,2);assert.equal(r.result.firstDigest,r.result.secondDigest);const c=call(b,'umbra_reality_court',input);assert.equal(c.result.counts.fail,0);assert.equal(c.result.counts.blocked,5);});
+test('actual registered case executes and verifies receipt digest',()=>{const r=call(ready(),'umbra_registered_case',{id:'U1101'});assert.equal(r.result.caseId,'U1101');assert.equal(r.result.results.simulationExecutions,2);assert.equal(r.result.results.data.independentExecutions,2);assert.equal(r.result.flags.independentRealWorldValidity,false);});
+test('rejects unknown policy, invalid case, excessive work and unconfigured checkpoints',()=>{const b=ready();for(const [name,args] of [['umbra_simulate',{...input,steps:121}],['umbra_simulate',{...input,policy:{unknown:0.1}}],['umbra_simulate',{...input,policy:{trade:2}}],['umbra_registered_case',{id:'../../etc'}],['myriad_checkpoint_evaluate',{agent:1}]])assert.ok(b.handle(req(2,'tools/call',{name,arguments:args})).error);});
+test('real subprocess handshake and computation',()=>{const rows=[req(1,'initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'test',version:'1'}}),{jsonrpc:'2.0',method:'notifications/initialized'},req(2,'tools/list'),req(3,'tools/call',{name:'umbra_simulate',arguments:input})];const p=spawnSync(process.execPath,['mcp/umbra_server.mjs'],{cwd:root,input:rows.map(JSON.stringify).join('\n')+'\n',encoding:'utf8',timeout:30000,env:{}});assert.equal(p.status,0,p.stderr);const out=p.stdout.trim().split('\n').map(JSON.parse);assert.equal(out.length,3);assert.equal(out[1].result.tools.length,5);assert.equal(JSON.parse(out[2].result.content[0].text).result.tick,12);});

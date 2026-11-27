@@ -187,3 +187,25 @@ test('long-horizon archive remains reproducible through an intermediate snapshot
   const resumed = await replayFromCheckpoint(verified,{index:1,steps:260});
   assert.equal(canonicalize(resumed),canonicalize(advanceWorld(createWorld(world.seed,world.policy),535)));
 });
+
+test('public archive APIs reject getter and toJSON traps without invocation', async () => {
+  const world = createWorld(88);
+  const archive = await createArchive(world);
+  const APIs = [a => verifyArchive(a), a => exportArchive(a),
+    a => replayFromCheckpoint(a), a => appendCheckpoint(a, world)];
+  for (const api of APIs) {
+    for (const trap of ['header','nested','toJSON']) {
+      const bad = copy(archive);
+      let invoked = 0;
+      if (trap === 'header') {
+        Object.defineProperty(bad, 'seed', {enumerable:true,get(){invoked++;return 88;}});
+      } else if (trap === 'nested') {
+        Object.defineProperty(bad.checkpoints[0].state, 'population', {enumerable:true,get(){invoked++;return 1;}});
+      } else {
+        Object.defineProperty(bad.checkpoints[0].state, 'toJSON', {value(){invoked++;return {};},enumerable:false});
+      }
+      await assert.rejects(api(bad), /accessor|toJSON/);
+      assert.equal(invoked, 0, trap);
+    }
+  }
+});

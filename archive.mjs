@@ -41,7 +41,9 @@ export function canonicalize(value) {
       : Object.keys(v).sort();
     // Accessors can execute arbitrary user code or change on each hash. Never invoke them.
     const descriptors = Object.getOwnPropertyDescriptors(v);
-    if (keys.some(k => !Object.hasOwn(descriptors, k) || !Object.hasOwn(descriptors[k], 'value')))
+    if (Object.hasOwn(descriptors, 'toJSON')) fail('own toJSON property');
+    if (Object.values(descriptors).some(d => !Object.hasOwn(d, 'value')) ||
+        keys.some(k => !Object.hasOwn(descriptors, k)))
       fail('accessor or missing JSON element');
     seen.add(v);
     const result = Array.isArray(v)
@@ -100,6 +102,7 @@ function assertWorldMatchesHeader(world, archive) {
  * Return only verification metadata, never an untrusted imported state object.
  */
 export async function verifyArchive(archive) {
+  archive = clone(archive); // Detach descriptor-validated data before reads or awaits.
   header(archive);
   const replay = createWorld(archive.seed, archive.policy);
   let previous = 'GENESIS';
@@ -126,6 +129,8 @@ export async function verifyArchive(archive) {
 
 /** Append without mutating or aliasing the original archive. */
 export async function appendCheckpoint(archive, world) {
+  archive = clone(archive);
+  world = clone(world);
   header(archive, true);
   if (archive.checkpoints.length) await verifyArchive(archive);
   assertWorldMatchesHeader(world, archive);
@@ -146,6 +151,7 @@ export async function appendCheckpoint(archive, world) {
 }
 
 export async function createArchive(world) {
+  world = clone(world);
   if (!plain(world) || !Number.isSafeInteger(world.seed)) fail('invalid source world');
   const archive = {schema:ARCHIVE_SCHEMA,engine:ENGINE_VERSION,society:SOCIETY_VERSION,
     seed:world.seed,policy:clone(world.policy),checkpoints:[]};
@@ -154,6 +160,7 @@ export async function createArchive(world) {
 
 /** Hydrate a VERIFIED snapshot, advance it, and independently cross-check genesis. */
 export async function replayFromCheckpoint(archive, {index, steps = 0} = {}) {
+  archive = clone(archive);
   await verifyArchive(archive);
   const chosen = index === undefined ? archive.checkpoints.length - 1 : index;
   if (!Number.isSafeInteger(chosen) || chosen < 0 || chosen >= archive.checkpoints.length)
@@ -178,6 +185,7 @@ export async function importArchive(json) {
   return parsed;
 }
 export async function exportArchive(archive) {
+  archive = clone(archive);
   await verifyArchive(archive);
   return JSON.stringify(archive);
 }

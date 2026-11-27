@@ -39,7 +39,20 @@
   <div class="site-highlight" id="hero-site">Corven</div>
   <div class="site-coords" id="site-coords">0° / 0°</div>
  </aside>
- <div class="scene-foot"><div><span class="emblem">◉</span> FREE ORBIT <span class="thin">/</span> DRAG TO ROTATE <span class="thin">/</span> SCROLL TO ZOOM</div><div>ADAPTIVE RENDER <b id="fps">— FPS</b><span class="signal-lines" aria-hidden="true">▥▥▥▥</span></div></div>
+ <div class="planet-lens-panel" aria-label="Planetary simulation data layers">
+ <label for="planet-lens">PLANETARY DATA LENS</label>
+ <select id="planet-lens" aria-label="Planetary data lens">
+  <option value="population">Settlement population</option>
+  <option value="resources">Food / water scarcity</option>
+  <option value="infection">Disease burden</option>
+  <option value="climate">Climate exposure</option>
+  <option value="civic">Low council support</option>
+  <option value="off">Disable overlay</option>
+ </select>
+ <p id="planet-lens-legend" role="status" aria-live="polite">Population halo · brighter means more simulated residents.</p>
+ <span class="planet-lens-spectrum" aria-hidden="true"></span>
+</div>
+<div class="scene-foot"><div><span class="emblem">◉</span> FREE ORBIT <span class="thin">/</span> DRAG TO ROTATE <span class="thin">/</span> SCROLL TO ZOOM</div><div>ADAPTIVE RENDER <b id="fps">— FPS</b><span class="signal-lines" aria-hidden="true">▥▥▥▥</span></div></div>
 </section>
 <section class="command" aria-label="Simulation controls">
  <div class="command-meta"><div class="small-label">UNIVERSE CONTROL</div><div class="command-identity"><b id="status">RUNNING</b><span class="slash">/</span><span id="elapsed">Turn 0</span></div></div>

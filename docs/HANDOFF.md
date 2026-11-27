@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-102 planetary lens continuation (separate draft branch)
+
+`feature/um-102-planetary-data-lenses` modifies `index.html`, `world.css`, `observatory.mjs`, `tests/smoke.py` and `docs/PLANET_LENSES.md` to project five model-derived heat fields on the rotating globe. Check the formulas, accessibility, all six selector modes, mobile/reduced-motion handling and actual frame telemetry. It is **not** WebGL and **not** in the live chatgpt.site deployment. Tests require a new GitHub Actions run; record exact final SHA before declaring verified. Merge separately from PR #4, PR #7 and PR #8 after reconciliation of README/AGENTS/HANDOFF shared docs. Stale when the branch merges, model signals or renderer change.

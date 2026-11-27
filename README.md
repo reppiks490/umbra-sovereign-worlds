@@ -47,12 +47,17 @@ python tests/smoke.py
 
 The Node suite tests deterministic replay, equal-policy zero differences, model stability and corrupt-record handling. The Python Playwright suite tests desktop, tablet and mobile viewports. Tests use an inline test assembly to avoid restrictions on local server navigation; production serves the same exact source modules separately. **Neither test suite validates real-world model fidelity.**
 
+## Proposed UM-101 local checkpoint archive (feature branch)
+
+A separate, opt-in archive module adds SHA-256 content-addressed checkpoints, a bounded hash chain, independent genesis replay, safe import/export and adversarial tests. **It is not yet a hosted persistence service or connected to the UI.** See [the archive protocol](docs/ARCHIVE.md). Run `npm test` to include its new tests. GitHub Actions [run 45098480527](https://github.com/reppiks490/umbra-sovereign-worlds/actions/runs/45098480527) observed 44/44 Node tests and 3/3 inline-browser smoke checks on the feature branch; production worker and deployment verification remain open.
+
 ## Source map
 
 - `index.html`: semantic app markup.
 - `world.css`: visual design, motion/accessibility and responsive layouts.
 - `engine.mjs`: deterministic ecological model, scenario forks, sensitivity experiments and passport validation.
 - `society.mjs`: civic councils, elections, diplomatic network, aid/fiscal transfers and balancing audits.
+- `archive.mjs`: proposed bounded, local-only checkpoint/replay protocol; not yet wired into the observatory.
 - `court.mjs`: independently replays worlds and reports engineering checks / scientific validation blocks.
 - `observatory.mjs`: UI, animation, charting, controls and metrics.
 - `lab.worker.mjs`: bounded off-thread experiment worker.
@@ -72,3 +77,7 @@ The project makes **no trading, profit, policy recommendation, real-world predic
 
 - Grimm et al., [ODD protocol for describing agent-based and other simulation models, second update](https://www.jasss.org/23/2/7.html) (2020). This documentation uses ODD-inspired reporting; **the current engine is an aggregate model, not a micro-agent ABM**.
 - NetLogo, [BehaviorSpace experimental methodology](https://docs.netlogo.org/behaviorspace) and documented random-seed experiments. UMBRA implements its own seeded experiments, not NetLogo or BehaviorSpace.
+
+## UM-101 archive review extension (feature branch)
+
+The local-only SHA-256 archive prototype in `archive.mjs` now rejects accessors, symbols and malformed array structures and tests twenty seeds across three policy configurations. This work remains **draft**, is not connected to the live website, and does not grant external validation. Consult `docs/ARCHIVE.md` for the threat model and `docs/VERIFICATION.md` for the CI evidence matching the current commit. Stale when UM-101 merges or the archive contract changes.

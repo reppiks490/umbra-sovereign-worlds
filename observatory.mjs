@@ -63,12 +63,11 @@ function drawUniverse(t){const start=performance.now(),{W,H,d}=resizeCanvas(c);c
  const intensity=q.z*(.2+.8*e.bright);ctx.fillStyle=e.land?`rgba(150,206,146,${(.06+.26*intensity).toFixed(3)})`:`rgba(65,181,198,${(.03+.12*intensity).toFixed(3)})`;
  const rad=(e.land?2.9:1.4)*(R/320)*(.65+q.z);ctx.beginPath();ctx.ellipse(q.x,q.y,rad*1.4,rad,0,0,Math.PI*2);ctx.fill();}
  // A projected, state-driven field: every halo reflects one actual synthetic region.
- // Per-frame gradients are limited to visible sites; adaptive quality reduces draw count.
+ // Per-frame gradients are limited to visible sites; adaptive quality reduces canvas resolution, never regional coverage.
  if(state.lens!=='off'){
   const model=w(),lens=PLANET_LENSES[state.lens];
   ctx.save();ctx.globalCompositeOperation='screen';
   for(let i=0;i<model.sites.length;i++){
-   if(state.quality<1&&i%2!==0)continue;
    const site=model.sites[i],town=model.towns[i],value=lensSignal(model,site,town,state.lens);
    if(value<.035)continue;
    const q=pos(site.pos,R*1.005);if(q.z<=.055)continue;

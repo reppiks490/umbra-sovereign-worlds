@@ -18,6 +18,30 @@ def inline():
     view=view.split('\n',3)[3]
     # Worker unavailable in sandbox inline mode; uses tested deterministic main-thread fallback.
     combined='window.Worker=undefined;\n'+society+'\n'+engine+'\n'+court+'\n'+view
+    # Inject test-only access to the actual renderer, not a production debug API.
+    combined += """
+window.__lensCoverageProbe = quality => {
+ const old={world:state.world,quality:state.quality,lens:state.lens,lon:state.lon,lat:state.lat};
+ const model=createWorld(49021);
+ const odd=model.sites.findIndex((site,i)=>i%2===1&&site.pos[2]>.2);
+ if(odd<0)throw Error('no visible odd region');
+ for(const town of model.towns)town.infected=0;
+ model.towns[odd].p=100;model.towns[odd].infected=100;
+ const original=ctx.createRadialGradient;let count=0;
+ ctx.createRadialGradient=function(...args){
+  if(this.globalCompositeOperation==='screen')count++;
+  return original.apply(this,args);
+ };
+ try {
+  Object.assign(state,{world:model,quality,lens:'infection',lon:0,lat:0});
+  drawUniverse(0);
+  return {odd,count};
+ }finally{
+  ctx.createRadialGradient=original;
+  Object.assign(state,old);
+ }
+};
+"""
     html=html.replace('<link rel="stylesheet" href="./world.css">','<style>'+css+'</style>')
     html=html.replace('<script type="module" src="./observatory.mjs"></script>','<script>'+combined+'</script>')
     return html
@@ -69,6 +93,9 @@ def test():
             assert page.evaluate('window.__UMBRA.getStatus().lens')==lens
             assert page.locator('#planet-lens-legend').inner_text().strip()
             page.wait_for_timeout(60)
+        for quality in [1,.75]:
+            probe=page.evaluate('quality => window.__lensCoverageProbe(quality)',quality)
+            assert probe['odd']%2==1 and probe['count']==1, (quality,probe)
         # Model and renderer diagnostics must report real numbers rather than infinite/theoretical FPS.
         status=page.evaluate('window.__UMBRA.getStatus()')
         assert 0 <= status['fps'] <= 200, status
@@ -91,6 +118,9 @@ def test():
     assert reduced.locator('#reduced-status').inner_text()=='YES'
     reduced.locator('#planet-lens').select_option('climate')
     assert reduced.evaluate('window.__UMBRA.getStatus().lens')=='climate'
+    for quality in [1,.75]:
+        probe=reduced.evaluate('quality => window.__lensCoverageProbe(quality)',quality)
+        assert probe['odd']%2==1 and probe['count']==1, (quality,probe)
     assert reduced_errors==[],reduced_errors
     assert reduced.evaluate('document.documentElement.scrollWidth')<=391
     print('PASS reduced-motion mobile lens=climate, zero JS errors and overflow')

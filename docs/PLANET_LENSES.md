@@ -23,7 +23,7 @@ The lenses do not change state, randomness, model rules, trade, scientific outpu
 ## Performance and accessibility
 
 - Only sites on the visible hemisphere are painted. Rendering the field is limited to the existing 42-region list.
-- The existing adaptive-quality mode cuts field points in half when graphics quality degrades.
+- Adaptive quality reduces canvas resolution and draw cadence, not region coverage. Every visible region above the existing signal threshold remains eligible for rendering.
 - If `prefers-reduced-motion` is enabled, the field does not pulse. Planet control and keyboard-accessible selection remain available.
 - The selector, visible textual status/legend and a non-color-only explanation accompany each color gradient.
 - FPS is **measured frame interval**, not a claimed hardware maximum. The feature may increase Canvas drawing cost; record actual frame timings under load and on real phones before calling performance production-ready.

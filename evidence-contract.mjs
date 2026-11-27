@@ -27,10 +27,11 @@ function failure(field, reason) { return Object.freeze({ok:false, status:'BLOCKE
  * Does not call JSON.stringify or invoke user-defined toJSON. Never returns input.
  */
 export function validateEvidenceManifest(input) {
-  if (!plain(input)) return failure('manifest','plain object required');
   let desc;
-  try { desc=Object.getOwnPropertyDescriptors(input); }
-  catch { return failure('manifest','uninspectable descriptor set'); }
+  try {
+    if (!plain(input)) return failure('manifest','plain object required');
+    desc=Object.getOwnPropertyDescriptors(input);
+  } catch { return failure('manifest','uninspectable prototype or descriptor set'); }
   if (Reflect.ownKeys(desc).length !== KEYS.length ||
       KEYS.some(k=>!Object.hasOwn(desc,k)) ||
       Reflect.ownKeys(desc).some(k=>typeof k!=='string' || !KEYS.includes(k)))

@@ -69,3 +69,24 @@ test('null prototype object accepted only with exact own data keys',()=>{
   const f=Object.assign(Object.create(null),fixture());
   assert.equal(check(f).ok,true);
 });
+
+test('uninspectable proxy manifests fail closed without propagating traps',()=>{
+  const revoked=Proxy.revocable(fixture(),{});revoked.revoke();
+  const samples=[
+    new Proxy(fixture(),{getPrototypeOf(){throw Error('prototype trap');}}),
+    new Proxy(fixture(),{ownKeys(){throw Error('ownKeys trap');}}),
+    revoked.proxy
+  ];
+  for(const sample of samples){
+    const result=check(sample);
+    assert.equal(result.ok,false);
+    assert.equal(result.status,'BLOCKED');
+    assert.equal(result.rightsVerified,false);
+    assert.equal(result.externalValidation,false);
+    assert.equal(Object.isFrozen(result),true);
+  }
+  const result=check(new Proxy(fixture(),{}));
+  assert.equal(result.ok,true);
+  assert.equal(result.rightsVerified,false);
+  assert.equal(result.checksumVerified,false);
+});

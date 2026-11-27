@@ -36,3 +36,16 @@ test('paired experiment preserves finite integer boundary clamps and reproducibi
  assert.equal(upper.paths.length,2);
  assert.ok(upper.paths.every(row=>Number.isFinite(row.diff)));
 });
+
+
+test('paired experiment rejects noncanonical seed identities before simulation',()=>{
+ for(const seed of [NaN,Infinity,-Infinity,1.5,'7',null,true,0,-1,4294967296,Number.MAX_SAFE_INTEGER]){
+  assert.throws(()=>pairedExperiment({seed,trials:2,steps:1}),/seed/);
+ }
+ for(const seed of [1,4294967295]){
+  const args={seed,trials:2,steps:1};
+  const result=pairedExperiment(args);
+  assert.equal(result.seed,seed);
+  assert.deepEqual(result,pairedExperiment(args));
+ }
+});

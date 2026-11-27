@@ -39,3 +39,10 @@ Native Windows failing-first: focused integration 5/7 (missing served CI step an
 ## 2026-11-27 — planetary lens and evidence boundary integration
 
 Source-pinned PR #9 7b71f16eac35063ec56c2675677c3e334dcdec44 (index.html, observatory.mjs, world.css, tests/smoke.py, docs/PLANET_LENSES.md) and PR #12 62d82f337bbcbf5d235ec66ceacc429b3ecb8620 (evidence-contract.mjs, tests/evidence-contract.test.mjs). Before importing, exact file comparisons showed no divergence against the original UI base and preceding evidence head. Native combined npm test 106/106, zero skips/failures; diff check passed. PR #9 separately passed four actual Chromium viewport/reduced-motion cases. Combined served browser qualification remains pending; this is not main or deployment.
+
+
+## 2026-11-27 ? paired seed and exact topology reconciliation
+
+Sources: PR #14 4851f48db2ab418c435eb7ae133a6b54496e74ab and PR #22 1a7358b7f1e523870ca06fbe93f09698bbae22a7. Imported exact new regressions and narrowly applied source hunks; retained the integrated civic validity/settlement guards and archive-compatible sorted policy summary. Combined RED 0/3, GREEN 3/3. Full native Windows Node 109/109, zero failures/skips, diff check passed. Strict paired seed contract is nonzero uint32. G01 requires dense topology and valid geometry/neighbor maps; G07 blocks malformed topology and compares seeded topology. No engine rules changed for valid seeds, no main merge or deployment.
+
+Native stack compatibility against prior core eb8e9c8: exact #26, #27 and cumulative #33 source tests passed 30/30 Node and 5/5 Python acquisition policy tests. This is fixture and actual synthetic simulator evidence, not live model inference, checkpoint evaluation, hosted transport or production authority.

@@ -27,3 +27,6 @@ Limitations of verification: scripts are served inline in the browser smoke test
 ## Permission / account boundaries
 
 No financial account, broker, wallet or private files used. No source keys accessed. No trades, API writes, paid model tasks, or changes to the user-provided `chatgpt.site` project. No GitHub source writes performed for UMBRA in this release. MagicPath external-agent quota was exhausted and not bypassed. No claims of multiple independent coding agents executing when they did not.
+
+### UM-111 exact-replay negative control
+Observed native result: the legacy selected-metric comparator accepted a deliberately injected unsampled state change (exit 0); the full-state comparator rejected the same change (exit 1). Subsequent extracted Node suite passed 37/37. Five additional registered case executions passed with equal full-state digests. This is a software regression check, not an empirical validity, training, or mobile-performance claim.

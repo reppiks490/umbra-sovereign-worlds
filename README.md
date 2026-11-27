@@ -72,3 +72,6 @@ The project makes **no trading, profit, policy recommendation, real-world predic
 
 - Grimm et al., [ODD protocol for describing agent-based and other simulation models, second update](https://www.jasss.org/23/2/7.html) (2020). This documentation uses ODD-inspired reporting; **the current engine is an aggregate model, not a micro-agent ABM**.
 - NetLogo, [BehaviorSpace experimental methodology](https://docs.netlogo.org/behaviorspace) and documented random-seed experiments. UMBRA implements its own seeded experiments, not NetLogo or BehaviorSpace.
+
+### Advanced exact-replay verification (proposed)
+The exact-replay CLI now uses two fresh full-state simulations and exposes both state digests. This is synthetic engineering evidence, not empirical or production qualification. See `docs/PROTOCOL.md`.

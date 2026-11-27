@@ -53,3 +53,32 @@ test('court rejects absent or nonfinite settlement resources without a false pop
   assert.equal(r.rows.find(x=>x.id==='G07').status,'blocked');
  }
 });
+
+
+test('malformed topology fails G01 and blocks G07 at either replay budget',()=>{
+ for(const mutate of [
+  w=>delete w.sites[0],w=>{w.sites[0]=null;},
+  w=>delete w.near[0],w=>{w.near[0]=null;},
+  w=>delete w.sites[0].pos[0],w=>{w.sites[0].pos[1]=NaN;},
+  w=>delete w.near[0][0],w=>{w.near[0][0]=0;},
+  w=>{w.near[0][0]=w.near[0][1];},w=>{w.sites[0].id=1;}
+ ]){
+  for(const replayLimit of [0,20]){
+   const w=simulate(42,DEFAULT_POLICY,10);mutate(w);
+   const r=runCourt(w,{replayLimit});
+   assert.equal(r.rows.find(x=>x.id==='G01').status,'fail');
+   assert.equal(r.rows.find(x=>x.id==='G07').status,'blocked');
+  }
+ }
+});
+test('well-shaped but altered topology cannot pass seeded replay',()=>{
+ for(const mutate of [
+  w=>{w.sites[0].fertility+=.1;},
+  w=>{w.near[0].reverse();}
+ ]){
+  const w=simulate(42,DEFAULT_POLICY,10);mutate(w);
+  const r=runCourt(w);
+  assert.equal(r.rows.find(x=>x.id==='G01').status,'pass');
+  assert.equal(r.rows.find(x=>x.id==='G07').status,'fail');
+ }
+});

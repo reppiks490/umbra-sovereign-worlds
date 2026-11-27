@@ -9,6 +9,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from shutil import which
 from threading import Thread
+from time import monotonic
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -37,7 +38,7 @@ def serve():
 WORKER_AUDIT = """
 (() => {
   const NativeWorker = window.Worker;
-  window.__workerAudit = {created:0, responses:[], errors:[]};
+  window.__workerAudit = {created:0, terminated:0, responses:[], errors:[]};
   window.Worker = class extends NativeWorker {
     constructor(url, options) {
       super(url, options);
@@ -48,6 +49,10 @@ WORKER_AUDIT = """
       this.addEventListener('error', e => {
         window.__workerAudit.errors.push(String(e.message));
       });
+    }
+    terminate() {
+      window.__workerAudit.terminated++;
+      return super.terminate();
     }
   };
 })();
@@ -73,6 +78,30 @@ def experiment(page):
     assert status.startswith("COMPLETE"), status
     assert page.locator("#exp-mean").inner_text() != "—"
     return status
+
+def negative_probe(page, timeout_ms=10000, suppress_response=False):
+    return page.evaluate("""({timeoutMs, suppressResponse}) => new Promise(resolve => {
+      const worker = new Worker('./lab.worker.mjs', {type:'module'});
+      let settled = false;
+      const finish = result => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        worker.terminate();
+        resolve(result);
+      };
+      const timer = setTimeout(() => finish({kind:'timeout'}), timeoutMs);
+      worker.onmessage = event => {
+        if (!suppressResponse) finish({kind:'response', data:event.data});
+      };
+      worker.onerror = event => finish({kind:'worker-error', error:String(event.message)});
+      worker.onmessageerror = () => finish({kind:'message-error'});
+      try {
+        worker.postMessage({version:'invalid-protocol',id:'negative-probe'});
+      } catch (error) {
+        finish({kind:'post-error', error:String(error)});
+      }
+    })""", {"timeoutMs": timeout_ms, "suppressResponse": suppress_response})
 
 def run():
     with serve() as url, sync_playwright() as p:
@@ -101,15 +130,24 @@ def run():
             assert page.evaluate("document.documentElement.scrollWidth") <= 1441
             print(f"PASS served ESM + real Worker: {result}, workers={audit['created']}")
 
-            # Negative protocol check must be answered by a real worker, not fallback.
-            bad = page.evaluate("""() => new Promise(resolve => {
-              const worker = new Worker('./lab.worker.mjs', {type:'module'});
-              worker.onmessage = event => {worker.terminate(); resolve(event.data);};
-              worker.onerror = event => {worker.terminate(); resolve({ok:false,error:String(event.message)});};
-              worker.postMessage({version:'invalid-protocol',id:'negative-probe'});
-            })""")
-            assert bad.get("ok") is False and "protocol mismatch" in bad.get("error", ""), bad
+            # Distinguish a protocol reply from startup errors and silent stalls.
+            before = page.evaluate("window.__workerAudit.terminated")
+            reply = negative_probe(page)
+            assert reply["kind"] == "response", reply
+            bad = reply["data"]
+            assert bad.get("ok") is False and bad.get("id") == "negative-probe", bad
+            assert "protocol mismatch" in bad.get("error", "").lower(), bad
+            assert page.evaluate("window.__workerAudit.terminated") == before + 1
             print("PASS real Worker negative protocol response")
+
+            # Deliberately suppress a real worker's response to exercise the watchdog.
+            before = page.evaluate("window.__workerAudit.terminated")
+            start = monotonic()
+            stalled = negative_probe(page, timeout_ms=250, suppress_response=True)
+            assert stalled == {"kind": "timeout"}, stalled
+            assert monotonic() - start < 5, "worker probe exceeded watchdog budget"
+            assert page.evaluate("window.__workerAudit.terminated") == before + 1
+            print("PASS silent Worker watchdog and termination")
             page.close()
 
             # Explicit no-Worker fallback on a phone viewport, still served over HTTP.

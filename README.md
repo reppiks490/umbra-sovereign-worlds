@@ -38,11 +38,15 @@ In addition to the v4 ecology simulation, this version adds **42 settlement coun
 
 ## Test
 
+The separate UM-103 test branch adds `tests/served_smoke.py`, a localhost HTTP integration test that exercises the **actual ES-module graph and module Web Worker**, plus negative-protocol and forced-fallback cases. This is distinct from the existing inline browser smoke. CI status for that branch must be verified before claiming it passes.
+
+
 ```bash
 node --test tests/*.test.mjs
 python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
+python tests/served_smoke.py
 ```
 
 The Node suite tests deterministic replay, equal-policy zero differences, model stability and corrupt-record handling. The Python Playwright suite tests desktop, tablet and mobile viewports. Tests use an inline test assembly to avoid restrictions on local server navigation; production serves the same exact source modules separately. **Neither test suite validates real-world model fidelity.**

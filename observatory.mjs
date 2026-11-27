@@ -8,7 +8,7 @@ const PKEYS=Object.keys(DEFAULT_POLICY);
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isMobile=()=>innerWidth<=660;
 const state={world:createWorld(49021),twin:createWorld(49021,{...DEFAULT_POLICY,trade:0}),selected:2,
- playing:true,speed:1,lastStep:performance.now(),lastDraw:0,lastTelemetry:0,maxObservedTick:0,stepMs:0,renderMs:0,frameTimes:[],renderSamples:[],fps:0,quality:1,drag:false,lon:0,lat:0,zoom:1,offsetX:0,offsetY:0,hover:-1,exp:null,sweep:null,sweepId:0,sweepWorker:null,worker:null,expId:0,visible:!document.hidden};
+ playing:true,speed:1,lens:'population',lastStep:performance.now(),lastDraw:0,lastTelemetry:0,maxObservedTick:0,stepMs:0,renderMs:0,frameTimes:[],renderSamples:[],fps:0,quality:1,drag:false,lon:0,lat:0,zoom:1,offsetX:0,offsetY:0,hover:-1,exp:null,sweep:null,sweepId:0,sweepWorker:null,worker:null,expId:0,visible:!document.hidden};
 const w=()=>state.world;
 const civicCanvas=$('civic-network');
 let civicHits=[];
@@ -19,6 +19,22 @@ const orbitDust=Array.from({length:350},(_,i)=>({t:noise(starSeed,1,i,4)*Math.PI
 const terrain=Array.from({length:1800},(_,i)=>{const lat=Math.asin(noise(13989,0,i,1)*2-1),lon=noise(13989,0,i,2)*Math.PI*2,coast=Math.sin(lon*2.2+Math.sin(lat*4))*Math.cos(lat*5.2)+Math.cos(lon*4.2-lat*3.3)*.37+Math.sin(lon*9.1+lat*14.8)*.12;
  return{v:[Math.cos(lat)*Math.cos(lon),Math.sin(lat),Math.cos(lat)*Math.sin(lon)],land:coast>.18,bright:noise(13989,0,i,4)};});
 let hitPoints=[];
+const PLANET_LENSES=Object.freeze({
+ population:{rgb:'141,246,205',text:'Population halo · brighter means more simulated residents.'},
+ resources:{rgb:'255,168,119',text:'Resource stress · brighter means greater food and water shortage.'},
+ infection:{rgb:'255,116,153',text:'Disease burden · brighter means a higher simulated infected share.'},
+ climate:{rgb:'255,215,131',text:'Climate exposure · brighter means more vulnerability under current stress.'},
+ civic:{rgb:'179,145,255',text:'Civic unrest · brighter means lower synthetic council support.'},
+ off:{rgb:'',text:'Overlay disabled · ordinary globe and live settlement markers remain.'}
+});
+function lensSignal(world,site,town,lens){
+ if(lens==='population')return town.p?clamp(Math.sqrt(town.p/300),0,1):0;
+ if(lens==='resources')return town.p?clamp(.62*(1-town.food/Math.max(25,town.p*.36))+.38*(1-town.water/Math.max(22,town.p*.12)),0,1):0;
+ if(lens==='infection')return town.p?clamp(town.infected/Math.max(1,town.p)*3.6,0,1):0;
+ if(lens==='climate')return clamp((site.vulnerability*.58+world.climate*.42)*(town.p?1:.32),0,1);
+ if(lens==='civic')return town.p?clamp((1-world.society.councils[site.id].support)*1.65,0,1):0;
+ return 0;
+}
 function resizeCanvas(canvas,ratio=1.5){const box=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,ratio*state.quality);
  const nw=Math.max(1,Math.round(box.width*d)),nh=Math.max(1,Math.round(box.height*d));if(canvas.width!==nw||canvas.height!==nh){canvas.width=nw;canvas.height=nh;}return{W:box.width,H:box.height,d};}
 function orient(v,longitude,latitude){const ca=Math.cos(longitude),sa=Math.sin(longitude),cb=Math.cos(latitude),sb=Math.sin(latitude);
@@ -46,6 +62,26 @@ function drawUniverse(t){const start=performance.now(),{W,H,d}=resizeCanvas(c);c
  for(const e of continents){const q=pos(e.v);if(q.z<=0)continue;
  const intensity=q.z*(.2+.8*e.bright);ctx.fillStyle=e.land?`rgba(150,206,146,${(.06+.26*intensity).toFixed(3)})`:`rgba(65,181,198,${(.03+.12*intensity).toFixed(3)})`;
  const rad=(e.land?2.9:1.4)*(R/320)*(.65+q.z);ctx.beginPath();ctx.ellipse(q.x,q.y,rad*1.4,rad,0,0,Math.PI*2);ctx.fill();}
+ // A projected, state-driven field: every halo reflects one actual synthetic region.
+ // Per-frame gradients are limited to visible sites; adaptive quality reduces canvas resolution, never regional coverage.
+ if(state.lens!=='off'){
+  const model=w(),lens=PLANET_LENSES[state.lens];
+  ctx.save();ctx.globalCompositeOperation='screen';
+  for(let i=0;i<model.sites.length;i++){
+   const site=model.sites[i],town=model.towns[i],value=lensSignal(model,site,town,state.lens);
+   if(value<.035)continue;
+   const q=pos(site.pos,R*1.005);if(q.z<=.055)continue;
+   const pulse=reduceMotion?1:(.94+.06*Math.sin(t*.0018+i*.57));
+   const rad=R*(.04+.105*value)*(.65+.35*q.z)*pulse;
+   const a=clamp((.10+.60*value)*q.z,0,.65);
+   const glow=ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,rad);
+   glow.addColorStop(0,`rgba(${lens.rgb},${a.toFixed(3)})`);
+   glow.addColorStop(.40,`rgba(${lens.rgb},${(a*.55).toFixed(3)})`);
+   glow.addColorStop(1,`rgba(${lens.rgb},0)`);
+   ctx.fillStyle=glow;ctx.fillRect(q.x-rad,q.y-rad,rad*2,rad*2);
+  }
+  ctx.restore();
+ }
  // Latitude arcs visually establish that the world is rotating in three dimensions.
  for(let j=-5;j<=5;j++){const y=j/6,rc=Math.sqrt(1-y*y),pts=72;ctx.beginPath();let pen=false;for(let k=0;k<=pts;k++){
  const a=k/pts*2*Math.PI,q=pos([rc*Math.cos(a),y,rc*Math.sin(a)]);if(q.z<0){pen=false;continue;}if(!pen)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y);pen=true;}
@@ -199,6 +235,13 @@ $('speed').addEventListener('change',()=>{state.speed=Number($('speed').value);}
 $('reset').addEventListener('click',()=>{reset();state.playing=false;update.hero();});
 $('turn-range').addEventListener('input',e=>{state.playing=false;replayTo(Number(e.target.value));update.hero();});
 $('metric-pick').addEventListener('change',()=>update.chart());$('civic-layer').addEventListener('change',refreshCivic);
+$('planet-lens').addEventListener('change',e=>{
+ const next=e.target.value;
+ if(!Object.hasOwn(PLANET_LENSES,next))return;
+ state.lens=next;
+ $('planet-lens-legend').textContent=PLANET_LENSES[next].text;
+ $('planet-lens').closest('.planet-lens-panel').dataset.lens=next;
+});
 $('site-search').addEventListener('input',()=>update.sites());$('site-sort').addEventListener('change',()=>update.sites());
 $('sites-list').addEventListener('click',e=>{const b=e.target.closest('[data-site-id]');if(b)selectSite(Number(b.dataset.siteId))});
 civicCanvas.addEventListener('click',e=>{const r=civicCanvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;const near=civicHits.map(p=>({...p,d:Math.hypot(p.x-x,p.y-y)})).sort((a,b)=>a.d-b.d)[0];if(near&&near.d<near.r)selectSite(near.id);});
@@ -274,4 +317,4 @@ function frame(now){requestAnimationFrame(frame);if(!state.visible)return;
 }
 update.all();$('reduced-status').textContent=reduceMotion?'YES':'NO';requestAnimationFrame(frame);
 // Test and diagnostic interface (read-only state; no remote execution endpoints).
-Object.defineProperty(globalThis,'__UMBRA',{configurable:false,value:Object.freeze({engine:ENGINE_VERSION,getStatus:()=>({tick:w().tick,seed:w().seed,pop:w().population,trade:w().tradeVolume,fps:state.fps,playing:state.playing,renderMs:state.renderMs,stepMs:state.stepMs,experimental:!!state.exp,sensitivity:!!state.sweep,civic:civicAudit(w()),pacts:w().society.corridors.filter(x=>x.pact).length})})});
+Object.defineProperty(globalThis,'__UMBRA',{configurable:false,value:Object.freeze({engine:ENGINE_VERSION,getStatus:()=>({tick:w().tick,seed:w().seed,pop:w().population,trade:w().tradeVolume,fps:state.fps,playing:state.playing,lens:state.lens,renderMs:state.renderMs,stepMs:state.stepMs,experimental:!!state.exp,sensitivity:!!state.sweep,civic:civicAudit(w()),pacts:w().society.corridors.filter(x=>x.pact).length})})});

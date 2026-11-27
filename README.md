@@ -38,6 +38,9 @@ In addition to the v4 ecology simulation, this version adds **42 settlement coun
 
 ## Test
 
+The proposed UM-103 scientific module adds a strict, opt-in experimental manifest and seed-grid negative-control tournament. This code is not integrated into the live UI; see [research protocol](docs/RESEARCH.md).
+
+
 ```bash
 node --test tests/*.test.mjs
 python -m pip install playwright
@@ -53,6 +56,7 @@ The Node suite tests deterministic replay, equal-policy zero differences, model 
 - `world.css`: visual design, motion/accessibility and responsive layouts.
 - `engine.mjs`: deterministic ecological model, scenario forks, sensitivity experiments and passport validation.
 - `society.mjs`: civic councils, elections, diplomatic network, aid/fiscal transfers and balancing audits.
+- `research.mjs`: opt-in predeclared synthetic multi-seed experiments, negative controls and structural audit (feature branch only).
 - `court.mjs`: independently replays worlds and reports engineering checks / scientific validation blocks.
 - `observatory.mjs`: UI, animation, charting, controls and metrics.
 - `lab.worker.mjs`: bounded off-thread experiment worker.
@@ -72,3 +76,7 @@ The project makes **no trading, profit, policy recommendation, real-world predic
 
 - Grimm et al., [ODD protocol for describing agent-based and other simulation models, second update](https://www.jasss.org/23/2/7.html) (2020). This documentation uses ODD-inspired reporting; **the current engine is an aggregate model, not a micro-agent ABM**.
 - NetLogo, [BehaviorSpace experimental methodology](https://docs.netlogo.org/behaviorspace) and documented random-seed experiments. UMBRA implements its own seeded experiments, not NetLogo or BehaviorSpace.
+
+## UM-103 research continuation (proposed branch)
+
+`node --test tests/research.test.mjs` adds explicit frozen-plan checks, twenty-to-sixty-four seed grids and null-control falsification; it does **not** establish real predictive validity or make the live website a research platform. The branch requires its own CI run and independent review before merging. Stale when research API, branch or verification status changes.

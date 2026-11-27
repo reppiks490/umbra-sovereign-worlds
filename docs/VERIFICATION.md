@@ -19,3 +19,7 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-103 preregistered research experiment — current observed CI
+
+Branch `feature/um-103-preregistered-research-tournament` adds `research.mjs` and `tests/research.test.mjs`. Planned tests cover 20–64 seeded synthetic experiments, null controls, frozen manifest rejection and deliberately corrupted world snapshots. GitHub Actions [run 45101977810](https://github.com/reppiks490/umbra-sovereign-worlds/actions/runs/45101977810) on commit `344e31dced064525d286c970f18b5e08e3127958` completed successfully: **40/40 Node tests** (including 9 research tests), **3/3 browser viewport smoke tests** at 1440×900, 390×844, and 768×1024 with zero overflow. These tests do not establish external model validity or production deployment. Stale when a newer commit supersedes this run.

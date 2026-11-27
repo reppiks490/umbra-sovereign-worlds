@@ -26,3 +26,7 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-108 bounded paired-experiment input guard (draft, 2026-11-23)
+
+The baseline v5 paired ensemble silently allowed nonfinite/fractional trial counts and horizons. In particular, NaN trials bypassed the loop and yielded NaN summary statistics, falsely resembling a completed synthetic comparison. A dedicated draft branch changes only engine.mjs and tests/engine.test.mjs plus these knowledge notes: finite safe integers are required for explicitly supplied trials and steps; valid integer requests retain existing clamp limits (trials 2–64, steps 1–2000) and omitted/undefined inputs retain their defaults. This is an input-integrity fix, not a new model or empirical calibration. Existing engine version and valid seeded replay outputs are unchanged. Confirm exact-head Node and browser CI before acceptance. No live site, storage, deployment, finance, secrets or other draft lanes touched.

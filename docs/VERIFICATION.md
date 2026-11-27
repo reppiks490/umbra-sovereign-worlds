@@ -19,3 +19,7 @@ python -m pip install playwright
 python -m playwright install chromium
 python tests/smoke.py
 ```
+
+## UM-108 paired-ensemble invalid-dimension regression (draft, 2026-11-23)
+
+Adversarial engine tests reject NaN, ±Infinity, fractional, string and null trial/horizon inputs; verify valid integer lower-bound clamps, finite summary metrics and seeded reproducibility. The prior NaN-trials path produced zero paths and NaN summary fields, violating scientific result integrity. Tests added on a dedicated draft branch; CI evidence must be observed at the final PR SHA before marking verified. The change does not alter valid integer simulations, scientific model status, live browser storage or the public website.

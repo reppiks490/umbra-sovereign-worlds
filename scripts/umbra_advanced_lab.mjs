@@ -150,8 +150,9 @@ function run(r){
   const weights=[.5,.3,.2];const grid=policyGrid.map((q,index)=>({index,score:clean(weights[0]*U(S,q)+weights[1]*normal(metricValue(world(S,q),alt),alt)+weights[2]*normal(metricValue(world(S,q),third),third))}));
   grid.sort((a,b)=>b.score-a.score||a.index-b.index);detail={design:'explicit synthetic three-objective scalarization',metrics:[M,alt,third],weights,grid,winner:grid[0].index};break;}
  case 'exact-replay':{
-  const q=p.p1;const a=world(S,q);const b=runner.world(S,q,n,{fresh:true});assert.deepEqual(sample(a,M),sample(b,M));
-  detail={design:'seed-exact replication of same simulation',first:SHA(sample(a,M)),second:SHA(sample(b,M)),pass:true};break;}
+  const replay=runner.independentReplay(S,p.p1,n);
+  assert.deepEqual(sample(replay.first,M),sample(replay.second,M));
+  detail={design:'independently executed full-state seed replay',first:SHA(sample(replay.first,M)),second:SHA(sample(replay.second,M)),firstStateDigest:replay.firstDigest,secondStateDigest:replay.secondDigest,independentExecutions:replay.executions,pass:true};break;}
  case 'chunk-equivalence':{
   const q=p.p2;const a=createWorld(S,q),first=Math.max(1,Math.floor(n/3));advanceWorld(a,first);advanceWorld(a,n-first);
   const b=world(S,q);assert.deepEqual(sample(a,M),sample(b,M));

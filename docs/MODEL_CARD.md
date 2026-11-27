@@ -81,3 +81,6 @@ Each turn `stepWorld`:
 
 - Grimm et al. (2020). [The ODD protocol: second update](https://www.jasss.org/23/2/7.html). DOI 10.18564/jasss.4259.
 - NetLogo (current manual). [BehaviorSpace](https://docs.netlogo.org/behaviorspace) — reproducible computational experiments and repeatable seeds. UMBRA does not embed NetLogo.
+
+### Replay evidence boundary
+The exact-replay CLI compares complete independently executed engine states in addition to its legacy selected metric digests. It does not change simulation rules, validate real-world causality, or confer production authority.

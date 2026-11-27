@@ -60,22 +60,24 @@ export function validateResearchPlan(plan) {
   const expected=defineResearchPlan(plan);
   ensure(plan.explorationCount===expected.explorationCount,'changed split');
   ensure(Array.isArray(plan.replicateSeeds) && plan.replicateSeeds.length===expected.replicateSeeds.length &&
-    plan.replicateSeeds.every((s,i)=>s===expected.replicateSeeds[i]),'modified or inconsistent replicate seeds');
+    expected.replicateSeeds.every((seed,i)=>Object.hasOwn(plan.replicateSeeds,i)&&plan.replicateSeeds[i]===seed),'modified or inconsistent replicate seeds');
   return expected;
 }
 
 /** Independent structural invariants; these DO NOT measure real-world model fidelity. */
 export function inspectResearchWorld(world){
   ensure(world&&typeof world==='object','invalid world');
+  const dense = xs => Array.isArray(xs)&&xs.length===SITE_COUNT&&
+    Array.from({length:SITE_COUNT},(_,i)=>Object.hasOwn(xs,i)&&isObject(xs[i])).every(Boolean);
+  const townsValid=dense(world.towns)&&world.towns.every(t=>
+    ['p','food','water','energy','knowledge','wealth','infected','health','trait'].every(k=>
+      Object.hasOwn(t,k)&&typeof t[k]==='number'&&Number.isFinite(t[k])&&t[k]>=0));
   const checks=[
     {id:'version',pass:world.engine===ENGINE_VERSION},
-    {id:'topology',pass:Array.isArray(world.towns)&&world.towns.length===SITE_COUNT&&
-      Array.isArray(world.sites)&&world.sites.length===SITE_COUNT},
-    {id:'population',pass:Number.isFinite(world.population)&&Array.isArray(world.towns)&&
+    {id:'topology',pass:dense(world.towns)&&dense(world.sites)},
+    {id:'population',pass:townsValid&&Number.isFinite(world.population)&&
       Math.abs(world.population-world.towns.reduce((s,t)=>s+t.p,0))<1e-6},
-    {id:'finite-resources',pass:Array.isArray(world.towns)&&world.towns.every(t=>
-      ['p','food','water','energy','knowledge','wealth','infected','health','trait'].every(k=>
-        typeof t[k]==='number'&&Number.isFinite(t[k])&&t[k]>=0))},
+    {id:'finite-resources',pass:townsValid},
     {id:'civic-conservation',pass:false}
   ];
   try {checks.at(-1).pass=civicAudit(world).valid;}catch {checks.at(-1).pass=false;}

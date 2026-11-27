@@ -108,3 +108,27 @@ test('exploration and confirmation partitions stay disjoint at maximum run count
  assert.ok(out.rows.slice(0,48).every(x=>x.partition==='exploration'));
  assert.ok(out.rows.slice(48).every(x=>x.partition==='confirmation'));
 });
+
+test('sparse seed grids are rejected before evaluation',()=>{
+ const plan=defineResearchPlan({seed:177,trials:20,steps:1});
+ for(const seeds of [Array(20),plan.replicateSeeds.slice()]){
+   delete seeds[3];
+   const bad={...plan,replicateSeeds:seeds};
+   assert.throws(()=>validateResearchPlan(bad),/inconsistent replicate seeds/);
+   assert.throws(()=>evaluateResearchPlan(bad),/inconsistent replicate seeds/);
+ }
+ assert.deepEqual(evaluateResearchPlan(plan).rows.map(r=>r.seed),plan.replicateSeeds);
+});
+
+test('malformed or sparse settlements produce failed structural checks without throwing',()=>{
+ for(const mutate of [
+  w=>{w.towns[0]=null;}, w=>{w.towns[0]={};},
+  w=>{delete w.towns[0].p;}, w=>{delete w.towns[0];}
+ ]){
+  const w=createWorld(79);mutate(w);
+  const report=inspectResearchWorld(w);
+  assert.equal(report.passed,false);
+  for(const id of ['population','finite-resources'])
+   assert.equal(report.checks.find(x=>x.id===id).pass,false,id);
+ }
+});

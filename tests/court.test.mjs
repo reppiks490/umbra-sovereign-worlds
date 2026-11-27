@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createWorld,simulate,DEFAULT_POLICY} from '../engine.mjs';
 import {runCourt} from '../court.mjs';
+import {civicAudit} from '../society.mjs';
 
 test('court passes the eight engineering checks for a normal world and blocks real validation',()=>{
  const w=simulate(460,DEFAULT_POLICY,160);const finding=runCourt(w);
@@ -80,5 +81,16 @@ test('well-shaped but altered topology cannot pass seeded replay',()=>{
   const r=runCourt(w);
   assert.equal(r.rows.find(x=>x.id==='G01').status,'pass');
   assert.equal(r.rows.find(x=>x.id==='G07').status,'fail');
+ }
+});
+
+
+test('court rejects corridor endpoints outside the world site index',()=>{
+ for(const mutate of [w=>{w.society.corridors[0].a=-1},w=>{w.society.corridors[0].b=w.sites.length}]){
+  const w=simulate(42,DEFAULT_POLICY,10);mutate(w);
+  assert.equal(civicAudit(w).valid,false);
+  const r=runCourt(w,{replayLimit:0});
+  assert.equal(r.rows.find(x=>x.id==='G06').status,'fail');
+  assert.equal(r.rows.find(x=>x.id==='G07').status,'blocked');
  }
 });

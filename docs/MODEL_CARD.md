@@ -85,3 +85,7 @@ Each turn `stepWorld`:
 ## UM-106 replay-bound integration — 2026-11-26
 
 Reality Court's engineering gate compares selected rounded state only. A structurally valid world beyond 5,000 turns is not invalidated merely by replay-budget exhaustion; no change to world rules or scientific claims.
+
+## UM-106 corridor and PR verification - 2026-11-27
+
+Civic validity requires integer corridor endpoints 0 <= a < b < sites.length. This is structural validation only, not a change to seeded world dynamics or empirical validity.

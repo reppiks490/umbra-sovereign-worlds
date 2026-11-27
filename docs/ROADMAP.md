@@ -98,3 +98,7 @@ Potential integrations mentioned by the owner (NOT activated by this package): G
 ## UM-106 replay-bound integration — 2026-11-26
 
 UM-106 replay regression integrated; native combined tests passed 74/74. Remaining gates: exact-head CI, actual HTTP-served Worker and mobile/browser measurements, archive and other feature reconciliation; no release.
+
+## UM-106 corridor and PR verification - 2026-11-27
+
+Native corridor and CI contract regressions repaired; 111/111 Node tests pass. Remaining gates: exact-head hosted unit/browser evidence, integration review, independent approval. No release.

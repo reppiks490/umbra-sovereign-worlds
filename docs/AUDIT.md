@@ -31,3 +31,7 @@ No financial account, broker, wallet or private files used. No source keys acces
 ## UM-106 replay-bound integration — 2026-11-26
 
 New isolated native software qualification at UM-106 parent: 74/74 after bounded replay correction. Original live three-route site and browser storage unchanged. Real-device/browser performance and public deployment remain unqualified.
+
+## UM-106 corridor and PR verification - 2026-11-27
+
+Local Node v26.13.0 full suite 111/111 (no failures/skips); both new tests failed before repair. Native log SHA256: 1D06858E98139CBFCF7E197F26B1ADB6E83DEDE1A16D173553346C67D490210C. Browser and hosted jobs on candidate head not yet verified; no independent scientific validation, deployment, data-rights expansion or trading changes.

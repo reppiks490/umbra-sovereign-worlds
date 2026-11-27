@@ -47,3 +47,10 @@ test('existing scheduled and 300-case verification is preserved', () => {
 test('verification runs real HTTP-served ES modules and worker watchdog', () => {
   assert.match(jobBlock('browser'), /^        run: python tests\/served_smoke\.py$/m);
 });
+
+test('advanced PR qualification calls the reusable core verification workflow', () => {
+  const advanced = readFileSync(new URL('../.github/workflows/umbra-advanced-5000-ci.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+  assert.match(workflow, /^  workflow_call:\s*$/m);
+  assert.match(advanced, /^  core_verification:\n    if: github\.event_name == 'pull_request'\n    uses: \.\/\.github\/workflows\/unit\.yml$/m);
+  assert.match(advanced, /^permissions:\n  contents: read$/m);
+});

@@ -29,3 +29,7 @@ Exports contain seed, engine version, policy, generated data/assumptions, and op
 ## UM-106 replay-bound integration — 2026-11-26
 
 Before independent replay, reject invalid caller budgets and malformed turn metadata; cap each replay to the engine's 5,000-turn maximum. A blocked result is missing evidence, never a pass. Preserve prior seeded semantics.
+
+## UM-106 corridor and PR verification - 2026-11-27
+
+Reject negative and out-of-range corridor endpoints at civic audit and G06 even when replay is blocked. PR qualification invokes core verification with read-only permissions; preserve existing schedules and bounds.

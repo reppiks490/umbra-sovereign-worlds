@@ -42,3 +42,8 @@ test('existing scheduled and 300-case verification is preserved', () => {
   assert.match(jobBlock('unit'), /^        run: python3 scripts\/validate_umbra_workflows\.py$/m);
   assert.match(jobBlock('unit'), /^        run: node scripts\/umbra_lab\.mjs --audit-all$/m);
 });
+
+
+test('verification runs real HTTP-served ES modules and worker watchdog', () => {
+  assert.match(jobBlock('browser'), /^        run: python tests\/served_smoke\.py$/m);
+});

@@ -22,3 +22,16 @@ Integrate archive #4, served worker #7, research tournament #8, visualization #9
 ## UM-106 replay-bound integration — 2026-11-26
 
 Parent c9c682db768dd35fca411dd5bdadcdad23cbb8df; UM-110 source bc1cf1ad727fc5de95851cb434fb5125307aa4da; native Windows Node v26.13.0. Exact 39 source/test/data blobs verified before execution. Full Node suite with --test-concurrency=1 --test-reporter=tap: RED 63/74 (11 replay regressions, exit 1, 4.359 s), GREEN 74/74 (0 skipped, exit 0, 4.609 s). RED log SHA256 38edb3ef01e24b174713607775a47b0549c052c653d099a2a706ea1023f19fae; GREEN 554529c30134d5cd73579ff82de852886b562210ddfbb2777f26b33ad8ebc130. Candidate Court Git blob 3ccd3a58e494ff622f38a8e76861c362b14a6baa; imported test blob 9f10ba48edd468e8820bcd84a77b75a0f92ecc7c. Initial Node 26 default reporter produced readable failures but failed TAP parsing; rerun explicitly selected TAP. No source-engine, civic, browser or workflow changes. These are native software tests, not browser, scientific or model qualification. Workflow inventory: 5,307 files, untruncated; branch differs from audited main only in unit.yml, inspected for normal Node/Chromium verification. No workflow edits. Exact-head CI and served/mobile verification remain separate gates.
+
+
+## 2026-11-27 ? source-pinned archive, research and worker verification integration
+
+Baseline: b5c70f2bd451a60df88e156e08ba3a5083d15699.
+Imported the following owning-PR source, tests and dedicated documentation without overwriting shared engine, civic audit or knowledge-layer files:
+- PR #4: 437304a74e3465ef1084cc429db0fae6a44c5159 (archive.mjs, tests/archive.test.mjs, docs/ARCHIVE.md).
+- PR #8: 1699d7eedea836c2b3fd4d67b6925463787db0a3 (research.mjs, tests/research.test.mjs, docs/RESEARCH.md).
+- PR #7: fb5fc3ca589801f00252ecc8b60bf97f6e1618ce (tests/served_smoke.py).
+
+Combined changes: preserve existing bounded unit workflow and add served browser test step; add cross-lane archive/Court/research regression and CI contract check. Court policy serialization now uses sorted own policy keys so canonical archive hydration cannot trigger a false selected-state replay failure. No simulation rules changed.
+
+Native Windows failing-first: focused integration 5/7 (missing served CI step and false G07 replay mismatch); after repair 7/7. Complete npm test 105/105, zero failures or skips, diff check clean. Combined browser launch was refused by the workstation RAM admission gate before Chromium started; dedicated browser evidence remains pending. Source branches remain intact; no merge into main, deployment, model execution or live authority change. PR #9 separate UI lane is not included in this commit.

@@ -9,7 +9,7 @@ const denseSettlements=(towns,validate=safe)=>Array.isArray(towns)&&towns.length
  typeof towns[i]==='object'&&!Array.isArray(towns[i])&&
  settlementKeys.every(k=>Object.hasOwn(towns[i],k)&&validate(towns[i][k]))).every(Boolean);
 const round=x=>Math.round(x*1e6)/1e6;
-const summary=w=>JSON.stringify({version:w.engine,tick:w.tick,seed:w.seed,policy:w.policy,
+const summary=w=>JSON.stringify({version:w.engine,tick:w.tick,seed:w.seed,policy:Object.fromEntries(Object.keys(w.policy).sort().map(k=>[k,w.policy[k]])),
  totals:[w.population,w.food,w.water,w.energy,w.knowledge,w.wealth,w.infected,round(w.carbon),round(w.biodiversity)],
  towns:w.towns.map(t=>[round(t.p),round(t.food),round(t.water),round(t.energy),round(t.wealth),round(t.knowledge),round(t.infected),round(t.trait)]),
  civic:[round(w.society.treasury),round(w.society.trust),w.society.elections,w.society.corridors.map(c=>[c.a,c.b,c.pact,round(c.relation)]),w.society.councils.map(c=>[c.faction,round(c.treasury),round(c.support)])]});

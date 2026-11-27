@@ -94,3 +94,15 @@ This is a **research and engineering roadmap, not a feature list of the current 
 Potential integrations mentioned by the owner (NOT activated by this package): GitHub/Codex Coordinator/Baton Pass/Akinator/Trellis/Linear for code workflow and structured knowledge; Supabase/Railway for persistence and deployment; Figma/MagicPath/MotionDesign/Runway/Hypernatural/PINOC/Voyager 3D/FFmpeg for design, motion, and production; NVIDIA/Hugging Face/Scite/Parallel/Exa/Tavily/Firecrawl for licensed AI/research pipelines; FMP/Massive/TickerLayer/Unusual Whales/CoinGecko and other finance feeds only if a later, clearly separate, permissioned economic simulation requires them. Personal Finances should **not** be used by default to build a fictional civilization. Avoid calls to all connected apps merely to inflate a feature count.
 
 **Major gating distinction:** Public evidence can inform scenario assumptions, but it does not automatically validate simulation equations or produce causal identification. The user must separately authorize account access, new costs, external writes, hosted deployment, real-world data, and trading. The current v4 is intentionally local-only.
+
+## UM-106 replay-bound integration — 2026-11-26
+
+UM-106 replay regression integrated; native combined tests passed 74/74. Remaining gates: exact-head CI, actual HTTP-served Worker and mobile/browser measurements, archive and other feature reconciliation; no release.
+
+## UM-106 corridor and PR verification - 2026-11-27
+
+Native corridor and CI contract regressions repaired; 111/111 Node tests pass. Remaining gates: exact-head hosted unit/browser evidence, integration review, independent approval. No release.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+Hosted core verification exposed a catalog glob collision; local validators and all 300 synthetic cases pass after correction. Exact-head hosted requalification remains pending.

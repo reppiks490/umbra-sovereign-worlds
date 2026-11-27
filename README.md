@@ -72,3 +72,15 @@ The project makes **no trading, profit, policy recommendation, real-world predic
 
 - Grimm et al., [ODD protocol for describing agent-based and other simulation models, second update](https://www.jasss.org/23/2/7.html) (2020). This documentation uses ODD-inspired reporting; **the current engine is an aggregate model, not a micro-agent ABM**.
 - NetLogo, [BehaviorSpace experimental methodology](https://docs.netlogo.org/behaviorspace) and documented random-seed experiments. UMBRA implements its own seeded experiments, not NetLogo or BehaviorSpace.
+
+## UM-106 replay-bound integration — 2026-11-26
+
+Reality Court validates nonnegative safe-integer turns and replay budgets; its single replay is capped at 5,000 turns. Longer valid worlds are reported as replay-blocked, not corrupt. See the integrated verification record.
+
+## UM-106 corridor and PR verification - 2026-11-27
+
+Reality Court rejects out-of-range corridor endpoints. The advanced PR qualification calls the reusable core unit/browser workflow; hosted execution remains to be verified.
+
+## Workflow catalog namespace correction - 2026-11-27
+
+The original 300 and advanced 5,000 manual workflow catalogs have separate ID-width validation.

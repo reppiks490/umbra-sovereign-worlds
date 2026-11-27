@@ -5,8 +5,12 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 permissions:
   contents: read
+concurrency:
+  group: umbra-verification-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   unit:
     runs-on: ubuntu-latest
@@ -24,6 +28,7 @@ jobs:
         run: node scripts/umbra_lab.mjs --audit-all
   browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -35,3 +40,5 @@ jobs:
           python -m playwright install --with-deps chromium
       - name: Desktop/tablet/phone smoke
         run: python tests/smoke.py
+      - name: Served ES modules, real Worker and watchdog
+        run: python tests/served_smoke.py

@@ -106,15 +106,26 @@ export function advanceSociety(w,random,publish=()=>{}){
  return flow;
 }
 
-export function civicAudit(w){const s=w?.society;if(!s)return {valid:false,issues:['Society module absent']};
+export function civicAudit(w){
+ const s=w?.society;
+ if(!s||typeof s!=='object')return {valid:false,issues:['Society module absent']};
  const issues=[];
+ const denseEvery=(items,predicate)=>{
+  for(let i=0;i<items.length;i++)if(!Object.hasOwn(items,i)||!predicate(items[i]))return false;
+  return true;
+ };
  if(s.version!==SOCIETY_VERSION)issues.push('Unsupported civic model version');
- if(s.councils.length!==w.sites.length)issues.push('Council count mismatch');
- if(Math.abs(s.fiscalResidual)>1e-5)issues.push('Unbalanced fiscal transfers');
- if(Math.abs(s.foodResidual)>1e-5)issues.push('Unbalanced aid transfers');
- if(s.councils.some(x=>!Number.isFinite(x.treasury)||!Number.isFinite(x.support)||x.treasury<0||x.support<0||x.support>1))issues.push('Invalid council state');
- if(s.corridors.some(x=>!Number.isFinite(x.relation)||Math.abs(x.relation)>1||x.a>=x.b))issues.push('Invalid corridor');
- if(s.ledger.some(x=>x.amount<0||!Number.isFinite(x.amount)))issues.push('Invalid ledger entry');
+ const councils=Array.isArray(s.councils)?s.councils:null;
+ const corridors=Array.isArray(s.corridors)?s.corridors:null;
+ const ledger=Array.isArray(s.ledger)?s.ledger:null;
+ if(!councils||!Array.isArray(w?.sites)||councils.length!==w.sites.length)issues.push('Council count mismatch');
+ if(!corridors)issues.push('Invalid corridor collection');
+ if(!ledger)issues.push('Invalid ledger collection');
+ if(!Number.isFinite(s.fiscalResidual)||Math.abs(s.fiscalResidual)>1e-5)issues.push('Unbalanced fiscal transfers');
+ if(!Number.isFinite(s.foodResidual)||Math.abs(s.foodResidual)>1e-5)issues.push('Unbalanced aid transfers');
+ if(councils&&!denseEvery(councils,x=>x&&Number.isFinite(x.treasury)&&Number.isFinite(x.support)&&x.treasury>=0&&x.support>=0&&x.support<=1))issues.push('Invalid council state');
+ if(corridors&&!denseEvery(corridors,x=>x&&Number.isFinite(x.relation)&&Math.abs(x.relation)<=1&&Number.isInteger(x.a)&&Number.isInteger(x.b)&&x.a>=0&&x.a<x.b&&Array.isArray(w.sites)&&x.b<w.sites.length))issues.push('Invalid corridor');
+ if(ledger&&!denseEvery(ledger,x=>x&&Number.isFinite(x.amount)&&x.amount>=0))issues.push('Invalid ledger entry');
  return {valid:issues.length===0,issues,fiscalResidual:s.fiscalResidual,foodResidual:s.foodResidual,
-   balancedEntries:s.entrySequence,activePacts:s.corridors.filter(x=>x.pact).length};
+   balancedEntries:s.entrySequence,activePacts:corridors?corridors.filter(x=>x?.pact).length:0};
 }

@@ -11,6 +11,9 @@ concurrency:
   group: umbra-advanced-audit-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  core_verification:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/unit.yml
   catalog:
     runs-on: ubuntu-latest
     timeout-minutes: 10

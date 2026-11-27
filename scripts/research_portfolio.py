@@ -65,7 +65,11 @@ def normalize(lane,result):
         return 'already_recorded'
     if status=='completed':
         if lane in ('collective','authentic_retrieval','instruction_following','grounded_reasoning','generated_challenges'):
-            return 'completed' if result.get('model_calls',0)>0 and result.get('completed_calls')==result.get('model_calls') else 'partial'
+            calls,completed=result.get('model_calls'),result.get('completed_calls')
+            # Python bool and float compare equal to integers; neither is a call count.
+            valid=type(calls) is int and type(completed) is int and calls>0 and completed==calls
+            scoped=result.get('production_authority') is False and result.get('weight_training') is False
+            return 'completed' if valid and scoped else 'partial'
         if lane=='neural_routing':
             return 'completed' if len(result.get('specialists',[]))==3 and result.get('candidate_answer',{}).get('status') in ('quote_verified','abstained') else 'partial'
     return str(status) if status!='completed' else 'partial'

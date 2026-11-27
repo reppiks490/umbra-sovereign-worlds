@@ -26,3 +26,9 @@ Engine tests 12/12 pass. Three browser-size smoke checks pass under inline test 
 ## Stop / release criteria
 
 Never claim a branch/PR/merge/hosting release exists without checking provider responses. All published claims must map to code and test evidence; mobile appearance is not a performance guarantee. Keep financial integrations opt-in and sandbox-only until a separate mandate and compliance controls. See `AGENTS.md` for guardrails.
+
+## UM-105 offline evidence manifest candidate (draft branch; not deployed)
+
+An independent, provider-neutral, **metadata-only** schema validator is proposed in `evidence-contract.mjs`, with ten adversarial tests in `tests/evidence-contract.test.mjs` and contract/maturity documentation in `docs/EVIDENCE_CONTRACT.md`. This is a scoped implementation of issue #6, **not** an authenticated provider connection or evidence of calibration, data rights, causal validity, or a live system. The validator makes no network, account, localStorage or simulation calls; source SHA, Actions and draft PR links must be captured after the final commit.
+
+All four existing code PRs #4/#7/#8/#9 and docs PR #11 remain separate, unmerged branches. The original public Living World, Decision Atlas and Focus Timer and their saved local browser data must remain untouched. The main handoff above predates v5; PR #11 contains a more current comprehensive handoff, so merge reviewers must reconcile the two without replacing its existing knowledge. Live source provenance remains blocked by issue #5.

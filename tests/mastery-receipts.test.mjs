@@ -103,3 +103,13 @@ test('rejects overlong batches, nonarrays, absurd timeouts and invalid timestamp
   assert.throws(()=>summarize([],{maxAgeHours:Infinity}),/INVALID_OPTIONS/);
   assert.throws(()=>summarize([],{asOf:'yesterday'}),/INVALID_OPTIONS/);
 });
+
+test('rejects question identity reuse with changed skill, difficulty or source revision',()=>{
+  for(const changes of [
+    {difficulty:3},
+    {skill:'state-prediction'},
+    {source_sha256:'d'.repeat(64)},
+  ]) {
+    assert.throws(()=>summarize([receipt(),receipt({attempt_id:'attempt-2',...changes})]),/QUESTION_METADATA_DRIFT/);
+  }
+});

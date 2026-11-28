@@ -22,7 +22,7 @@
 | `observed_at` | Valid exact millisecond UTC ISO-8601 time, no future-dated record relative to `asOf` |
 | `tokens`, `latency_ms` | Finite nonnegative bounded integer observations |
 
-A repeated attempt ID for the same model/checkpoint is rejected rather than double-counted. A question reused across different splits for the same model/checkpoint is rejected to surface possible holdout contamination. Distinct attempts at the same question within one split count once in `uniqueQuestions` and separately in `attempts`. Models and checkpoints remain distinct. The compact summary includes per-skill failures, grade and split counts, highest passed difficulty and source IDs, with `EMPTY`, `STALE` or `READY` display states. This is **not** a claim of skill mastery.
+A repeated attempt ID for the same model/checkpoint is rejected rather than double-counted. A question reused across different splits for the same model/checkpoint is rejected to surface possible holdout contamination. A reused question ID whose skill, difficulty or source ID/digest changes is rejected even within one split, rather than combining incomparable grades. Distinct attempts at the same question within one split count once in `uniqueQuestions` and separately in `attempts`. Models and checkpoints remain distinct. The compact summary includes per-skill failures, grade and split counts, highest passed difficulty and source IDs, with `EMPTY`, `STALE` or `READY` display states. This is **not** a claim of skill mastery.
 
 ## Provenance and trust limitations
 
@@ -35,7 +35,8 @@ A repeated attempt ID for the same model/checkpoint is rejected rather than doub
 ## Reproduction and remaining gates
 
 - Initial failing-first Node import: `ERR_MODULE_NOT_FOUND` before implementation.
-- Focused isolated test: `node --test tests/mastery-receipts.test.mjs` — **11/11 passed** on Node.js 22 in the implementation workspace; committed module and test Git blob SHAs must be verified before claiming these are the exact tested bytes.
+- Second RED/GREEN regression: question attribution drift across difficulty, skill or source version initially passed incorrectly (test failed); after the fix the new test passed. 
+- Focused isolated test: `node --test tests/mastery-receipts.test.mjs` — **12/12 passed** on Node.js 22 in the implementation workspace; committed module and test Git blob SHAs must be verified before claiming these are the exact tested bytes.
 - Full combined repository suite: `npm test` on this PR exact HEAD; **pending GitHub Actions** until observed.
 - Future separately owned work: trust-pinned sanitized receipt acquisition, size-limited ingestion, independent source/holdout rights review, responsive read-only UI with empty/error/stale states, and mobile/browser performance qualification. No speculative real-model numbers or auto-promotion.
 

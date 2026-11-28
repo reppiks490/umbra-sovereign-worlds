@@ -75,7 +75,11 @@ def run(root):
     atomic(out,report)
     return report
 
+def pending_reconciliation(state):
+    return isinstance(state,dict) and (state.get('status')=='attempting' or bool(state.get('pending_attempt')))
+
 def campaign_eligible(state):
+    if pending_reconciliation(state):return False
     cur=state.get('curriculum',{})
     cursor=cur.get('train_cursor',0)
     attempts=cur.get('attempts',0)

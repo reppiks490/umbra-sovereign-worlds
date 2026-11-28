@@ -8,7 +8,7 @@ from source_assist import validate_quote
 from source_knowledge import Knowledge
 from hf_weight_cache import lock
 from neural_priority import size
-from source_curriculum import plan_cycle,gate,campaign_eligible
+from source_curriculum import plan_cycle,gate,campaign_eligible,pending_reconciliation
 TRAINABLE=NATIVE+('granite4:350m','qwen3:0.6b')
 def checkpoint(root,training,name):
  if name in ('granite4:350m','qwen3:0.6b'):
@@ -80,6 +80,7 @@ def train(root,training,name,steps=8):
   history=target/'state.json'
   prior=json.loads(history.read_text()) if history.exists() else {}
   if prior.get('base_sha256')!=digest:prior={}
+  if pending_reconciliation(prior):return {'status':'deferred_pending_reconciliation','model':name,'pending_attempt':prior.get('pending_attempt')}
   attempt=prior.get('attempts',0)
   if not campaign_eligible(prior):return {'status':'curriculum_limit','model':name}
   if local_api('ps').get('models') or available_ram()<required:return {'status':'deferred_busy_or_memory','model':name}

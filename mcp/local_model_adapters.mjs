@@ -5,6 +5,7 @@ import {simulate,DEFAULT_POLICY,ENGINE_VERSION} from '../engine.mjs';
 import {civicAudit} from '../society.mjs';
 import {requiredBytes} from './polymind_admission.mjs';
 const registry=Object.freeze({
+ 'qwen3.8:27b-q8_0':['reasoning','research','critique','coding'],
  'qwen3:8b':['reasoning','research'], 'hf.co/bartowski/Qwen_Qwen3-8B-GGUF:IQ2_M':['reasoning','research'],
  'qwen3:4b':['reasoning','research'], 'qwen3:1.7b':['reasoning','triage'], 'qwen3:0.6b':['triage'],
  'deepseek-r1:1.5b':['reasoning','critique'], 'qwen2.5-coder:1.5b':['coding'], 'qwen2.5-coder:3b':['coding'], 'qwen2.5-coder:7b':['coding'],

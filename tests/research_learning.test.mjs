@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {generateSeries,forecastAudit,causalTrial,hypothesisSearch,runResearch} from '../mcp/research_learning.mjs';
+test('forecast evaluation uses chronological holdout and compares deterministic baselines',()=>{const y=generateSeries(5,96);const r=forecastAudit(y,72);assert.equal(r.train_count,72);assert.equal(r.test_count,24);assert.equal(r.predictions.length,24);assert.ok(r.models.every(m=>Number.isFinite(m.mae)));assert.equal(r.synthetic,true);assert.throws(()=>forecastAudit(y,95));});
+test('paired causal experiment recovers an injected intervention and falsifies a placebo',()=>{const r=causalTrial(5,128,2);assert.ok(Math.abs(r.effect-2)<1e-8);assert.equal(r.placebo,0);assert.ok(r.naive_observational_difference>r.effect);assert.equal(r.empirical_validity,false);});
+test('hypothesis search selects on training, reports disjoint test data',()=>{const r=hypothesisSearch(5);assert.equal(r.hypotheses.length,4);assert.ok(r.train_seeds.every(s=>!r.test_seeds.includes(s)));assert.ok(Number.isFinite(r.test_mse));assert.equal(r.production_authority,false);});
+test('research cycle trains actual retention-gated numerical networks',()=>{const r=runResearch(12);assert.ok(r.continual.selected.retention_mse<=r.continual.baseline.retention_mse+.01);assert.equal(r.continual.external_model_weights_trained,false);assert.equal(r.forecast.synthetic,true);});

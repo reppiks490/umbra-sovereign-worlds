@@ -1,0 +1,18 @@
+# Intelligence gap detection and evidence-led improvement
+
+The gap subsystem is an owner-local synthetic evaluation and discovery-prioritization layer. It does not certify general intelligence, download arbitrary candidate models or authorize production actions.
+
+## Evidence pipeline
+- mcp/intelligence_gaps.mjs: 16 capability domains, deterministic seeded 16-question batteries, answer grading, confidence/Brier metrics, descriptive Wilson-style intervals and gap-ranked discovery. The eight generated question domains are arithmetic, logic, planning, causal reasoning, code tracing, data extraction, instruction following and abstention. Policy replay and native retrieval contribute separate evidence when available; unmeasured domains remain unqualified.
+- mcp/gap_probe.mjs: one bounded local model battery, four schema-constrained batches, verified installed model identity, RAM and runtime availability checks, no model download, no arbitrary tool execution. Malformed or incomplete generation cannot become a passing receipt.
+- mcp/gap_strategy.mjs: paired council-versus-training-evidence replay and task-aware advisory routing. Promotion is evidence gated; model recommendations require at least 32 observations, strong probe evidence and present resource admission.
+- mcp/gap_tools.mjs: independently implemented typed arithmetic, progression, topological ordering, repetition and extraction; recognizes only explicit benchmark templates for additional elementary logic, study-design and abstention questions. No eval, shell or execution of generated code.
+- mcp/gap_evidence.mjs: bounded active receipt window, identity/replay validation and archive rotation. Original receipts move intact to archive; collisions fail closed. Archive size must be monitored; no automatic removal.
+- scripts/gap_audit.mjs: private evidence bank, replay and report, one writer, active window of 256 receipts. Scheduled worker calls audit-only during initial acquisition and bounded probe mode once the queue reports ready.
+- Owner operations: gap_status (report), gap_route (domain recommendation), gap_solve (strict typed task). Native configuration must point to the owner-local acquisition root and reviewed Python runtime. No arbitrary filesystem path is accepted in an owner request.
+
+## Live results
+Same seed 49031: Qwen3 0.6B 12/16 and Granite4 350M 11/16. Four total high-confidence errors; arithmetic, logic and planning had tentative evidence of gaps. A narrow deterministic template solver scored 16/16 on this same set; it is not evidence of general reasoning. Four council missions replayed: mean regret 0.04741774784776709 versus numerical baseline 0.004980529730229055; council won zero, lost two, tied two. Retain numerical baseline. 389 discovered candidates, 359 mapped to capability gaps after expanding discovery from six to 14 task categories. These counts refer to public metadata, not verified or installed models. Two native retrieval repositories remain the only automatic qualification lane.
+
+## Boundaries and future qualification
+Small correlated synthetic samples, adaptive selection, limited template variety and model confidence self-reports cannot establish externally valid performance. Expand independent diverse task families, cross-domain transfer, temporal retention, adversarial and out-of-distribution evaluation, tool sandboxing, resource-blocked evidence and native adapter coverage. Candidate ranking is advisory for unsupported domains. Do not automatically acquire unsupported model families. No general intelligence qualification or production authority. See MASTER_HANDOFF_20261124.md for the full recovery and roadmap.

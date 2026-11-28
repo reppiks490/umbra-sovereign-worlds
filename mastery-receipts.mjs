@@ -97,12 +97,16 @@ export function summarizeMasteryReceipts(receipts,options={}) {
     if(!m) {
       m={modelId:r.model_id,checkpointSha256:r.checkpoint_sha256,attempts:0,
         grades:gradeCounts(),splits:splitCounts(),questionSplits:new Map(),
-        latestObservedAt:r.observed_at,sourceIds:new Set(),skills:new Map()};
+        latestObservedAt:r.observed_at,sourceIds:new Set(),questionMetadata:new Map(),skills:new Map()};
       models.set(id,m);
     }
     const oldSplit=m.questionSplits.get(r.question_id);
     if(oldSplit!==undefined && oldSplit!==r.split) fail('CROSS_SPLIT_QUESTION');
     m.questionSplits.set(r.question_id,r.split);
+    const signature=r.skill+'|'+r.difficulty+'|'+r.source_id+'|'+r.source_sha256;
+    const oldMetadata=m.questionMetadata.get(r.question_id);
+    if(oldMetadata!==undefined&&oldMetadata!==signature) fail('QUESTION_METADATA_DRIFT');
+    m.questionMetadata.set(r.question_id,signature);
     m.attempts++;m.grades[r.grade]++;m.splits[r.split]++;
     if(time>utcTime(m.latestObservedAt))m.latestObservedAt=r.observed_at;
     m.sourceIds.add(r.source_id+':'+r.source_sha256);

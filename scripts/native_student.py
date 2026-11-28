@@ -1,5 +1,6 @@
 """Local native student inference and bounded human-solution LoRA. No external code."""
 import argparse,hashlib,json,math,os,re,shutil,time
+from training_storage_admission import training_storage_admitted
 from pathlib import Path
 from native_lora_train import available_ram,atomic,filehash,verified_source
 from student_council import NATIVE,load_corpus,lesson,lesson_prompt,grade_answer,answer_value
@@ -67,9 +68,10 @@ def promotion(before,after):
 def train(root,training,name,steps=8):
  if name not in TRAINABLE or not 1<=steps<=8:raise ValueError('training identity')
  from source_assist import local_api
+ if not training_storage_admitted(shutil.disk_usage(root).free):return {'status':'deferred_storage'}
  workspace=root/'experience';bank=workspace/'source-lora';bank.mkdir(exist_ok=True)
  if (training/'bootstrap.lock').exists() or (workspace/'student-council'/'council.lock').exists() or local_api('ps').get('models'):return {'status':'deferred_busy'}
- if size(workspace)>2800000000 or size(bank)>400000000 or shutil.disk_usage(root).free<6000000000:return {'status':'deferred_storage'}
+ if size(workspace)>2800000000 or size(bank)>400000000:return {'status':'deferred_storage'}
  p,digest,n=checkpoint(root,training,name)
  required=max(4500000000,2*n+3000000000)
  if available_ram()<required:return {'status':'deferred_memory','required':required,'available':available_ram()}
